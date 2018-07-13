@@ -51,7 +51,7 @@ git am -3 --ignore-whitespace < $BASEDIR/7a3d7bdf12e8dda455679751e26e45c9e3ec0bf
 
 cd ..
 echo "Subscription:"
-git am -3 --ignore-whitespace < $BASEDIR/0bea2555dd6e4bf902eaddbf9eb74fb3f384caa3.patch # activate as-tests and tests by default
+git am -3 --ignore-whitespace < $BASEDIR/253d1fbb8b1ee89bc07f096dc6ea33c645bc4ebc.patch # activate as-tests and tests by default
 gradle init
 find . -name "build.gradle.bak" -exec rm {} \;
 git checkout -- community/
