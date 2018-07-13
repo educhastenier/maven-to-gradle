@@ -80,3 +80,4 @@ git am -3 --ignore-whitespace < $BASEDIR/compile_only.patch # fix dependencies i
 git am -3 --ignore-whitespace < $BASEDIR/jaxb_access_control.patch # generate xsd for access control
 git am -3 --ignore-whitespace < $BASEDIR/80cef1ca94bd074c3eb3f156d1beb0ac60262b3d.patch # Restore test BonitaClientXMLTest
 git am -3 --ignore-whitespace < $BASEDIR/jenkinsfile.patch # update jenkins file
+git am -3 --ignore-whitespace < $BASEDIR/it_test_cluster.patch # it tests cluster
