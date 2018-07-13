@@ -3,7 +3,7 @@
 set -euxo pipefail
 
 GRADLE_VERSION=4.8.1
-BASEDIR=$(pwd)/$(dirname "$0")
+BASEDIR=$(cd $(dirname $( dirname "$0" )/..) && pwd -P)
 
 
 #
