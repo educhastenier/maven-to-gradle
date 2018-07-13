@@ -36,7 +36,7 @@ git am -3 --ignore-whitespace < $BASEDIR/0b4c4616470f18fcea15e132d8960d41e8a763f
 git am -3 --ignore-whitespace < $BASEDIR/b170919763d65529d37d509ed3fcf08da82ce46b.patch # fix ejb tests
 git am -3 --ignore-whitespace < $BASEDIR/1b30f9d4042acfc1bab8d2242ab690c7c3c5d9e1.patch # fix http api test
 git am -3 --ignore-whitespace < $BASEDIR/f3c3e992cb7dfab30f8ca9519c4259744ac74373.patch # restore platform-setup zip file (previously from Assembly)
-git am -3 --ignore-whitespace < $BASEDIR/da31fdf4d9e1c229b9cdc6bd892c22f3365ec96a.patch # javadoc(BOS): generate javadoc for all Community
+git am -3 --ignore-whitespace < $BASEDIR/906b72837ba9910dbc4db32f5df7d1138e5a4cf2.patch # javadoc(BOS): generate javadoc for all Community
 
 find . -name "*.gradle" -type f | xargs sed -i "s/':bonita-platform/':platform/g"
 git commit -a -m "rename bonita-platform by platform"
