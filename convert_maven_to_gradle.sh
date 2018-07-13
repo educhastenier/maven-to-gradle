@@ -62,6 +62,7 @@ sed -i "/include ':bonita-engine:/d" settings.gradle
 sed -i "/project(/d" settings.gradle
 find subscription/ -name "*.gradle" -type f | xargs sed -i 's/:bonita-engine/:engine/g'
 find subscription/ -name "*.gradle" -type f | xargs sed -i 's/:engine:bonita-platform/:engine:platform/g'
+find . -name "*.gradle" -type f | xargs sed -ri 's/:subscription:bonita-integration-tests-sp:bonita-integration-tests-(.*)-sp/:subscription:bonita-integration-tests-sp:bonita-integration-tests-\1/g' # fix modules with name different that folder name
 git add --all && git commit -m "Gradle init SP"
 
 git am -3 --ignore-whitespace < $BASEDIR/3c63d54bdac3eacff0662aec8ab25cc62ea2b7b5.patch # Fix SP settings.gradle
