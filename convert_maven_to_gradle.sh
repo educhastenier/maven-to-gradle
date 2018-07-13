@@ -69,3 +69,5 @@ git am -3 --ignore-whitespace < $BASEDIR/3c63d54bdac3eacff0662aec8ab25cc62ea2b7b
 echo "sed to replace providedCompile par compileOnly"
 find subscription/ -name build.gradle | xargs sed -i 's/providedCompile/compileOnly/g' && git commit -a -m "replace providedCompile par compileOnly SP"
 sed -i "s/Compatibility = 1\.5/Compatibility = 1.8/g" build.gradle && git commit -a -m "Set Java source and target to 1.8"
+git am -3 --ignore-whitespace < $BASEDIR/7a3d7bdf12e8dda455679751e26e45c9e3ec0bfc.patch # do not apply Java plugin to root project Community
+git am -3 --ignore-whitespace < $BASEDIR/cef8cc18bffa7a337cdfd20323135b7f553bf72e.patch # Fix root build.gradle about maven repo
