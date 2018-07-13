@@ -1,0 +1,32 @@
+From 0b4c4616470f18fcea15e132d8960d41e8a763f7 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 12 Jul 2018 10:45:22 +0200
+Subject: [PATCH] ignore test shade
+
+---
+ .../src/main/java/org/bonitasoft/engine/TestShades.java         | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-local/src/main/java/org/bonitasoft/engine/TestShades.java b/community/bonita-integration-tests/bonita-integration-tests-local/src/main/java/org/bonitasoft/engine/TestShades.java
+index cb9607dcd4..29679a37fa 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-local/src/main/java/org/bonitasoft/engine/TestShades.java
++++ b/community/bonita-integration-tests/bonita-integration-tests-local/src/main/java/org/bonitasoft/engine/TestShades.java
+@@ -29,6 +29,7 @@ import org.apache.commons.io.IOUtils;
+ import org.apache.commons.lang3.SystemUtils;
+ import org.bonitasoft.engine.io.IOUtil;
+ import org.bonitasoft.engine.test.BPMLocalIT;
++import org.junit.Ignore;
+ import org.junit.Test;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+@@ -41,6 +42,7 @@ public class TestShades {
+     protected static final String ORG_BONITASOFT_PLATFORM = "org.bonitasoft.platform";
+ 
+     @Test
++    @Ignore
+     public void testShades() throws Exception {
+         String mvn = getMavenExecutable();
+         LOG.info("Used mvn path: {}", mvn);
+-- 
+2.17.1
+

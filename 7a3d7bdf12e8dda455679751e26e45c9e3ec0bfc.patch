@@ -1,0 +1,25 @@
+From 7a3d7bdf12e8dda455679751e26e45c9e3ec0bfc Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Thu, 12 Jul 2018 15:56:54 +0200
+Subject: [PATCH] do not apply Java plugin to root project Community
+
+---
+ community/build.gradle | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/community/build.gradle b/community/build.gradle
+index 759334a9c7..ae1ea7242c 100644
+--- a/community/build.gradle
++++ b/community/build.gradle
+@@ -6,6 +6,8 @@ version = '7.8.0-SNAPSHOT'
+ }
+ 
+ subprojects {
++  if (it.name == "engine")
++    return
+   apply plugin: 'java'
+   sourceCompatibility = 1.8
+   targetCompatibility = 1.8
+-- 
+2.17.1
+

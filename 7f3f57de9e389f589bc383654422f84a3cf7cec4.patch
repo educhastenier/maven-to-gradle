@@ -1,0 +1,119 @@
+From 7f3f57de9e389f589bc383654422f84a3cf7cec4 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 12 Jul 2018 09:35:53 +0200
+Subject: [PATCH] version.properties file generation
+
+---
+ .../bonita-common-util/build.gradle           | 18 +++++++++++++++++
+ .../platform/platform-resources/build.gradle  | 13 ++++++++++++
+ .../platform/platform-setup/build.gradle      | 20 +++++++++++++++++++
+ .../services/bonita-platform/build.gradle     | 18 +++++++++++++++++
+ 4 files changed, 69 insertions(+)
+
+diff --git a/community/bpm/bonita-util/bonita-common-util/build.gradle b/community/bpm/bonita-util/bonita-common-util/build.gradle
+index 322cf154ed..3a39d7ca2a 100644
+--- a/community/bpm/bonita-util/bonita-common-util/build.gradle
++++ b/community/bpm/bonita-util/bonita-common-util/build.gradle
+@@ -18,6 +18,24 @@ dependencies {
+ 
+ 
+ 
++def generateInfoProperties = task("generateInfoProperties") {
++    doFirst{
++        project.file("build/generated/main/resources").mkdirs()
++        project.file("build/generated/main/resources/info.properties").text = "version $project.version"
++    }
++    inputs.property "version", project.version
++    outputs.file project.file("build/generated/main/resources/info.properties")
++}
++tasks.processResources.dependsOn generateInfoProperties
++
++sourceSets {
++    main {
++        resources {
++            srcDir project.file("build/generated/main/resources")
++        }
++    }
++}
++
+ jaxb {
+     schemaGen {
+         application {
+diff --git a/community/platform/platform-resources/build.gradle b/community/platform/platform-resources/build.gradle
+index ef23f7ed85..95b8ccc252 100644
+--- a/community/platform/platform-resources/build.gradle
++++ b/community/platform/platform-resources/build.gradle
+@@ -1,2 +1,15 @@
++import org.apache.tools.ant.filters.PrefixLines
++
+ group = 'org.bonitasoft.platform'
+ description = ''
++
++processResources {
++    from("${projectDir}/../../bpm/bonita-core/bonita-process-engine/src/main/resources/bonita-platform-community.properties") {
++        filter(PrefixLines, prefix: "#")
++        rename 'bonita-platform-community.properties', 'platform_engine/bonita-platform-community-custom.properties'
++    }
++    from("${projectDir}/../../bpm/bonita-core/bonita-process-engine/src/main/resources/bonita-tenant-community.properties") {
++        filter(PrefixLines, prefix: "#")
++        rename 'bonita-tenant-community.properties', 'tenant_template_engine/bonita-tenant-community-custom.properties'
++    }
++}
+\ No newline at end of file
+diff --git a/community/platform/platform-setup/build.gradle b/community/platform/platform-setup/build.gradle
+index fc5cb20b6d..7ddfc1c98b 100644
+--- a/community/platform/platform-setup/build.gradle
++++ b/community/platform/platform-setup/build.gradle
+@@ -35,3 +35,23 @@ task packageTests(type: Jar) {
+   classifier = 'tests'
+ }
+ artifacts.archives packageTests
++
++
++def generatePlatformEngineVersion = task("generatePlatformEngineVersion") {
++    doFirst{
++        project.file("build/generated/main/resources/").mkdirs()
++        project.file("build/generated/main/resources/PLATFORM_ENGINE_VERSION").text =
++                "$project.version"
++    }
++    inputs.property "version", project.version
++    outputs.file project.file("build/generated/main/resources/PLATFORM_ENGINE_VERSION")
++}
++tasks.processResources.dependsOn generatePlatformEngineVersion
++
++sourceSets {
++    main {
++        resources {
++            srcDir project.file("build/generated/main/resources")
++        }
++    }
++}
+diff --git a/community/services/bonita-platform/build.gradle b/community/services/bonita-platform/build.gradle
+index cc333c381f..3f09b6e2bd 100644
+--- a/community/services/bonita-platform/build.gradle
++++ b/community/services/bonita-platform/build.gradle
+@@ -12,3 +12,21 @@ dependencies {
+     testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
+     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
+ }
++def generatePlatformProperties = task("generatePlatformProperties") {
++  doFirst{
++    project.file("build/generated/main/resources/org/bonitasoft/engine/platform/model/impl").mkdirs()
++    project.file("build/generated/main/resources/org/bonitasoft/engine/platform/model/impl/platform.properties").text =
++            "version $project.version"
++  }
++  inputs.property "version", project.version
++  outputs.file project.file("build/generated/main/resources/org/bonitasoft/engine/platform/model/impl/platform.properties")
++}
++tasks.processResources.dependsOn generatePlatformProperties
++
++sourceSets {
++  main {
++    resources {
++      srcDir project.file("build/generated/main/resources")
++    }
++  }
++}
+-- 
+2.17.1
+

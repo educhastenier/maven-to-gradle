@@ -1,0 +1,41 @@
+From 58cffacaa69c793ed0cd08dca62874c264184293 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 12 Jul 2018 09:31:27 +0200
+Subject: [PATCH] activate as-tests and tests by default
+
+---
+ community/bonita-integration-tests/pom.xml | 3 +++
+ community/pom.xml                          | 3 +++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/community/bonita-integration-tests/pom.xml b/community/bonita-integration-tests/pom.xml
+index e248c9a17f..2934ebcb50 100644
+--- a/community/bonita-integration-tests/pom.xml
++++ b/community/bonita-integration-tests/pom.xml
+@@ -30,6 +30,9 @@
+ 
+         <profile>
+             <id>as-tests</id>
++            <activation>
++                <activeByDefault>true</activeByDefault>
++            </activation>
+             <modules>
+                 <module>bonita-integration-tests-client</module>
+                 <module>bonita-integration-tests-local</module>
+diff --git a/community/pom.xml b/community/pom.xml
+index 9758f15885..bf9e1d3338 100644
+--- a/community/pom.xml
++++ b/community/pom.xml
+@@ -743,6 +743,9 @@
+             <properties>
+                 <maven.javadoc.skip>true</maven.javadoc.skip>
+             </properties>
++            <activation>
++                <activeByDefault>true</activeByDefault>
++            </activation>
+             <modules>
+                 <module>platform</module>
+                 <module>services</module>
+-- 
+2.17.1
+

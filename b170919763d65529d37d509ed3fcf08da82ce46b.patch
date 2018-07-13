@@ -1,0 +1,31 @@
+From b170919763d65529d37d509ed3fcf08da82ce46b Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 12 Jul 2018 11:23:05 +0200
+Subject: [PATCH] fix ejb tests
+
+library conflict between javaee-6 and jpa2.1 , need to use tomee version
+7.0.4
+---
+ .../bonita-integration-ejb-api/build.gradle               | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle
+index 73a4a810b7..a2a6cf1332 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle
++++ b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle
+@@ -1,7 +1,9 @@
+ group = 'org.bonitasoft.engine.test'
+ description = ''
+ dependencies {
+-  compile project(':bpm:bonita-deploy:bonita-deploy-ejb3')
+-  compile project(':bpm:bonita-server')
+-    compile group: 'org.apache.openejb', name: 'tomee-embedded', version:'1.7.5'
++    compile project(':bpm:bonita-deploy:bonita-deploy-ejb3')
++    compile project(':bpm:bonita-server')
++    compile project(':bonita-integration-tests:bonita-integration-tests-client')
++    compile group: 'org.apache.openejb', name: 'tomee-embedded', version: '1.7.5'
++    compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version:'1.0.0.Final'
+ }
+-- 
+2.17.1
+

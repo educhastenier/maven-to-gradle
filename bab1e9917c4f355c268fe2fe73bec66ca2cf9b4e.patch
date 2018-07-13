@@ -1,0 +1,23 @@
+From bab1e9917c4f355c268fe2fe73bec66ca2cf9b4e Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 12 Apr 2018 09:54:33 +0200
+Subject: [PATCH] fix business data module dependnecies
+
+---
+ .../bonita-business-data/bonita-business-data-impl/build.gradle  | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/community/services/bonita-business-data/bonita-business-data-impl/build.gradle b/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
+index 0183e0af1e..1766c5d302 100644
+--- a/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
++++ b/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
+@@ -34,6 +34,5 @@ exclude(module: 'jboss-transaction-api_1.2_spec')
+     compileOnly group: 'javax.transaction', name: 'jta', version:'1.1'
+   compileOnly project(':bpm:bonita-util:bonita-common-util')
+     compileOnly group: 'javax.xml.bind', name: 'jaxb-api', version: '2.2.7'
+-    testCompile project(path: ':bpm:bonita-util:bonita-common-util', configuration: 'testArtifacts')
+ 
+ }
+-- 
+2.17.1
+

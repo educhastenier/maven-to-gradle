@@ -1,0 +1,136 @@
+From f3c3e992cb7dfab30f8ca9519c4259744ac74373 Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Thu, 12 Jul 2018 11:51:29 +0200
+Subject: [PATCH] restore platform-setup zip file (previously from Assembly)
+
+---
+ .../setup/PlatformSetupTestUtils.java         |  2 +-
+ .../platform/platform-setup/build.gradle      | 44 ++++++++++++++++++-
+ .../setup/PlatformSetupDistributionIT.java    |  5 ---
+ 3 files changed, 43 insertions(+), 8 deletions(-)
+
+diff --git a/community/platform/platform-setup-test/src/main/java/org/bonitasoft/platform/setup/PlatformSetupTestUtils.java b/community/platform/platform-setup-test/src/main/java/org/bonitasoft/platform/setup/PlatformSetupTestUtils.java
+index ea4236ead1..1a60cef994 100644
+--- a/community/platform/platform-setup-test/src/main/java/org/bonitasoft/platform/setup/PlatformSetupTestUtils.java
++++ b/community/platform/platform-setup-test/src/main/java/org/bonitasoft/platform/setup/PlatformSetupTestUtils.java
+@@ -88,7 +88,7 @@ public class PlatformSetupTestUtils {
+     }
+ 
+     public static void extractDistributionTo(File distFolder) throws IOException {
+-        File target = new File("target");
++        File target = new File("build/distributions");
+         Pattern distribPattern = Pattern.compile("Bonita-platform-setup-.*\\.zip");
+         File dist = null;
+         for (File file : target.listFiles()) {
+diff --git a/community/platform/platform-setup/build.gradle b/community/platform/platform-setup/build.gradle
+index 7ddfc1c98b..6f61c09336 100644
+--- a/community/platform/platform-setup/build.gradle
++++ b/community/platform/platform-setup/build.gradle
+@@ -1,5 +1,7 @@
+ group = 'org.bonitasoft.platform'
+-description = ''
++
++apply plugin: 'distribution'
++
+ dependencies {
+     compile group: 'commons-io', name: 'commons-io', version:'2.5'
+     compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.3.2'
+@@ -46,7 +48,7 @@ def generatePlatformEngineVersion = task("generatePlatformEngineVersion") {
+     inputs.property "version", project.version
+     outputs.file project.file("build/generated/main/resources/PLATFORM_ENGINE_VERSION")
+ }
+-tasks.processResources.dependsOn generatePlatformEngineVersion
++processResources.dependsOn generatePlatformEngineVersion
+ 
+ sourceSets {
+     main {
+@@ -55,3 +57,41 @@ sourceSets {
+         }
+     }
+ }
++
++distTar.enabled = false
++distributions {
++    main {
++        baseName = "Bonita-platform-setup"
++        contents {
++            into('/') {
++                from('src/main/standalone')
++                include('*.sh')
++                include('*.bat')
++                fileMode = 0740 // the first 0 is important
++            }
++            into('/') {
++                from('src/main/standalone')
++                exclude('*.sh')
++                exclude('*.bat')
++            }
++            into('/lib') {
++                from jar
++                from project.configurations.runtime {
++                    exclude(module: 'jul-to-slf4j')
++                    exclude(module: 'log4j-over-slf4j')
++                    exclude(module: 'commons-logging')
++                }
++            }
++            into('/platform_conf/sql') {
++                from "${project(':bonita-platform:platform-resources').buildDir}/resources/main/sql"
++            }
++            into('/platform_conf/initial') {
++                from "${project(':bonita-platform:platform-resources').buildDir}/resources/main"
++                exclude 'sql'
++            }
++            fileMode = 0640
++        }
++    }
++}
++
++tasks.test.dependsOn distZip
+\ No newline at end of file
+diff --git a/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/PlatformSetupDistributionIT.java b/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/PlatformSetupDistributionIT.java
+index 8913a1c72e..5048498ecb 100644
+--- a/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/PlatformSetupDistributionIT.java
++++ b/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/PlatformSetupDistributionIT.java
+@@ -31,7 +31,6 @@ import org.apache.commons.io.FileUtils;
+ import org.apache.commons.io.output.ByteArrayOutputStream;
+ import org.h2.tools.Server;
+ import org.junit.Before;
+-import org.junit.Ignore;
+ import org.junit.Rule;
+ import org.junit.Test;
+ import org.junit.contrib.java.lang.system.ClearSystemProperties;
+@@ -68,7 +67,6 @@ public class PlatformSetupDistributionIT {
+     }
+ 
+     @Test
+-    @Ignore
+     public void setupSh_should_work_with_init_on_h2_and_prevent_pushing_deletion() throws Exception {
+         //given
+         CommandLine oCmdLine = PlatformSetupTestUtils.createCommandLine();
+@@ -109,7 +107,6 @@ public class PlatformSetupDistributionIT {
+     }
+ 
+     @Test
+-    @Ignore
+     public void setupSh_should_work_with_init_on_h2_with_overridden_system_property() throws Exception {
+         //given
+         CommandLine oCmdLine = PlatformSetupTestUtils.createCommandLine();
+@@ -128,7 +125,6 @@ public class PlatformSetupDistributionIT {
+     }
+ 
+     @Test
+-    @Ignore
+     public void setupSh_should_have_error_with_no_argument() throws Exception {
+         //given
+         CommandLine oCmdLine = PlatformSetupTestUtils.createCommandLine();
+@@ -141,7 +137,6 @@ public class PlatformSetupDistributionIT {
+     }
+ 
+     @Test
+-    @Ignore
+     public void setupSh_should_work_on_postgres_database() throws Exception {
+         //given
+         File dbFolder = temporaryFolder.newFolder();
+-- 
+2.17.1
+

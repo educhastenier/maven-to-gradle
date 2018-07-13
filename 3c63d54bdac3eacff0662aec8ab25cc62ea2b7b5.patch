@@ -1,0 +1,44 @@
+From 3c63d54bdac3eacff0662aec8ab25cc62ea2b7b5 Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Thu, 12 Jul 2018 16:27:21 +0200
+Subject: [PATCH] Fix SP settings.gradle
+
+---
+ settings.gradle | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/settings.gradle b/settings.gradle
+index 6bf2b27cf6..0a4719768d 100644
+--- a/settings.gradle
++++ b/settings.gradle
+@@ -1,4 +1,19 @@
+ rootProject.name = 'bonita-modules'
++
++apply from: 'community/engine-settings.gradle'
++
++// move all community project in community folder:
++def fixPath
++fixPath = { project ->
++    String relativeProjectPath = project.projectDir.path.replace(settingsDir.path, "")
++    project.projectDir = new File(relativeProjectPath.replace("/engine/", 'community/'))
++    project.children.each fixPath
++}
++rootProject.children.each fixPath
++
++include ':engine'
++project(':engine').projectDir = "$rootDir/community" as File
++
+ include ':subscription:platform:platform-resources-sp'
+ include ':subscription:platform:platform-setup-sp'
+ include ':subscription:platform'
+@@ -34,3 +49,6 @@ include ':subscription:bpm:bonita-api-sp'
+ include ':subscription:bpm'
+ include ':subscription'
+ 
++project(':subscription:bpm:bonita-common-sp').projectDir = "$rootDir/subscription/bpm/bonita-common" as File
++project(':subscription:bpm:bonita-client-sp').projectDir = "$rootDir/subscription/bpm/bonita-client" as File
++project(':subscription:bpm:bonita-server-sp').projectDir = "$rootDir/subscription/bpm/bonita-server" as File
+\ No newline at end of file
+-- 
+2.17.1
+

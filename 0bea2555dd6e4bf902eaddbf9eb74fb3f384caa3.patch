@@ -1,0 +1,56 @@
+From 0bea2555dd6e4bf902eaddbf9eb74fb3f384caa3 Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Thu, 12 Jul 2018 15:01:53 +0200
+Subject: [PATCH] activate as-tests and tests by default
+
+---
+ subscription/bonita-integration-tests-sp/pom.xml | 3 +++
+ subscription/bpm/pom.xml                         | 3 +++
+ subscription/pom.xml                             | 3 +++
+ 3 files changed, 9 insertions(+)
+
+diff --git a/subscription/bonita-integration-tests-sp/pom.xml b/subscription/bonita-integration-tests-sp/pom.xml
+index a04b3032eb..65b6f27a16 100644
+--- a/subscription/bonita-integration-tests-sp/pom.xml
++++ b/subscription/bonita-integration-tests-sp/pom.xml
+@@ -34,6 +34,9 @@
+     <profiles>
+         <profile>
+             <id>as-tests</id>
++            <activation>
++                <activeByDefault>true</activeByDefault>
++            </activation>
+             <modules>
+                 <module>bonita-integration-tests-as</module>
+             </modules>
+diff --git a/subscription/bpm/pom.xml b/subscription/bpm/pom.xml
+index b494747dce..814824341a 100644
+--- a/subscription/bpm/pom.xml
++++ b/subscription/bpm/pom.xml
+@@ -48,6 +48,9 @@
+         </profile>
+         <profile>
+             <id>tests</id>
++            <activation>
++                <activeByDefault>true</activeByDefault>
++            </activation>
+             <modules>
+                 <module>bonita-external</module>
+                 <module>bonita-core</module>
+diff --git a/subscription/pom.xml b/subscription/pom.xml
+index 04cdb58e09..e3863cacbc 100644
+--- a/subscription/pom.xml
++++ b/subscription/pom.xml
+@@ -175,6 +175,9 @@
+ 
+         <profile>
+             <id>tests</id>
++            <activation>
++                <activeByDefault>true</activeByDefault>
++            </activation>
+             <properties>
+                 <maven.javadoc.skip>true</maven.javadoc.skip>
+             </properties>
+-- 
+2.17.1
+

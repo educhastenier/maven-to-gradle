@@ -1,0 +1,203 @@
+From 34d4b6fadfc5d93978eb1957119959e08c6db8c3 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 12 Apr 2018 10:11:15 +0200
+Subject: [PATCH] fix bdm tests
+
+---
+ .../bonita-business-data-api/build.gradle     |  1 +
+ .../build.gradle                              |  1 +
+ ...AOImplWithLazyReferenceOnEmployee.java.txt | 13 ++++++------
+ .../generator/client/PersonneDAOImpl.java.txt | 21 +++++++++----------
+ 4 files changed, 18 insertions(+), 18 deletions(-)
+
+diff --git a/community/services/bonita-business-data/bonita-business-data-api/build.gradle b/community/services/bonita-business-data/bonita-business-data-api/build.gradle
+index 25d4542ab4..a17e8d954d 100644
+--- a/community/services/bonita-business-data/bonita-business-data-api/build.gradle
++++ b/community/services/bonita-business-data/bonita-business-data-api/build.gradle
+@@ -8,4 +8,5 @@ dependencies {
+     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
+     testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
+   compileOnly project(':bpm:bonita-util:bonita-common-util')
++  testCompile project(':bpm:bonita-util:bonita-common-util')
+ }
+diff --git a/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle b/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle
+index 277886d4b7..09344d4830 100644
+--- a/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle
++++ b/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle
+@@ -10,4 +10,5 @@ dependencies {
+ exclude(module: 'jboss-transaction-api_1.2_spec')
+     }
+   compileOnly project(':bpm:bonita-client')
++  testCompile project(':bpm:bonita-client')
+ }
+diff --git a/community/services/bonita-business-data/bonita-business-data-generator/src/test/resources/org/bonitasoft/engine/business/data/generator/client/AddressDAOImplWithLazyReferenceOnEmployee.java.txt b/community/services/bonita-business-data/bonita-business-data-generator/src/test/resources/org/bonitasoft/engine/business/data/generator/client/AddressDAOImplWithLazyReferenceOnEmployee.java.txt
+index ae2b029918..823d8dfbb2 100644
+--- a/community/services/bonita-business-data/bonita-business-data-generator/src/test/resources/org/bonitasoft/engine/business/data/generator/client/AddressDAOImplWithLazyReferenceOnEmployee.java.txt
++++ b/community/services/bonita-business-data/bonita-business-data-generator/src/test/resources/org/bonitasoft/engine/business/data/generator/client/AddressDAOImplWithLazyReferenceOnEmployee.java.txt
+@@ -3,7 +3,6 @@ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import org.bonitasoft.engine.api.CommandAPI;
+-import org.bonitasoft.engine.api.TenantAPIAccessor;
+ import org.bonitasoft.engine.bdm.dao.client.resources.BusinessObjectDeserializer;
+ import org.bonitasoft.engine.bdm.dao.client.resources.proxy.LazyLoader;
+ import org.bonitasoft.engine.bdm.dao.client.resources.proxy.Proxyfier;
+@@ -26,7 +25,7 @@ public class AddressDAOImpl
+ 
+     public Address findByPersistenceId(Long persistenceId) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Address.findByPersistenceId");
+             commandParameters.put("returnsList", false);
+@@ -42,7 +41,7 @@ public class AddressDAOImpl
+ 
+     public Address findByCity(String city) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Address.findByCity");
+             commandParameters.put("returnsList", false);
+@@ -58,7 +57,7 @@ public class AddressDAOImpl
+ 
+     public List<Address> findByStreet(String street, int startIndex, int maxResults) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Address.findByStreet");
+             commandParameters.put("returnsList", true);
+@@ -76,7 +75,7 @@ public class AddressDAOImpl
+ 
+     public List<Address> find(int startIndex, int maxResults) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Address.find");
+             commandParameters.put("returnsList", true);
+@@ -93,7 +92,7 @@ public class AddressDAOImpl
+ 
+     public Long countForFindByStreet(String street) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Address.countForFindByStreet");
+             commandParameters.put("returnsList", false);
+@@ -109,7 +108,7 @@ public class AddressDAOImpl
+ 
+     public Long countForFind() {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Address.countForFind");
+             commandParameters.put("returnsList", false);
+diff --git a/community/services/bonita-business-data/bonita-business-data-generator/src/test/resources/org/bonitasoft/engine/business/data/generator/client/PersonneDAOImpl.java.txt b/community/services/bonita-business-data/bonita-business-data-generator/src/test/resources/org/bonitasoft/engine/business/data/generator/client/PersonneDAOImpl.java.txt
+index 050b56611a..53ae07031a 100644
+--- a/community/services/bonita-business-data/bonita-business-data-generator/src/test/resources/org/bonitasoft/engine/business/data/generator/client/PersonneDAOImpl.java.txt
++++ b/community/services/bonita-business-data/bonita-business-data-generator/src/test/resources/org/bonitasoft/engine/business/data/generator/client/PersonneDAOImpl.java.txt
+@@ -7,7 +7,6 @@ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ import org.bonitasoft.engine.api.CommandAPI;
+-import org.bonitasoft.engine.api.TenantAPIAccessor;
+ import org.bonitasoft.engine.bdm.dao.client.resources.BusinessObjectDeserializer;
+ import org.bonitasoft.engine.bdm.dao.client.resources.proxy.LazyLoader;
+ import org.bonitasoft.engine.bdm.dao.client.resources.proxy.Proxyfier;
+@@ -30,7 +29,7 @@ public class PersonneDAOImpl
+ 
+     public com.test.model.Personne findByPersistenceId(Long persistenceId) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Personne.findByPersistenceId");
+             commandParameters.put("returnsList", false);
+@@ -46,7 +45,7 @@ public class PersonneDAOImpl
+ 
+     public com.test.model.Personne findByPrenomAndNomAndBirthDate(String prenom, String nom, Date birthDate) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Personne.findByPrenomAndNomAndBirthDate");
+             commandParameters.put("returnsList", false);
+@@ -64,7 +63,7 @@ public class PersonneDAOImpl
+ 
+     public List<com.test.model.Personne> findByPrenom(String prenom, int startIndex, int maxResults) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Personne.findByPrenom");
+             commandParameters.put("returnsList", true);
+@@ -82,7 +81,7 @@ public class PersonneDAOImpl
+ 
+     public List<com.test.model.Personne> findByNom(String nom, int startIndex, int maxResults) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Personne.findByNom");
+             commandParameters.put("returnsList", true);
+@@ -100,7 +99,7 @@ public class PersonneDAOImpl
+ 
+     public List<com.test.model.Personne> findByBirthDate(Date birthDate, int startIndex, int maxResults) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Personne.findByBirthDate");
+             commandParameters.put("returnsList", true);
+@@ -118,7 +117,7 @@ public class PersonneDAOImpl
+ 
+     public List<com.test.model.Personne> find(int startIndex, int maxResults) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Personne.find");
+             commandParameters.put("returnsList", true);
+@@ -135,7 +134,7 @@ public class PersonneDAOImpl
+ 
+     public Long countForFindByPrenom(String prenom) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Personne.countForFindByPrenom");
+             commandParameters.put("returnsList", false);
+@@ -151,7 +150,7 @@ public class PersonneDAOImpl
+ 
+     public Long countForFindByNom(String nom) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Personne.countForFindByNom");
+             commandParameters.put("returnsList", false);
+@@ -167,7 +166,7 @@ public class PersonneDAOImpl
+ 
+     public Long countForFindByBirthDate(Date birthDate) {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Personne.countForFindByBirthDate");
+             commandParameters.put("returnsList", false);
+@@ -183,7 +182,7 @@ public class PersonneDAOImpl
+ 
+     public Long countForFind() {
+         try {
+-            CommandAPI commandApi = TenantAPIAccessor.getCommandAPI(session);
++            CommandAPI commandApi = org.bonitasoft.engine.api.TenantAPIAccessor.getCommandAPI(session);
+             Map<String, Serializable> commandParameters = new HashMap<String, Serializable>();
+             commandParameters.put("queryName", "Personne.countForFind");
+             commandParameters.put("returnsList", false);
+-- 
+2.17.1
+

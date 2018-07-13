@@ -1,0 +1,22 @@
+From 1b30f9d4042acfc1bab8d2242ab690c7c3c5d9e1 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 12 Jul 2018 11:50:09 +0200
+Subject: [PATCH] fix http api test
+
+---
+ .../bonita-integration-http-api/build.gradle                     | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
+index 52b2974dc5..28eedd75ec 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
++++ b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
+@@ -6,4 +6,5 @@ dependencies {
+   compile project(':bpm:bonita-util:bonita-client-util')
+     compile group: 'org.eclipse.jetty', name: 'jetty-server', version:'9.4.9.v20180320'
+     compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version:'9.4.9.v20180320'
++  testCompile project(':bonita-integration-tests:bonita-integration-tests-client')
+ }
+-- 
+2.17.1
+

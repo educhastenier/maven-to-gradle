@@ -1,0 +1,54 @@
+From da31fdf4d9e1c229b9cdc6bd892c22f3365ec96a Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Thu, 12 Jul 2018 12:07:51 +0200
+Subject: [PATCH] javadoc(BOS): generate javadoc for all Community
+
+---
+ community/build.gradle | 26 +++++++++++++++++++++++---
+ 1 file changed, 23 insertions(+), 3 deletions(-)
+
+diff --git a/community/build.gradle b/community/build.gradle
+index 3d5dd1e082..11c72786e0 100644
+--- a/community/build.gradle
++++ b/community/build.gradle
+@@ -21,7 +21,7 @@ from sourceSets.main.allSource
+ artifacts.archives packageSources
+   repositories {
+     mavenLocal()
+-    
++
+     maven { url "http://repositories.rd.lan/maven/releases/" }
+     maven { url "http://repositories.rd.lan/maven/snapshots/" }
+     maven { url "http://repositories.rd.lan/maven/maintenance.snapshots/" }
+@@ -31,6 +31,26 @@ artifacts.archives packageSources
+ 
+   configurations.all {
+ }
+-  
+-  
++
++
++}
++
++
++task allJavadoc(type: Javadoc) {
++    def candidates = [
++            ':platform:platform-setup',
++            ':bpm:bonita-api:bonita-common-api',
++            ':bpm:bonita-api:bonita-common-api-impl',
++            ':bpm:bonita-util:bonita-client-util'
++    ]
++    source candidates.collect { project(it).sourceSets.main.allJava }
++    classpath = files(candidates.collect { project(it).sourceSets.main.compileClasspath })
++    destinationDir = buildDir
++    failOnError = false
++    title = "Bonita Engine ${version} API"
++    options.links("https://docs.oracle.com/javase/8/docs/api/")
++    // TODO change it when SP is up and running:
++    options.stylesheetFile = new File("$projectDir/../subscription/bpm/bonita-global-javadoc/src/main/javadoc", "stylesheet.css")
++    options.overview = new File("$projectDir/../subscription/bpm/bonita-global-javadoc/src/main/javadoc", "overview.html")
++    options.bottom = "Copyright &copy; ${new Date().format('yyyy')} <a href=\"http://community.bonitasoft.com/\">Bonitasoft S.A.</a> All rights reserved."
+ }
+-- 
+2.17.1
+

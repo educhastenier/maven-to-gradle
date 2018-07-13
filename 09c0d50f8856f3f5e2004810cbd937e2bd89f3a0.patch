@@ -1,0 +1,32 @@
+From 09c0d50f8856f3f5e2004810cbd937e2bd89f3a0 Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Thu, 12 Jul 2018 15:17:58 +0200
+Subject: [PATCH] new default settings.gradle
+
+---
+ community/settings.gradle | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+ create mode 100644 community/settings.gradle
+
+diff --git a/community/settings.gradle b/community/settings.gradle
+new file mode 100644
+index 0000000000..94d9b8b7f6
+--- /dev/null
++++ b/community/settings.gradle
+@@ -0,0 +1,12 @@
++rootProject.name = 'bonita-engine'
++
++apply from: 'engine-settings.gradle'
++
++def fixPath
++fixPath = { project ->
++    String relativeProjectPath = project.projectDir.path.replace(settingsDir.path, "")
++    project.projectDir = new File(relativeProjectPath.replace("/engine/",''))
++    project.children.each fixPath
++}
++
++rootProject.children.each fixPath
+\ No newline at end of file
+-- 
+2.17.1
+

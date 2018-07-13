@@ -1,0 +1,22 @@
+From 11162e273a87ed8d30f1b98a1e9a4de2bc0c604d Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 12 Apr 2018 10:03:23 +0200
+Subject: [PATCH] fix hibernate tests
+
+---
+ community/services/bonita-persistence/build.gradle | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/community/services/bonita-persistence/build.gradle b/community/services/bonita-persistence/build.gradle
+index d635e57d88..0e3821bfa7 100644
+--- a/community/services/bonita-persistence/build.gradle
++++ b/community/services/bonita-persistence/build.gradle
+@@ -14,4 +14,5 @@ exclude(module: 'jboss-transaction-api_1.2_spec')
+     testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
+     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
+     compileOnly group: 'javax.transaction', name: 'jta', version:'1.1'
++    testCompile group: 'javax.transaction', name: 'jta', version: '1.1'
+ }
+-- 
+2.17.1
+
