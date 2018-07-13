@@ -1,0 +1,48 @@
+From db3be37ad09886a0f30cd3221ce021a7add2687b Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Fri, 13 Jul 2018 17:34:37 +0200
+Subject: [PATCH] WIP: quick fix to extract license for TestEngineSPIT
+
+---
+ subscription/bonita-test-api-sp/build.gradle | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/subscription/bonita-test-api-sp/build.gradle b/subscription/bonita-test-api-sp/build.gradle
+index 55a24e32e7..651fb4b3d7 100644
+--- a/subscription/bonita-test-api-sp/build.gradle
++++ b/subscription/bonita-test-api-sp/build.gradle
+@@ -1,5 +1,9 @@
+ group = 'com.bonitasoft.engine'
+ 
++configurations {
++    lic
++}
++
+ dependencies {
+     compile project(':engine:bonita-test-api')
+     compile project(':subscription:bpm:bonita-client-sp')
+@@ -11,12 +15,20 @@ dependencies {
+     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.17.0'
+     testCompile group: 'org.postgresql', name: 'postgresql', version: '9.3-1102-jdbc41'
+     testCompile group: 'mysql', name: 'mysql-connector-java', version: '5.1.26'
++    lic 'org.bonitasoft.security:test-licenses:1.12.2@zip'
+ }
+ 
+ test {
+     include '**/EngineStarterSPIT.class'
+ }
+ 
++task extractLicence(type: Copy) {
++    from zipTree(configurations.lic.resolvedConfiguration.resolvedArtifacts.first().file)
++    into "${project.buildDir}/lic"
++}
++
+ task integrationTest(type: Test) {
+     include '**/TestEngineSPIT.class'
++    systemProperty 'bonita.client.home', "${project.buildDir}/lic/performance"
+ }
++tasks.integrationTest.dependsOn extractLicence
+\ No newline at end of file
+-- 
+2.17.1
+
