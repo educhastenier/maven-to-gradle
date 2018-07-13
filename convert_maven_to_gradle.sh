@@ -72,3 +72,4 @@ find subscription/ -name build.gradle | xargs sed -i 's/providedCompile/compileO
 sed -i "s/Compatibility = 1\.5/Compatibility = 1.8/g" build.gradle && git commit -a -m "Set Java source and target to 1.8"
 git am -3 --ignore-whitespace < $BASEDIR/7a3d7bdf12e8dda455679751e26e45c9e3ec0bfc.patch # do not apply Java plugin to root project Community
 git am -3 --ignore-whitespace < $BASEDIR/cef8cc18bffa7a337cdfd20323135b7f553bf72e.patch # Fix root build.gradle about maven repo
+git am -3 --ignore-whitespace < $BASEDIR/025d3d16167df1b54da7dab8625a893ae23c555c.patch # Restore SP licences / integration + slow tests (still 2 AccessControl tests failing)
