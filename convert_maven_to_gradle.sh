@@ -75,3 +75,6 @@ sed -i "s/Compatibility = 1\.5/Compatibility = 1.8/g" build.gradle && git commit
 git am -3 --ignore-whitespace < $BASEDIR/025d3d16167df1b54da7dab8625a893ae23c555c.patch # Restore SP licences / integration + slow tests (still 2 AccessControl tests failing)
 git am -3 --ignore-whitespace < $BASEDIR/695523dd513f9a68e2ef9a81e325d7e643273d66.patch # Restore Junit 5 test run
 git am -3 --ignore-whitespace < $BASEDIR/setup-distrib.patch # platform setup bos + sp
+git am -3 --ignore-whitespace < $BASEDIR/it_tests.patch # run as tests as IT
+git am -3 --ignore-whitespace < $BASEDIR/compile_only.patch # fix dependencies in test
+git am -3 --ignore-whitespace < $BASEDIR/jaxb_access_control.patch # generate xsd for access control
