@@ -11,18 +11,6 @@ diff --git a/community/build.gradle b/community/build.gradle
 index d9704a7e5c..a62e1179de 100644
 --- a/community/build.gradle
 +++ b/community/build.gradle
-@@ -21,8 +21,9 @@ from sourceSets.main.allSource
- artifacts.archives packageSources
-   repositories {
-     mavenLocal()
--    
--    maven { url "http://dev.rd.lan/userContent/m2_repo/" }
-+
-+    maven { url "http://repositories.rd.lan/maven/releases/" }
-+    maven { url "http://repositories.rd.lan/maven/snapshots/" }
-     maven { url "http://repositories.rd.lan/maven/all/" }
-     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-     maven { url "http://repo.maven.apache.org/maven2" }
 @@ -30,6 +31,26 @@ artifacts.archives packageSources
  
    configurations.all {

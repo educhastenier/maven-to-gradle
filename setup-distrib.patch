@@ -1,0 +1,250 @@
+From 84dd6db87612129e0ea6771f27109ff43f9f7113 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Fri, 13 Jul 2018 15:04:36 +0200
+Subject: [PATCH] fix all setup distribution/tests
+
+---
+ .../platform/platform-resources/build.gradle  | 20 +++++++
+ .../platform/platform-setup/build.gradle      | 42 ++++++++++++---
+ .../platform-resources-sp/build.gradle        | 40 ++++++++++++++
+ .../platform/platform-setup-sp/build.gradle   | 53 +++++++++++++++++++
+ 4 files changed, 149 insertions(+), 6 deletions(-)
+
+diff --git a/community/platform/platform-resources/build.gradle b/community/platform/platform-resources/build.gradle
+index 95b8ccc252..1335c0d8f3 100644
+--- a/community/platform/platform-resources/build.gradle
++++ b/community/platform/platform-resources/build.gradle
+@@ -1,5 +1,7 @@
+ import org.apache.tools.ant.filters.PrefixLines
+ 
++apply plugin: 'distribution'
++
+ group = 'org.bonitasoft.platform'
+ description = ''
+ 
+@@ -12,4 +14,22 @@ processResources {
+         filter(PrefixLines, prefix: "#")
+         rename 'bonita-tenant-community.properties', 'tenant_template_engine/bonita-tenant-community-custom.properties'
+     }
++}
++
++configurations {
++    distributionZip
++}
++
++distributions {
++    main{
++        main {
++            contents {
++                from { 'src/main/resources' }
++            }
++        }
++    }
++}
++
++artifacts {
++    distributionZip distZip
+ }
+\ No newline at end of file
+diff --git a/community/platform/platform-setup/build.gradle b/community/platform/platform-setup/build.gradle
+index 402cc417fe..c282ab877e 100644
+--- a/community/platform/platform-setup/build.gradle
++++ b/community/platform/platform-setup/build.gradle
+@@ -2,6 +2,12 @@ group = 'org.bonitasoft.platform'
+ 
+ apply plugin: 'distribution'
+ 
++
++configurations {
++    distributionZip
++    inDistrib
++}
++
+ dependencies {
+     compile group: 'commons-io', name: 'commons-io', version:'2.5'
+     compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.3.2'
+@@ -30,6 +36,7 @@ exclude(module: 'json-path')
+     testCompile group: 'xmlunit', name: 'xmlunit', version:'1.4'
+   testCompile project(':engine:platform:platform-setup-test')
+     compileOnly group: 'org.projectlombok', name: 'lombok', version:'1.16.20'
++    inDistrib project(path: ':engine:platform:platform-resources', configuration: 'distributionZip')
+ }
+ 
+ task packageTests(type: Jar) {
+@@ -63,6 +70,7 @@ distributions {
+     main {
+         baseName = "Bonita-platform-setup"
+         contents {
++            includeEmptyDirs = false
+             into('/') {
+                 from('src/main/standalone')
+                 include('*.sh')
+@@ -80,18 +88,40 @@ distributions {
+                     exclude(module: 'jul-to-slf4j')
+                     exclude(module: 'log4j-over-slf4j')
+                     exclude(module: 'commons-logging')
++                    exclude(module: 'log4j-api')
++                    exclude(module: 'log4j-to-slf4j')
+                 }
+             }
+-            into('/platform_conf/sql') {
+-                from "${project(':engine:platform:platform-resources').buildDir}/resources/main/sql"
++            configurations.inDistrib.resolvedConfiguration.resolvedArtifacts.each {
++                from(zipTree(it.file)) {
++                    include '**/sql/**'
++                    eachFile { fcp ->
++                        fcp.path = fcp.path.replaceAll(".*/sql/", "/platform_conf/sql/")
++                    }
++                }
+             }
+-            into('/platform_conf/initial') {
+-                from "${project(':engine:platform:platform-resources').buildDir}/resources/main"
+-                exclude 'sql'
++            configurations.inDistrib.resolvedConfiguration.resolvedArtifacts.each {
++                from(zipTree(it.file)) {
++                    exclude '**/sql/**'
++                    eachFile { fcp ->
++                        fcp.path = fcp.path.replaceAll(".*${version}/", "/platform_conf/initial/")
++                    }
++                }
+             }
+             fileMode = 0640
+         }
+     }
+ }
+ 
+-tasks.test.dependsOn distZip
+\ No newline at end of file
++tasks.test.dependsOn distZip
++
++tasks.distZip.dependsOn configurations.inDistrib
++
++artifacts { distributionZip distZip }
++
++test {
++    doFirst {
++        def workingDir = new File(buildDir, "tests").mkdirs()
++    }
++    workingDir workingDir
++}
+diff --git a/subscription/platform/platform-resources-sp/build.gradle b/subscription/platform/platform-resources-sp/build.gradle
+index 7435522302..704261461f 100644
+--- a/subscription/platform/platform-resources-sp/build.gradle
++++ b/subscription/platform/platform-resources-sp/build.gradle
+@@ -1,2 +1,42 @@
++import org.apache.tools.ant.filters.PrefixLines
++
+ group = 'com.bonitasoft.platform'
+ description = ''
++
++apply plugin: 'distribution'
++
++configurations {
++    distributionZip
++}
++processResources {
++    from("${projectDir}/../../bpm/bonita-core/bonita-process-engine/src/main/resources/bonita-platform-sp.properties") {
++        filter(PrefixLines, prefix: "#")
++        rename 'bonita-platform-sp.properties', 'platform_engine/bonita-platform-sp-custom.properties'
++    }
++    from("${projectDir}/../../bpm/bonita-core/bonita-process-engine/src/main/resources/bonita-platform-sp-cluster.properties") {
++        filter(PrefixLines, prefix: "#")
++        rename 'bonita-platform-sp-cluster.properties', 'platform_engine/bonita-platform-sp-cluster-custom.properties'
++    }
++    from("${projectDir}/../../bpm/bonita-core/bonita-process-engine/src/main/resources/bonita-tenant-sp.properties") {
++        filter(PrefixLines, prefix: "#")
++        rename 'bonita-tenant-sp.properties', 'tenant_template_engine/bonita-tenant-sp-custom.properties'
++    }
++    from("${projectDir}/../../bpm/bonita-core/bonita-process-engine/src/main/resources/bonita-tenant-sp-cluster.properties") {
++        filter(PrefixLines, prefix: "#")
++        rename 'bonita-tenant-sp-cluster.properties', 'tenant_template_engine/bonita-tenant-sp-cluster-custom.properties'
++    }
++}
++
++distributions {
++    main{
++        main {
++            contents {
++                from { 'src/main/resources' }
++            }
++        }
++    }
++}
++
++artifacts {
++    distributionZip distZip
++}
+\ No newline at end of file
+diff --git a/subscription/platform/platform-setup-sp/build.gradle b/subscription/platform/platform-setup-sp/build.gradle
+index 148635ae74..f3e698acb1 100644
+--- a/subscription/platform/platform-setup-sp/build.gradle
++++ b/subscription/platform/platform-setup-sp/build.gradle
+@@ -1,7 +1,16 @@
++apply plugin: 'distribution'
++
+ group = 'com.bonitasoft.platform'
+ description = ''
++
++configurations{
++  inDistrib
++}
++
+ dependencies {
+   compile project(':engine:platform:platform-setup')
++  inDistrib project(path: ':engine:platform:platform-setup', configuration: 'distributionZip')
++  inDistrib project(path: ':subscription:platform:platform-resources-sp', configuration: 'distributionZip')
+     compile group: 'commons-io', name: 'commons-io', version:'2.5'
+     compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.25'
+     compile group: 'org.springframework.boot', name: 'spring-boot-starter', version:'2.0.2.RELEASE'
+@@ -22,3 +31,47 @@ dependencies {
+     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version:'2.0.2.RELEASE'
+     testCompile group: 'org.apache.commons', name: 'commons-exec', version:'1.3'
+ }
++
++distTar.enabled = false
++
++distributions {
++  main {
++    baseName = "Bonita-platform-setup-sp"
++    contents {
++      includeEmptyDirs = false
++      into('/') {
++        from('src/main/standalone')
++      }
++      into('/lib') {
++        from jar
++        from project.configurations.runtime {
++          exclude(module: 'jul-to-slf4j')
++          exclude(module: 'log4j-over-slf4j')
++          exclude(module: 'commons-logging')
++          exclude(module: 'log4j-api')
++          exclude(module: 'log4j-to-slf4j')
++        }
++      }
++      configurations.inDistrib.resolvedConfiguration.resolvedArtifacts.each { artifact ->
++        from(zipTree(artifact.file)) {
++          eachFile { fcp ->
++            if (artifact.file.name.contains("resources-sp")) {
++              fcp.path = fcp.path.replaceAll(".*${version}/", "platform_conf/initial/")
++            }else{
++              fcp.path = fcp.path.replaceAll(".*${version}/", "")
++            }
++          }
++        }
++      }
++    }
++  }
++}
++tasks.distZip.dependsOn configurations.inDistrib
++tasks.test.dependsOn tasks.distZip
++
++test {
++  doFirst {
++    def workingDir = new File(buildDir, "tests").mkdirs()
++  }
++  workingDir workingDir
++}
+\ No newline at end of file
+-- 
+2.17.1
+

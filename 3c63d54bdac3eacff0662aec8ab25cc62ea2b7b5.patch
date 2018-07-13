@@ -31,8 +31,8 @@ index 6bf2b27cf6..0a4719768d 100644
  include ':subscription:platform:platform-resources-sp'
  include ':subscription:platform:platform-setup-sp'
  include ':subscription:platform'
-@@ -34,3 +49,6 @@ include ':subscription:bpm:bonita-api-sp'
- include ':subscription:bpm'
+@@ -34,3 +49,6 @@ include ':subscription:bonita-integration-tests-sp:bonita-integration-tests-as'
+ include ':subscription:bonita-integration-tests-sp'
  include ':subscription'
  
 +project(':subscription:bpm:bonita-common-sp').projectDir = "$rootDir/subscription/bpm/bonita-common" as File

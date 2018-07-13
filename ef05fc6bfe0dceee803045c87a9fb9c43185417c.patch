@@ -11,16 +11,6 @@ Subject: [PATCH] Restore SP licences / integration + slow tests (still 2
  .../build.gradle                              | 45 +++++++++++++++----
  4 files changed, 66 insertions(+), 29 deletions(-)
 
-diff --git a/build.gradle b/build.gradle
-index f13adf1c29..b65adcd5f1 100644
---- a/build.gradle
-+++ b/build.gradle
-@@ -18,5 +18,4 @@ subprojects {
-         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-         mavenCentral()
-     }
--
- }
 diff --git a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
 index 6ae6ab6294..18603130d9 100644
 --- a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle

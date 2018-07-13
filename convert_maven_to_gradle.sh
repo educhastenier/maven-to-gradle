@@ -70,7 +70,8 @@ git am -3 --ignore-whitespace < $BASEDIR/3c63d54bdac3eacff0662aec8ab25cc62ea2b7b
 echo "sed to replace providedCompile par compileOnly"
 find subscription/ -name build.gradle | xargs sed -i 's/providedCompile/compileOnly/g' && git commit -a -m "replace providedCompile par compileOnly SP"
 sed -i "s/Compatibility = 1\.5/Compatibility = 1.8/g" build.gradle && git commit -a -m "Set Java source and target to 1.8"
-git am -3 --ignore-whitespace < $BASEDIR/7a3d7bdf12e8dda455679751e26e45c9e3ec0bfc.patch # do not apply Java plugin to root project Community
-git am -3 --ignore-whitespace < $BASEDIR/cef8cc18bffa7a337cdfd20323135b7f553bf72e.patch # Fix root build.gradle about maven repo
+# comment that temporary: bad conf on baptiste side
+#git am -3 --ignore-whitespace < $BASEDIR/cef8cc18bffa7a337cdfd20323135b7f553bf72e.patch # Fix root build.gradle about maven repo
 git am -3 --ignore-whitespace < $BASEDIR/025d3d16167df1b54da7dab8625a893ae23c555c.patch # Restore SP licences / integration + slow tests (still 2 AccessControl tests failing)
 git am -3 --ignore-whitespace < $BASEDIR/695523dd513f9a68e2ef9a81e325d7e643273d66.patch # Restore Junit 5 test run
+git am -3 --ignore-whitespace < $BASEDIR/setup-distrib.patch # platform setup bos + sp
