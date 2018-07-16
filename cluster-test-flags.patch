@@ -1,0 +1,80 @@
+From 4a6dc6cfb5a7a4637772126977fd0a3605ca8e74 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Mon, 16 Jul 2018 17:26:12 +0200
+Subject: [PATCH] add JVM flags in cluster tests
+
+---
+ .../com/bonitasoft/engine/NodeLauncher.java   | 44 ++++++++++++++-----
+ 1 file changed, 32 insertions(+), 12 deletions(-)
+
+diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java
+index 77c4dcc42b..0284591c9f 100644
+--- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java
++++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java
+@@ -8,8 +8,12 @@ import java.io.File;
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.InputStreamReader;
++import java.lang.management.ManagementFactory;
++import java.util.ArrayList;
+ import java.util.HashMap;
++import java.util.List;
+ import java.util.Map;
++import java.util.stream.Collectors;
+ 
+ import com.bonitasoft.engine.api.PlatformAPIAccessor;
+ import org.awaitility.Awaitility;
+@@ -22,22 +26,38 @@ public class NodeLauncher {
+     public static NodeRef start(String nodeName, int port, int healthCheckServerPort) throws IOException {
+         File target = new File("target");
+ 
+-        ProcessBuilder processBuilder = new ProcessBuilder(getJavaPath(),
+-                "-Dsysprop.bonita.cluster=true",
+-                "-Dbonita.client.home=" + System.getProperty("bonita.client.home"),
+-                "-Dbonita.cluster.group.name=bonita-test",
+-                "-Dorg.bonitasoft.h2.database.dir=" + getDatabaseDir(target),
+-                "-Dnode.name=" + nodeName,
+-                "-cp",
+-                System.getProperty("java.class.path"),
+-                JVMNode.class.getName(),
+-                String.valueOf(port),
+-                String.valueOf(healthCheckServerPort)
+-        );
++
++        List<String> command = new ArrayList<>();
++        command.add(getJavaPath());
++        List<String> jvmFlags = ManagementFactory
++                .getRuntimeMXBean()
++                .getInputArguments()
++                .stream()
++                .filter(arg -> arg.startsWith("-XX"))
++                .collect(Collectors.toList());
++        if (!jvmFlags.isEmpty()) {
++            System.out.println("Adding flags from source JVM: " + jvmFlags);
++            command.addAll(jvmFlags);
++        }
++        command.add("-Dsysprop.bonita.cluster=true");
++        command.add("-Dbonita.client.home=" + System.getProperty("bonita.client.home"));
++        command.add("-Dbonita.cluster.group.name=bonita-test");
++        command.add("-Dorg.bonitasoft.h2.database.dir=" + getDatabaseDir(target));
++        command.add("-Dnode.name=" + nodeName);
++        command.add("-cp");
++        command.add(System.getProperty("java.class.path"));
++        command.add(JVMNode.class.getName());
++        command.add(String.valueOf(port));
++        command.add(String.valueOf(healthCheckServerPort));
++
++        ProcessBuilder processBuilder = new ProcessBuilder(command);
++
++
+         Process process = processBuilder
+                 .directory(getNodeDir(nodeName, target))
+                 .start();
+ 
++        System.out.println("Starting node [" + nodeName + "]: " + processBuilder.command());
+         printLogsOfFork(nodeName, process);
+ 
+         setConnectionPort(port);
+-- 
+2.17.1
+

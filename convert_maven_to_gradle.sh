@@ -87,3 +87,4 @@ git am -3 --ignore-whitespace < $BASEDIR/fix_distrib_it_sp.patch # distrib sp te
 git am -3 --ignore-whitespace < $BASEDIR/fix_getplaformversion.patch # get getPlatformVersion
 git am -3 --ignore-whitespace < $BASEDIR/test_memory.patch # test memory
 git am -3 --ignore-whitespace < $BASEDIR/utf-8.patch # test memory
+git am -3 --ignore-whitespace < $BASEDIR/cluster-test-flags.patch # cluster test jvm flags
