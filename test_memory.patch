@@ -1,121 +1,84 @@
-From bd6c5f1f0930408a2ad4da1171738c3399900a75 Mon Sep 17 00:00:00 2001
+From ba792fb69ee2bc2378adf1399925b178e169f72e Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Mon, 16 Jul 2018 16:47:02 +0200
 Subject: [PATCH] use JVM flag for memory mngmt in docker
 
 should factorise the code to get jvm options
 ---
- Jenkinsfile                                                  | 5 ++++-
- .../bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy  | 2 ++
- .../bonita-integration-ejb-api/build.gradle                  | 2 ++
- .../bonita-integration-http-api/build.gradle                 | 2 ++
- .../bonita-integration-tests-local/build.gradle              | 4 ++++
- community/bonita-test-api/build.gradle                       | 2 ++
- community/platform/platform-setup/build.gradle               | 2 ++
- gradle.properties                                            | 1 +
- subscription/platform/platform-setup-sp/build.gradle         | 2 ++
- 9 files changed, 21 insertions(+), 1 deletion(-)
+ Jenkinsfile            |  2 +-
+ build.gradle           | 15 ++++++++++++++-
+ community/build.gradle | 17 ++++++++++++++++-
+ gradle.properties      |  1 +
+ 4 files changed, 32 insertions(+), 3 deletions(-)
  create mode 100644 gradle.properties
 
 diff --git a/Jenkinsfile b/Jenkinsfile
-index be7f729ac1..2a5360082e 100644
+index be7f729ac1..678094f916 100644
 --- a/Jenkinsfile
 +++ b/Jenkinsfile
-@@ -18,8 +18,11 @@ timestamps {
+@@ -18,7 +18,7 @@ timestamps {
  
              try {
                   stage('Build and Test') {
 -                     sh './gradlew build iT'
 +                     sh './gradlew build iT --info -Dorg.gradle.jvmargs="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"'
                   }
-+            } catch (Exception e) {
-+                sh 'dmesg -T| grep -E -i -B100 \'killed process\''
-+                throw e
              } finally {
                  junit '**/build/test-results/**/*.xml'
-             }
-diff --git a/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy b/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
-index 91e785ff0d..ec6920334f 100644
---- a/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
-+++ b/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
-@@ -50,6 +50,8 @@ class IntegrationTestSPPlugin implements Plugin<Project> {
-             systemProperty 'bonita.client.home', "${project.buildDir}/lic/performance"
-             systemProperty "bonita.version", project.version
-             dependsOn extractLicenses
-+            jvmArgs project.property('org.gradle.jvmargs').toString().split(" ")
-+            jvmArgs System.getProperty("org.gradle.jvmargs").split(" ")
+diff --git a/build.gradle b/build.gradle
+index aa0258c1d5..5cc5eef880 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -23,7 +23,20 @@ subprojects {
+     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+   }
  
-             def testDir = new File(project.buildDir, integrationTest)
-             workingDir = testDir
-diff --git a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle
-index 5bb2633ca5..c32bd2675f 100644
---- a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle
-+++ b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle
-@@ -11,4 +11,6 @@ test {
-     include ''
+-  
++  afterEvaluate {
++    tasks.withType(Test) { testTask ->
++      if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
++        def property = project.property('org.gradle.jvmargs')
++        if(property){
++          jvmArgs property.toString().split(" ")
++        }
++        def sysProperty = System.getProperty("org.gradle.jvmargs")
++        if (sysProperty) {
++          jvmArgs sysProperty.split(" ")
++        }
++      }
++    }
++  }
+   
+   
  }
- task integrationTest(type: Test) {
-+    jvmArgs project.property('org.gradle.jvmargs').toString().split(" ")
-+    jvmArgs System.getProperty("org.gradle.jvmargs").split(" ")
- }
-\ No newline at end of file
-diff --git a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
-index b6bf0c424d..b9cac20a65 100644
---- a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
-+++ b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
-@@ -12,4 +12,6 @@ test {
-   include ''
- }
- task integrationTest(type: Test) {
-+  jvmArgs project.property('org.gradle.jvmargs').toString().split(" ")
-+  jvmArgs System.getProperty("org.gradle.jvmargs").split(" ")
- }
-\ No newline at end of file
-diff --git a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
-index 658e3c3094..26319d0000 100644
---- a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
-+++ b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
-@@ -22,11 +22,15 @@ test {
- }
+diff --git a/community/build.gradle b/community/build.gradle
+index e46185d95c..446e6f35a5 100644
+--- a/community/build.gradle
++++ b/community/build.gradle
+@@ -19,7 +19,22 @@ subprojects {
+ classifier = 'sources'
+ from sourceSets.main.allSource
  
- task integrationTest(type: Test) {
-+    jvmArgs project.property('org.gradle.jvmargs').toString().split(" ")
-+    jvmArgs System.getProperty("org.gradle.jvmargs").split(" ")
-     include 'org/bonitasoft/engine/LocalIntegrationTests.class'
-     systemProperty "bonita.version", project.version
- }
- 
- task slowTest(type: Test) {
-+    jvmArgs project.property('org.gradle.jvmargs').toString().split(" ")
-+    jvmArgs System.getProperty("org.gradle.jvmargs").split(" ")
-     include 'org/bonitasoft/engine/SlowExecutionLocalIntegrationTests.class'
-     systemProperty "bonita.version", project.version
- }
-diff --git a/community/bonita-test-api/build.gradle b/community/bonita-test-api/build.gradle
-index 097a48f992..ba80f5087c 100644
---- a/community/bonita-test-api/build.gradle
-+++ b/community/bonita-test-api/build.gradle
-@@ -24,5 +24,7 @@ test {
- }
- 
- task integrationTest(type: Test) {
-+    jvmArgs project.property('org.gradle.jvmargs').toString().split(" ")
-+    jvmArgs System.getProperty("org.gradle.jvmargs").split(" ")
-     include '**/*IT.class'
- }
-diff --git a/community/platform/platform-setup/build.gradle b/community/platform/platform-setup/build.gradle
-index 52b6c2caaa..fe0814a2db 100644
---- a/community/platform/platform-setup/build.gradle
-+++ b/community/platform/platform-setup/build.gradle
-@@ -124,6 +124,8 @@ test {
- 
- tasks.create("integrationTest", Test) {
-     include '**/*IT.class'
-+    jvmArgs project.property('org.gradle.jvmargs').toString().split(" ")
-+    jvmArgs System.getProperty("org.gradle.jvmargs").split(" ")
-     def testDir = new File(buildDir, "integrationTest")
-     doFirst {
-         testDir.mkdirs()
+-}
++      afterEvaluate {
++          tasks.withType(Test) { testTask ->
++              if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
++                  def property = project.property('org.gradle.jvmargs')
++                  if (property) {
++                      jvmArgs property.toString().split(" ")
++                  }
++                  def sysProperty = System.getProperty("org.gradle.jvmargs")
++                  if (sysProperty) {
++                      jvmArgs sysProperty.split(" ")
++                  }
++              }
++          }
++      }
++
++  }
+ artifacts.archives packageSources
+   repositories {
+     mavenLocal()
 diff --git a/gradle.properties b/gradle.properties
 new file mode 100644
 index 0000000000..656f2e6098
@@ -124,19 +87,6 @@ index 0000000000..656f2e6098
 @@ -0,0 +1 @@
 +org.gradle.jvmargs=-Dfile.encoding=UTF-8
 \ No newline at end of file
-diff --git a/subscription/platform/platform-setup-sp/build.gradle b/subscription/platform/platform-setup-sp/build.gradle
-index 2fffd9a948..304b678669 100644
---- a/subscription/platform/platform-setup-sp/build.gradle
-+++ b/subscription/platform/platform-setup-sp/build.gradle
-@@ -76,6 +76,8 @@ test {
- }
- 
- tasks.create("integrationTest", Test) {
-+  jvmArgs project.property('org.gradle.jvmargs').toString().split(" ")
-+  jvmArgs System.getProperty("org.gradle.jvmargs").split(" ")
-   include '**/*IT.class'
-   def testDir = new File(buildDir, "integrationTest")
-   doFirst {
 -- 
 2.17.1
 
