@@ -82,3 +82,4 @@ git am -3 --ignore-whitespace < $BASEDIR/80cef1ca94bd074c3eb3f156d1beb0ac60262b3
 git am -3 --ignore-whitespace < $BASEDIR/jenkinsfile.patch # update jenkins file
 git am -3 --ignore-whitespace < $BASEDIR/it_test_cluster.patch # it tests cluster
 git am -3 --ignore-whitespace < $BASEDIR/it_test_plugin.patch # extract license plugin
+git am -3 --ignore-whitespace < $BASEDIR/fix_it_compile.patch # some fix on integration tests
