@@ -1,0 +1,41 @@
+From 34ec29e0060568ceeb41952d0dbf61a28df42b40 Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Mon, 16 Jul 2018 15:31:00 +0200
+Subject: [PATCH] Fix Java/Groovy compilation encoding
+
+---
+ build.gradle           | 4 +++-
+ community/build.gradle | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/build.gradle b/build.gradle
+index a00b568538..aa0258c1d5 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -9,7 +9,9 @@ subprojects {
+   apply plugin: 'java'
+   sourceCompatibility = 1.8
+   targetCompatibility = 1.8
+-
++  tasks.withType(AbstractCompile) {
++    options.encoding = 'UTF-8'
++  }
+   
+   repositories {
+     mavenLocal()
+diff --git a/community/build.gradle b/community/build.gradle
+index 3aac89e8b3..e46185d95c 100644
+--- a/community/build.gradle
++++ b/community/build.gradle
+@@ -11,7 +11,7 @@ subprojects {
+   apply plugin: 'java'
+   sourceCompatibility = 1.8
+   targetCompatibility = 1.8
+-  tasks.withType(JavaCompile) {
++  tasks.withType(AbstractCompile) {
+   	options.encoding = 'UTF-8'
+   }
+ 
+-- 
+2.17.1
+
