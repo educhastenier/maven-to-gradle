@@ -21,7 +21,7 @@ index be7f729ac1..678094f916 100644
              try {
                   stage('Build and Test') {
 -                     sh './gradlew build iT'
-+                     sh './gradlew build iT --info -Dorg.gradle.jvmargs="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"'
++                     sh './gradlew build iT -Dorg.gradle.jvmargs="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"'
                   }
              } finally {
                  junit '**/build/test-results/**/*.xml'
