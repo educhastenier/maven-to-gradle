@@ -1,0 +1,106 @@
+From ef4a9ba77313d4f1c2b5e85a97b1b00555258c5c Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Mon, 16 Jul 2018 12:57:59 +0200
+Subject: [PATCH] fix platform distrib tests
+
+---
+ .../setup/PlatformSetupTestUtils.java         | 24 ++++++++++++++-----
+ .../platform/platform-setup/build.gradle      |  1 +
+ .../platform/platform-setup-sp/build.gradle   | 18 ++++++++++----
+ 3 files changed, 33 insertions(+), 10 deletions(-)
+
+diff --git a/community/platform/platform-setup-test/src/main/java/org/bonitasoft/platform/setup/PlatformSetupTestUtils.java b/community/platform/platform-setup-test/src/main/java/org/bonitasoft/platform/setup/PlatformSetupTestUtils.java
+index 1a60cef994..84dd9a59bb 100644
+--- a/community/platform/platform-setup-test/src/main/java/org/bonitasoft/platform/setup/PlatformSetupTestUtils.java
++++ b/community/platform/platform-setup-test/src/main/java/org/bonitasoft/platform/setup/PlatformSetupTestUtils.java
+@@ -88,18 +88,30 @@ public class PlatformSetupTestUtils {
+     }
+ 
+     public static void extractDistributionTo(File distFolder) throws IOException {
+-        File target = new File("build/distributions");
+-        Pattern distribPattern = Pattern.compile("Bonita-platform-setup-.*\\.zip");
++        String distZipPath = System.getProperty("bonita.distribution.path");
+         File dist = null;
+-        for (File file : target.listFiles()) {
+-            if (distribPattern.matcher(file.getName()).matches()) {
+-                dist = file;
+-                break;
++        if (distZipPath != null) {
++            dist = new File(distZipPath);
++        } else {
++
++            File target = new File("target");
++            if (!target.isDirectory()) {
++                throw new IllegalStateException("No bonita.distribution.path set and not target folder");
++            }
++            Pattern distribPattern = Pattern.compile("Bonita-platform-setup-.*\\.zip");
++            for (File file : target.listFiles()) {
++                if (distribPattern.matcher(file.getName()).matches()) {
++                    dist = file;
++                    break;
++                }
+             }
+         }
+         if (dist == null) {
+             throw new IllegalStateException("Unable to locate the distribution");
+         }
++        if (!dist.isFile()) {
++            throw new IllegalStateException("Distribution is not a file: " + dist.getPath());
++        }
+ 
+         try (InputStream inputStream = new FileInputStream(dist)) {
+             unzipToFolder(inputStream, distFolder);
+diff --git a/community/platform/platform-setup/build.gradle b/community/platform/platform-setup/build.gradle
+index 9f45fb69c8..52b6c2caaa 100644
+--- a/community/platform/platform-setup/build.gradle
++++ b/community/platform/platform-setup/build.gradle
+@@ -127,6 +127,7 @@ tasks.create("integrationTest", Test) {
+     def testDir = new File(buildDir, "integrationTest")
+     doFirst {
+         testDir.mkdirs()
++        systemProperty "bonita.distribution.path", distZip.outputs.files.first()
+     }
+     workingDir testDir
+ }
+diff --git a/subscription/platform/platform-setup-sp/build.gradle b/subscription/platform/platform-setup-sp/build.gradle
+index f3e698acb1..2fffd9a948 100644
+--- a/subscription/platform/platform-setup-sp/build.gradle
++++ b/subscription/platform/platform-setup-sp/build.gradle
+@@ -4,6 +4,7 @@ group = 'com.bonitasoft.platform'
+ description = ''
+ 
+ configurations{
++  distributionZip
+   inDistrib
+ }
+ 
+@@ -67,11 +68,20 @@ distributions {
+   }
+ }
+ tasks.distZip.dependsOn configurations.inDistrib
+-tasks.test.dependsOn tasks.distZip
++
++artifacts { distributionZip distZip }
+ 
+ test {
++  include '**/*Test.class'
++}
++
++tasks.create("integrationTest", Test) {
++  include '**/*IT.class'
++  def testDir = new File(buildDir, "integrationTest")
+   doFirst {
+-    def workingDir = new File(buildDir, "tests").mkdirs()
++    testDir.mkdirs()
++    systemProperty "bonita.distribution.path", distZip.outputs.files.first()
+   }
+-  workingDir workingDir
+-}
+\ No newline at end of file
++  workingDir testDir
++}
++tasks.integrationTest.dependsOn distZip
+\ No newline at end of file
+-- 
+2.17.1
+
