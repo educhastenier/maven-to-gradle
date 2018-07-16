@@ -1,0 +1,43 @@
+From 21371293c9e12dec99c99e2eee47f7c21504e872 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Mon, 16 Jul 2018 13:54:10 +0200
+Subject: [PATCH] increase test memory
+
+---
+ .../com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy | 1 +
+ .../bonita-integration-tests-local/build.gradle                 | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy b/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
+index 91e785ff0d..b547112ab4 100644
+--- a/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
++++ b/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
+@@ -50,6 +50,7 @@ class IntegrationTestSPPlugin implements Plugin<Project> {
+             systemProperty 'bonita.client.home', "${project.buildDir}/lic/performance"
+             systemProperty "bonita.version", project.version
+             dependsOn extractLicenses
++            maxHeapSize = "1024m"
+ 
+             def testDir = new File(project.buildDir, integrationTest)
+             workingDir = testDir
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
+index 658e3c3094..7a56334200 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
++++ b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
+@@ -22,11 +22,13 @@ test {
+ }
+ 
+ task integrationTest(type: Test) {
++    maxHeapSize = "1024m"
+     include 'org/bonitasoft/engine/LocalIntegrationTests.class'
+     systemProperty "bonita.version", project.version
+ }
+ 
+ task slowTest(type: Test) {
++    maxHeapSize = "1024m"
+     include 'org/bonitasoft/engine/SlowExecutionLocalIntegrationTests.class'
+     systemProperty "bonita.version", project.version
+ }
+-- 
+2.17.1
+
