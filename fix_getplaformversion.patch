@@ -1,0 +1,40 @@
+From 698d157c68c89d091d97212f732d57b257466014 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Mon, 16 Jul 2018 13:28:04 +0200
+Subject: [PATCH] add bonita version in integration test
+
+---
+ .../com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy | 1 +
+ .../bonita-integration-tests-local/build.gradle                 | 2 ++
+ 2 files changed, 3 insertions(+)
+
+diff --git a/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy b/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
+index 3c3dc4beec..91e785ff0d 100644
+--- a/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
++++ b/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
+@@ -48,6 +48,7 @@ class IntegrationTestSPPlugin implements Plugin<Project> {
+             description "Run integration test suite: $integrationTest"
+             include tests
+             systemProperty 'bonita.client.home', "${project.buildDir}/lic/performance"
++            systemProperty "bonita.version", project.version
+             dependsOn extractLicenses
+ 
+             def testDir = new File(project.buildDir, integrationTest)
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
+index 18603130d9..658e3c3094 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
++++ b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
+@@ -23,8 +23,10 @@ test {
+ 
+ task integrationTest(type: Test) {
+     include 'org/bonitasoft/engine/LocalIntegrationTests.class'
++    systemProperty "bonita.version", project.version
+ }
+ 
+ task slowTest(type: Test) {
+     include 'org/bonitasoft/engine/SlowExecutionLocalIntegrationTests.class'
++    systemProperty "bonita.version", project.version
+ }
+-- 
+2.17.1
+
