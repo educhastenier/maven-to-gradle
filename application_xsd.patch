@@ -1,0 +1,26 @@
+From 6744f358b59fd20d553c47a057fa60022ae3e32d Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Mon, 23 Jul 2018 21:47:42 +0200
+Subject: [PATCH] ignore builder from application xsd gen
+
+---
+ community/bpm/bonita-util/bonita-common-util/build.gradle | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/community/bpm/bonita-util/bonita-common-util/build.gradle b/community/bpm/bonita-util/bonita-common-util/build.gradle
+index 3a39d7ca2a..c66919270b 100644
+--- a/community/bpm/bonita-util/bonita-common-util/build.gradle
++++ b/community/bpm/bonita-util/bonita-common-util/build.gradle
+@@ -40,7 +40,8 @@ jaxb {
+     schemaGen {
+         application {
+             javaFiles = fileTree(dir: 'src/main/java', includes: [
+-                    'org/bonitasoft/engine/business/application/xml/**/*.java'])
++                    'org/bonitasoft/engine/business/application/xml/**/*.java'],
++                    excludes:['**/*Builder.java'])
+             namespaceconfigs = ['http://documentation.bonitasoft.com/application-xml-schema/1.0': 'application.xsd']
+             outputDir = project.file("build/generated/jaxb/schemas")
+         }
+-- 
+2.18.0
+

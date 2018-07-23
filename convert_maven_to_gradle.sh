@@ -92,3 +92,4 @@ git am -3 --ignore-whitespace < $BASEDIR/shade.patch # shade
 git am -3 --ignore-whitespace < $BASEDIR/shade2.patch # rename original jar
 git am -3 --ignore-whitespace < $BASEDIR/shade3.patch # shade external dependencies
 git am -3 --ignore-whitespace < $BASEDIR/shade-bdm-generator.patch # bdm generator shade
+git am -3 --ignore-whitespace < $BASEDIR/application_xsd.patch # remove schema2.xsd of application xsd gen
