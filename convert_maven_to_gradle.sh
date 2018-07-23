@@ -91,3 +91,4 @@ git am -3 --ignore-whitespace < $BASEDIR/cluster-test-flags.patch # cluster test
 git am -3 --ignore-whitespace < $BASEDIR/shade.patch # shade
 git am -3 --ignore-whitespace < $BASEDIR/shade2.patch # rename original jar
 git am -3 --ignore-whitespace < $BASEDIR/shade3.patch # shade external dependencies
+git am -3 --ignore-whitespace < $BASEDIR/shade-bdm-generator.patch # bdm generator shade

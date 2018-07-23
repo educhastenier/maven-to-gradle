@@ -1,0 +1,52 @@
+From 5af609730151f7887b21d0aaca11a3e52e08f82d Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Mon, 23 Jul 2018 16:02:58 +0200
+Subject: [PATCH] add bdm generator shade
+
+---
+ .../build.gradle                              | 24 ++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
+
+diff --git a/community/services/bonita-business-data/bonita-business-data-generator/build.gradle b/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
+index 5736050c89..7785d40f1b 100644
+--- a/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
++++ b/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
+@@ -1,7 +1,12 @@
++apply plugin: 'com.github.johnrengelman.shadow'
++apply plugin: 'maven-publish'
++
+ group = 'org.bonitasoft.engine.data'
+ description = 'Business Data Jar Generator'
+ dependencies {
+-  compile project(':engine:services:bonita-commons')
++    compile(project(':engine:services:bonita-commons')) {
++        exclude(module: '*')
++    }
+     compile(group: 'org.hibernate', name: 'hibernate-core', version:'4.3.11.Final') {
+ exclude(module: '*')
+     }
+@@ -21,3 +26,20 @@ exclude(module: 'jaxb-api')
+   testCompile project(':engine:bpm:bonita-util:bonita-common-util-test')
+   testCompile project(':engine:services:bonita-business-data:bonita-business-data-api')
+ }
++
++
++shadowJar {
++    classifier = "studio"
++    dependencies {
++        exclude(dependency('org.eclipse.jdt.core.compiler:ecj'))
++        exclude 'org/bonitasoft/engine/api/**'
++    }
++}
++
++publishing {
++    publications {
++        shadow(MavenPublication) { publication ->
++            project.shadow.component(publication)
++        }
++    }
++}
+\ No newline at end of file
+-- 
+2.18.0
+
