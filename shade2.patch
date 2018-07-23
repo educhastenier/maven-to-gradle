@@ -1,0 +1,66 @@
+From 1ed8de2952653416d455f3a7c877841af07d5972 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Mon, 23 Jul 2018 13:34:50 +0200
+Subject: [PATCH] shade, rename original jar to avoid overwrite
+
+---
+ .../engine/gradle/ShadePlugin.groovy          | 21 ++++++++-----------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index 97e382e8bb..e93aa66616 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -23,15 +23,19 @@ class ShadePlugin implements Plugin<Project> {
+             }
+         }
+ 
++        project.jar {
++            classifier = 'original'
++        }
++
+         project.publishing.publications {
+             shadow(MavenPublication) { publication ->
+                 project.shadow.component(publication)
+                 pom.withXml {
+ 
+                     Set<Dependency> inPom = getPomDependencies(project)
+-                    project.logger.quiet("Include in pom:")
++                    project.logger.info("Include in pom:")
+                     inPom.each {
+-                        project.logger.quiet(" - {}", it)
++                        project.logger.info(" - {}", it)
+                     }
+                     Node dependencies = asNode().children().find { Node child -> child.name() == "dependencies" }
+                     inPom.each { gradleDep ->
+@@ -55,24 +59,17 @@ class ShadePlugin implements Plugin<Project> {
+     private boolean isIncludedInShade(Project project, ResolvedDependency currentDependency) {
+         if (!project.ext.has("projectsToShade")) {
+             project.ext.projectsToShade = getAllProjectsToShade(project)
+-            project.logger.quiet("Shading for project {} : ", project.path)
++            project.logger.info("Shading for project {} : ", project.path)
+             project.ext.projectsToShade.each {
+-                project.logger.quiet(" - {}", it)
++                project.logger.info(" - {}", it)
+             }
+         }
+         Set<Project> projectsToShade = project.ext.projectsToShade
+         def projectDep = getProjectFromDependency(project, currentDependency)
+         if (projectDep == null) {
+-            project.logger.info("Exclude: {} because it is not a project", currentDependency)
+             return false
+         }
+-        def isIncluded = projectsToShade.contains(projectDep)
+-        if (isIncluded) {
+-            project.logger.info("Include: {} because it is a project", currentDependency)
+-        } else {
+-            project.logger.info("Exclude: {} because it is already shaded", currentDependency)
+-        }
+-        return isIncluded
++        return projectsToShade.contains(projectDep)
+     }
+ 
+     private Project getProjectFromDependency(Project project, ResolvedDependency dependency) {
+-- 
+2.18.0
+

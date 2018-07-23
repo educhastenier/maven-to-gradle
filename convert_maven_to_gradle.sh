@@ -89,3 +89,4 @@ git am -3 --ignore-whitespace < $BASEDIR/test_memory.patch # test memory
 git am -3 --ignore-whitespace < $BASEDIR/utf-8.patch # test memory
 git am -3 --ignore-whitespace < $BASEDIR/cluster-test-flags.patch # cluster test jvm flags
 git am -3 --ignore-whitespace < $BASEDIR/shade.patch # shade
+git am -3 --ignore-whitespace < $BASEDIR/shade2.patch # rename original jar
