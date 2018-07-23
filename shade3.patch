@@ -1,0 +1,199 @@
+From 175af9936e8be474432f8276a9cfc2488690ec10 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Mon, 23 Jul 2018 13:59:10 +0200
+Subject: [PATCH] shade manager
+
+---
+ .../engine/gradle/ShadeExtension.groovy       | 10 +++
+ .../engine/gradle/ShadeInclusion.groovy       | 13 +++
+ .../engine/gradle/ShadePlugin.groovy          | 85 ++++++++++++-------
+ subscription/bpm/bonita-server/build.gradle   |  5 ++
+ 4 files changed, 80 insertions(+), 33 deletions(-)
+ create mode 100644 community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy
+ create mode 100644 community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeInclusion.groovy
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy
+new file mode 100644
+index 0000000000..8c645c8e49
+--- /dev/null
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy
+@@ -0,0 +1,10 @@
++package org.bonitasoft.engine.gradle
++
++class ShadeExtension {
++
++    List<ShadeInclusion> includes = []
++
++    def include(Map<String, String> artifact) {
++        includes.add(new ShadeInclusion(artifact))
++    }
++}
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeInclusion.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeInclusion.groovy
+new file mode 100644
+index 0000000000..9bf27f120e
+--- /dev/null
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeInclusion.groovy
+@@ -0,0 +1,13 @@
++package org.bonitasoft.engine.gradle
++
++import groovy.transform.EqualsAndHashCode
++import groovy.transform.ToString
++
++@ToString
++@EqualsAndHashCode
++class ShadeInclusion {
++
++    String group
++    String name
++
++}
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index e93aa66616..a3e0015b8c 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -14,56 +14,73 @@ class ShadePlugin implements Plugin<Project> {
+         project.plugins.apply("com.github.johnrengelman.shadow")
+         project.plugins.apply("maven-publish")
+ 
+-        project.shadowJar {
+-            classifier = ""
+-            dependencies {
+-                include({
+-                    isIncludedInShade(project, it)
+-                })
+-            }
+-        }
++        def extension = project.extensions.create("shade", ShadeExtension)
+ 
+         project.jar {
+             classifier = 'original'
+         }
+ 
+-        project.publishing.publications {
+-            shadow(MavenPublication) { publication ->
+-                project.shadow.component(publication)
+-                pom.withXml {
++        project.afterEvaluate {
++            def includes = extension.includes
+ 
+-                    Set<Dependency> inPom = getPomDependencies(project)
+-                    project.logger.info("Include in pom:")
+-                    inPom.each {
+-                        project.logger.info(" - {}", it)
+-                    }
+-                    Node dependencies = asNode().children().find { Node child -> child.name() == "dependencies" }
+-                    inPom.each { gradleDep ->
+-                        Node dependency =
+-                                dependencies
+-                                        .appendNode("dependency")
+-                        dependency.appendNode("groupId", gradleDep.group)
+-                        dependency.appendNode("artifactId", gradleDep.name)
+-                        dependency.appendNode("version", gradleDep.version)
+-                    }
++
++            project.shadowJar {
++                classifier = ""
++                dependencies {
++                    include({
++                        isIncludedInShade(project, it, includes)
++                    })
+                 }
+             }
+-            mavenJava(MavenPublication) {
+-                from project.components.java
++
++            project.publishing.publications {
++                shadow(MavenPublication) { publication ->
++                    project.shadow.component(publication)
++                    pom.withXml {
++
++                        Set<Dependency> inPom = getPomDependencies(project, includes)
++                        project.logger.info("Include in pom:")
++                        inPom.each {
++                            project.logger.info(" - {}", it)
++                        }
++                        Node dependencies = asNode().children().find { Node child -> child.name() == "dependencies" }
++                        inPom.each { gradleDep ->
++                            Node dependency =
++                                    dependencies
++                                            .appendNode("dependency")
++                            dependency.appendNode("groupId", gradleDep.group)
++                            dependency.appendNode("artifactId", gradleDep.name)
++                            dependency.appendNode("version", gradleDep.version)
++                        }
++                    }
++                }
++                mavenJava(MavenPublication) {
++                    from project.components.java
++                }
+             }
+         }
+ 
+     }
+ 
+ 
+-    private boolean isIncludedInShade(Project project, ResolvedDependency currentDependency) {
++    private boolean isIncludedInShade(Project project, ResolvedDependency currentDependency, List<ShadeInclusion> includes) {
+         if (!project.ext.has("projectsToShade")) {
+             project.ext.projectsToShade = getAllProjectsToShade(project)
+             project.logger.info("Shading for project {} : ", project.path)
+             project.ext.projectsToShade.each {
+                 project.logger.info(" - {}", it)
+             }
++            if (includes.size() > 0) {
++                project.logger.info("external dependencies: ")
++                includes.each {
++                    project.logger.info(" - {}:{}", it.group, it.name)
++                }
++            }
+         }
++        if (includes.contains(new ShadeInclusion(group: currentDependency.moduleGroup, name: currentDependency.moduleName))) {
++            return true
++        }
++
+         Set<Project> projectsToShade = project.ext.projectsToShade
+         def projectDep = getProjectFromDependency(project, currentDependency)
+         if (projectDep == null) {
+@@ -100,7 +117,7 @@ class ShadePlugin implements Plugin<Project> {
+     }
+ 
+ 
+-    private Set<Dependency> getPomDependencies(Project project) {
++    private Set<Dependency> getPomDependencies(Project project, List<ShadeInclusion> includes) {
+         Set allDependencies = []
+         def dependencies = project.configurations.compile.dependencies
+         dependencies.forEach {
+@@ -111,11 +128,13 @@ class ShadePlugin implements Plugin<Project> {
+                     allDependencies.add(projectDependency)
+                 } else {
+                     // do not add it: project is shaded inside this project
+-                    allDependencies.addAll(getPomDependencies(projectDependency))
++                    allDependencies.addAll(getPomDependencies(projectDependency, includes))
+                 }
+             } else {
+-                // external: add it in pom
+-                allDependencies.add(it)
++                // external: add it in pom only if not in shade
++                if (!includes.contains(new ShadeInclusion(group: it.group, name: it.name))) {
++                    allDependencies.add(it)
++                }
+             }
+         }
+         allDependencies
+diff --git a/subscription/bpm/bonita-server/build.gradle b/subscription/bpm/bonita-server/build.gradle
+index 1a7546f0dc..22e531617c 100644
+--- a/subscription/bpm/bonita-server/build.gradle
++++ b/subscription/bpm/bonita-server/build.gradle
+@@ -78,3 +78,8 @@ dependencies {
+     compile group: 'com.hazelcast', name: 'hazelcast-spring', version:'3.8.1'
+     runtime group: 'com.hazelcast', name: 'hazelcast-aws', version:'2.0.1'
+ }
++
++shade {
++  include group: "com.bonitasoft.manager", name: "manager"
++  include group: "org.bonitasoft.security", name: "sysUtil"
++}
+\ No newline at end of file
+-- 
+2.18.0
+
