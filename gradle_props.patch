@@ -1,0 +1,21 @@
+From f23bf7d04a0a6876d15e9fef03d269a95e770921 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Tue, 24 Jul 2018 22:04:30 +0200
+Subject: [PATCH] add gradle.props in community
+
+---
+ community/gradle.properties | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 community/gradle.properties
+
+diff --git a/community/gradle.properties b/community/gradle.properties
+new file mode 100644
+index 0000000000..656f2e6098
+--- /dev/null
++++ b/community/gradle.properties
+@@ -0,0 +1 @@
++org.gradle.jvmargs=-Dfile.encoding=UTF-8
+\ No newline at end of file
+-- 
+2.18.0
+

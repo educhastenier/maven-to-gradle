@@ -95,3 +95,4 @@ git am -3 --ignore-whitespace < $BASEDIR/shade-bdm-generator.patch # bdm generat
 git am -3 --ignore-whitespace < $BASEDIR/application_xsd.patch # remove schema2.xsd of application xsd gen
 git am -3 --ignore-whitespace < $BASEDIR/shade_transitive.patch # fix transitive shade dependencies
 git am -3 --ignore-whitespace < $BASEDIR/simplify_extract_license_plugin.patch # simplify license extractor plugin
+git am -3 --ignore-whitespace < $BASEDIR/gradle_props.patch # add gradle.properties in comunity
