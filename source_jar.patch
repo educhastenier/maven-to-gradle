@@ -1,0 +1,35 @@
+From 7156001c458d7a7eaaa8078b8317fa051e575152 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Wed, 25 Jul 2018 13:41:43 +0200
+Subject: [PATCH] add source jar
+
+---
+ .../groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy   | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index 18c22628a9..0d80d74557 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -45,6 +45,10 @@ class ShadePlugin implements Plugin<Project> {
+                 classpath = project.files(projects.collect { it.sourceSets.main.compileClasspath })
+                 options.addStringOption('Xdoclint:none', '-quiet')
+             }
++            project.tasks.create("sourcesJar", Jar) {
++                from getShadedProjects(project, extension).collect { it.sourceSets.main.allJava }
++                classifier = 'sources'
++            }
+             project.tasks.create("javadocJar", Jar) {
+                 from project.javadoc
+                 classifier = 'javadoc'
+@@ -75,6 +79,7 @@ class ShadePlugin implements Plugin<Project> {
+                 }
+                 mavenJava(MavenPublication) {
+                     from project.components.java
++                    artifact project.sourcesJar
+                     artifact project.javadocJar
+                 }
+             }
+-- 
+2.18.0
+

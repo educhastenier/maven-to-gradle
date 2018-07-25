@@ -101,3 +101,4 @@ git am -3 --ignore-whitespace < $BASEDIR/shade_pom_gen.patch # fix pom generatio
 git am -3 --ignore-whitespace < $BASEDIR/shade_depmngt_pom.patch # remove dependency management from shaded pom
 git am -3 --ignore-whitespace < $BASEDIR/publish_missing_artifacts.patch # publish artifacts required by other modules
 git am -3 --ignore-whitespace < $BASEDIR/publish_javadoc.patch # publish javadoc required by studio
+git am -3 --ignore-whitespace < $BASEDIR/source_jar.patch # add source jar publishing
