@@ -1,0 +1,26 @@
+From 7416e7d5efff30f69648977cd4530c03fbf2db4b Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Wed, 25 Jul 2018 15:36:45 +0200
+Subject: [PATCH] fix dependency management hazelcast version
+
+---
+ build.gradle | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/build.gradle b/build.gradle
+index bb0409df8c..34c99d8566 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -18,8 +18,8 @@ version = '7.8.0-SNAPSHOT'
+         entry 'hazelcast'
+         entry 'hazelcast-hibernate4'
+         entry 'hazelcast-spring'
+-        entry 'hazelcast-aws'
+       }
++      dependency 'com.hazelcast:hazelcast-aws:2.0.1'
+       dependency 'org.hibernate:hibernate-ehcache:4.3.11.Final'
+       dependency 'io.projectreactor:reactor-core:3.0.5.RELEASE'
+       dependency 'io.projectreactor.addons:reactor-test:3.0.5.RELEASE'
+-- 
+2.18.0
+

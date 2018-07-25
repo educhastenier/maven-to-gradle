@@ -103,3 +103,4 @@ git am -3 --ignore-whitespace < $BASEDIR/publish_missing_artifacts.patch # publi
 git am -3 --ignore-whitespace < $BASEDIR/publish_javadoc.patch # publish javadoc required by studio
 git am -3 --ignore-whitespace < $BASEDIR/source_jar.patch # add source jar publishing
 git am -3 --ignore-whitespace < $BASEDIR/global_javadoc.patch # add source jar publishing
+git am -3 --ignore-whitespace < $BASEDIR/dep_mngt_fix.patch # fix dependency management hazelcast version
