@@ -96,3 +96,8 @@ git am -3 --ignore-whitespace < $BASEDIR/application_xsd.patch # remove schema2.
 git am -3 --ignore-whitespace < $BASEDIR/shade_transitive.patch # fix transitive shade dependencies
 git am -3 --ignore-whitespace < $BASEDIR/simplify_extract_license_plugin.patch # simplify license extractor plugin
 git am -3 --ignore-whitespace < $BASEDIR/gradle_props.patch # add gradle.properties in comunity
+git am -3 --ignore-whitespace < $BASEDIR/boms.patch # publish boms
+git am -3 --ignore-whitespace < $BASEDIR/shade_pom_gen.patch # fix pom generation in shades
+git am -3 --ignore-whitespace < $BASEDIR/shade_depmngt_pom.patch # remove dependency management from shaded pom
+git am -3 --ignore-whitespace < $BASEDIR/publish_missing_artifacts.patch # publish artifacts required by other modules
+git am -3 --ignore-whitespace < $BASEDIR/publish_javadoc.patch # publish javadoc required by studio

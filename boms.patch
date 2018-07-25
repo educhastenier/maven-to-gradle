@@ -1,0 +1,230 @@
+From 185c216d551fa0ef6ecbcdeed8ba7edfe24e9066 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Wed, 25 Jul 2018 11:09:26 +0200
+Subject: [PATCH] publish BOMs
+
+---
+ build.gradle              | 38 +++++++++++++++++
+ community/build.gradle    | 90 +++++++++++++++++++++++++++++++++++++++
+ community/settings.gradle | 13 ++++++
+ settings.gradle           | 13 ++++++
+ 4 files changed, 154 insertions(+)
+
+diff --git a/build.gradle b/build.gradle
+index 06eeb143a2..56f55e0345 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -1,8 +1,30 @@
++plugins {
++  id "io.spring.dependency-management"
++}
++
+ allprojects  {
+   apply plugin: 'maven'
+ 
+   group = 'org.bonitasoft'
+ version = '7.8.0-SNAPSHOT'
++
++
++  apply plugin: 'io.spring.dependency-management'
++  dependencyManagement {
++    dependencies {
++      dependency 'com.bonitasoft.manager:manager:1.12.2'
++      dependency 'org.bonitasoft.security:test-licenses:1.12.2'
++      dependencySet(group: 'com.hazelcast', version: '3.8.1') {
++        entry 'hazelcast'
++        entry 'hazelcast-hibernate4'
++        entry 'hazelcast-spring'
++        entry 'hazelcast-aws'
++      }
++      dependency 'org.hibernate:hibernate-ehcache:4.3.11.Final'
++      dependency 'io.projectreactor:reactor-core:3.0.5.RELEASE'
++      dependency 'io.projectreactor.addons:reactor-test:3.0.5.RELEASE'
++    }
++  }
+ }
+ 
+ subprojects {
+@@ -43,3 +65,19 @@ subprojects {
+   
+   
+ }
++apply plugin: 'maven-publish'
++
++publishing {
++  publications {
++    maven(MavenPublication) {
++      groupId = 'com.bonitasoft.engine'
++      artifactId = 'bonita-engine-sp'
++      pom.withXml {
++        def parent = asNode().appendNode('parent')
++        parent.appendNode('groupId', 'org.bonitasoft.engine')
++        parent.appendNode('artifactId', 'bonita-engine')
++        parent.appendNode('version', version)
++      }
++    }
++  }
++}
+\ No newline at end of file
+diff --git a/community/build.gradle b/community/build.gradle
+index bf3a0d8365..7cfe8c5dcd 100644
+--- a/community/build.gradle
++++ b/community/build.gradle
+@@ -1,3 +1,7 @@
++plugins {
++    id "io.spring.dependency-management"
++}
++
+ allprojects  {
+   apply plugin: 'maven'
+ 
+@@ -7,6 +11,7 @@ allprojects  {
+ 
+ allprojects {
+     apply plugin: 'maven-publish'
++    apply plugin: 'io.spring.dependency-management'
+ 
+     repositories {
+         mavenLocal()
+@@ -15,6 +20,68 @@ allprojects {
+         jcenter()
+     }
+ 
++
++    dependencyManagement {
++        dependencies {
++            dependency 'commons-codec:commons-codec:1.7'
++            dependencySet(group:'org.slf4j', version:'1.7.25'){
++                entry 'slf4j-api'
++                entry 'slf4j-simple'
++            }
++            dependency 'com.h2database:h2:1.3.175'
++            dependency 'net.sf.ehcache:ehcache-core:2.4.7'
++
++            dependencySet(group:'org.springframework', version:'5.0.6.RELEASE'){
++                entry 'spring-context'
++                entry 'spring-core'
++                entry 'spring-test'
++            }
++            dependency('org.hibernate:hibernate-core:4.3.11.Final'){
++                exclude 'org.jboss.spec.javax.transaction:jboss-transaction-api_1.2_spec'
++                exclude 'org.hibernate:hibernate-entitymanager'
++            }
++            dependency 'org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final'
++            dependency 'commons-io:commons-io:2.5'
++            dependency('commons-beanutils:commons-beanutils:1.9.2') {
++                exclude 'commons-collections:commons-collections'
++            }
++            dependency 'commons-collections:commons-collections:3.2.2'
++            dependency 'org.apache.commons:commons-lang3:3.3.2'
++            dependency 'org.apache.commons:commons-collections4:4.0'
++            dependency 'com.fasterxml.jackson.core:jackson-databind:2.9.0'
++            dependency 'junit:junit:4.12'
++            dependency 'org.junit.jupiter:junit-jupiter-api:5.1.1'
++            dependency 'org.junit.jupiter:junit-jupiter-engine:5.1.1'
++            dependency 'org.junit.vintage:junit-vintage-engine:1.1.1'
++            dependency 'org.awaitility:awaitility:2.0.0'
++            dependency 'org.assertj:assertj-core:3.7.0'
++            dependency 'xmlunit:xmlunit:1.4'
++            dependency 'org.mockito:mockito-core:2.17.0'
++            dependencySet(group:'ch.qos.logback',version:'1.2.3'){
++                entry 'logback-classic'
++                entry 'logback-core'
++            }
++            dependency 'javax.transaction:jta:1.1'
++            dependency 'org.codehaus.btm:btm:2.1.4'
++            dependency 'org.codehaus.btm:btm-tomcat55-lifecycle:2.1.4'
++            dependency 'org.codehaus.groovy:groovy-all:2.4.4'
++            dependency 'org.json:json:20090211'
++            dependency 'net.javacrumbs.json-unit:json-unit-fluent:1.25.1'
++            dependency 'org.javassist:javassist:3.18.1-GA'
++            dependency 'com.github.stefanbirkner:system-rules:1.16.0'
++            dependency 'org.apache.xbean:xbean-classloader:3.7'
++            dependencySet(group:'org.apache.httpcomponents',version:'4.5.2'){
++                entry 'httpclient'
++                entry 'httpmime'
++            }
++            dependency 'com.thoughtworks.xstream:xstream:1.4.10'
++            dependency 'mysql:mysql-connector-java:5.1.26'
++            dependency 'org.postgresql:postgresql:9.3-1102-jdbc41'
++            dependency 'net.jodah:concurrentunit:0.4.0'
++            dependency 'org.projectlombok:lombok:1.16.20'
++        }
++    }
++
+     publishing {
+         repositories {
+             maven {
+@@ -91,3 +158,26 @@ task allJavadoc(type: Javadoc) {
+     options.overview = new File("$projectDir/../subscription/bpm/bonita-global-javadoc/src/main/javadoc", "overview.html")
+     options.bottom = "Copyright &copy; ${new Date().format('yyyy')} <a href=\"http://community.bonitasoft.com/\">Bonitasoft S.A.</a> All rights reserved."
+ }
++
++
++publishing {
++    publications {
++        maven(MavenPublication) {
++            artifactId = 'bonita-engine'
++            pom {
++                url = 'http://community.bonitasoft.com/'
++                organization {
++                    name = 'Bonitasoft S.A.'
++                    url = 'http://community.bonitasoft.com/'
++                }
++                licenses {
++                    license {
++                        name = 'GNU Lesser General Public License Version 2.1'
++                        url = 'http://www.gnu.org/licenses/lgpl-2.1.html'
++                        distribution = 'repo'
++                    }
++                }
++            }
++        }
++    }
++}
+\ No newline at end of file
+diff --git a/community/settings.gradle b/community/settings.gradle
+index 94d9b8b7f6..9ced08ab30 100644
+--- a/community/settings.gradle
++++ b/community/settings.gradle
+@@ -1,3 +1,16 @@
++pluginManagement {
++    repositories {
++        gradlePluginPortal()
++    }
++    resolutionStrategy {
++        eachPlugin {
++            if (requested.id.id.startsWith("io.spring.dependency-management")) {
++                useVersion("1.0.6.RELEASE")
++            }
++        }
++    }
++}
++
+ rootProject.name = 'bonita-engine'
+ 
+ apply from: 'engine-settings.gradle'
+diff --git a/settings.gradle b/settings.gradle
+index 83dec68e10..40f217182e 100644
+--- a/settings.gradle
++++ b/settings.gradle
+@@ -1,3 +1,16 @@
++pluginManagement {
++    repositories {
++        gradlePluginPortal()
++    }
++    resolutionStrategy {
++        eachPlugin {
++            if (requested.id.id.startsWith("io.spring.dependency-management")) {
++                useVersion("1.0.6.RELEASE")
++            }
++        }
++    }
++}
++
+ rootProject.name = 'bonita-modules'
+ 
+ apply from: 'community/engine-settings.gradle'
+-- 
+2.18.0
+

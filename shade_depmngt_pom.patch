@@ -1,0 +1,27 @@
+From d52eb207b60f97075fd78050fcd62f75c84a6e25 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Wed, 25 Jul 2018 11:22:32 +0200
+Subject: [PATCH] shade: remove dependency management from shades poms
+
+---
+ .../groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy    | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index 213e48f5f5..18c22628a9 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -60,7 +60,9 @@ class ShadePlugin implements Plugin<Project> {
+                         inPom.each {
+                             project.logger.info(" - {}", it)
+                         }
+-                        Node dependencies = asNode().children().find { Node child -> child.name() == "dependencies" }
++                        def rootNode = asNode()
++                        rootNode.remove(rootNode.children().find { Node child -> child.name() == "dependencyManagement" })
++                        Node dependencies = rootNode.children().find { Node child -> child.name() == "dependencies" }
+                         inPom.each { gradleDep ->
+                             Node dependency =
+                                     dependencies
+-- 
+2.18.0
+

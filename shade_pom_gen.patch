@@ -1,0 +1,25 @@
+From 767ce73ab724cc1addd44213b8ec212a06abe1cb Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Wed, 25 Jul 2018 11:17:36 +0200
+Subject: [PATCH] fix pom generation of shade
+
+---
+ .../main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index 74860ec3a2..1629fa1c26 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -118,7 +118,7 @@ class ShadePlugin implements Plugin<Project> {
+         dependencies.forEach {
+             if (it instanceof ProjectDependency) {
+                 def projectDependency = it.dependencyProject
+-                if (isAShadeProject(projectDependency) || extension.excludes.contains(projectDependency)) {
++                if (isAShadeProject(projectDependency) && !extension.excludes.contains(projectDependency)) {
+                     // the project is a shaded project (e.g. bonita-common)
+                     allDependencies.add(projectDependency)
+                 } else {
+-- 
+2.18.0
+
