@@ -1,0 +1,342 @@
+From 96ee346f1daba2b866495abc8e89ba9faab3c70c Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 26 Jul 2018 13:50:06 +0200
+Subject: [PATCH] set working dir in test and clean
+
+---
+ build.gradle                                  | 13 +++++--
+ .../build.gradle                              | 34 ++++++++++---------
+ .../engine/client/BonitaClientXMLTest.java    |  4 +--
+ community/build.gradle                        | 24 +++++++++----
+ .../TomcatBundleConfiguratorTest.java         | 22 ++++++------
+ .../WildflyBundleConfiguratorTest.java        |  2 +-
+ .../classloader/VirtualClassLoaderTest.java   | 31 +++++++----------
+ .../JAASAuthenticationServiceImplTest.java    |  2 +-
+ ...SGenericAuthenticationServiceImplTest.java |  2 +-
+ .../impl/cas/CASAuthenticatorImplTest.java    |  4 +--
+ 10 files changed, 77 insertions(+), 61 deletions(-)
+
+diff --git a/build.gradle b/build.gradle
+index 34c99d8566..fb93a848d5 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -27,7 +27,7 @@ version = '7.8.0-SNAPSHOT'
+   }
+ }
+ 
+-subprojects {
++subprojects { sub ->
+   apply plugin: 'java'
+   sourceCompatibility = 1.8
+   targetCompatibility = 1.8
+@@ -47,6 +47,15 @@ subprojects {
+ 
+   afterEvaluate {
+     tasks.withType(Test) { testTask ->
++      workingDir new File(sub.buildDir, "test-run")
++      doFirst {
++        if (workingDir.exists()) {
++          sub.delete(workingDir)
++        }
++        workingDir.mkdir()
++      }
++      systemProperty "project.dir", sub.projectDir.getAbsolutePath()
++      systemProperty "bonita.version", version
+       if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
+         def property = project.property('org.gradle.jvmargs')
+         if(property){
+@@ -65,7 +74,7 @@ subprojects {
+       options.addStringOption('Xdoclint:none', '-quiet')
+     }
+   }
+-  
++
+   
+ }
+ apply plugin: 'maven-publish'
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
+index a1a6ba81cf..f2f24e8530 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
++++ b/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
+@@ -25,21 +25,23 @@ dependencies {
+     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.17.0'
+ }
+ 
+-test.doFirst {
+-    def emptyFile = new File("$project.buildDir/bonita_home_client_EJB3/engine-client/conf/bonita-client-custom.properties")
+-    emptyFile.getParentFile().mkdirs()
+-    emptyFile.text = ""
+-    copy {
+-        from file("$projectDir/bonita-client-ejb3.properties")
+-        into file("$project.buildDir/bonita_home_client_EJB3/engine-client/work")
+-        rename 'bonita-client-ejb3.properties', 'bonita-client-community.properties'
+-    }
+-    def invalidFile = new File("$project.buildDir/bonita_home_client_invalidAPIType/engine-client/conf/bonita-client-custom.properties")
+-    invalidFile.getParentFile().mkdirs()
+-    invalidFile.text = ""
+-    copy {
+-        from file("$projectDir/bonita-client-invalid.properties")
+-        into file("$project.buildDir/bonita_home_client_invalidAPIType/engine-client/work")
+-        rename 'bonita-client-invalid.properties', 'bonita-client-community.properties'
++test {
++    doFirst {
++        def emptyFile = new File("$workingDir/bonita_home_client_EJB3/engine-client/conf/bonita-client-custom.properties")
++        emptyFile.getParentFile().mkdirs()
++        emptyFile.text = ""
++        copy {
++            from file("$projectDir/bonita-client-ejb3.properties")
++            into file("$workingDir/bonita_home_client_EJB3/engine-client/work")
++            rename 'bonita-client-ejb3.properties', 'bonita-client-community.properties'
++        }
++        def invalidFile = new File("$workingDir/bonita_home_client_invalidAPIType/engine-client/conf/bonita-client-custom.properties")
++        invalidFile.getParentFile().mkdirs()
++        invalidFile.text = ""
++        copy {
++            from file("$projectDir/bonita-client-invalid.properties")
++            into file("$workingDir/bonita_home_client_invalidAPIType/engine-client/work")
++            rename 'bonita-client-invalid.properties', 'bonita-client-community.properties'
++        }
+     }
+ }
+\ No newline at end of file
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java b/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java
+index 3a95cd6465..573ff981be 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java
++++ b/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java
+@@ -35,9 +35,9 @@ import org.junit.rules.TestRule;
+  */
+ public class BonitaClientXMLTest {
+ 
+-    private static final String BONITA_HOME_CLIENT_INVALID_API_TYPE = "build/bonita_home_client_invalidAPIType";
++    private static final String BONITA_HOME_CLIENT_INVALID_API_TYPE = "bonita_home_client_invalidAPIType";
+ 
+-    private static final String BONITA_HOME_CLIENT_EJB3 = "build/bonita_home_client_EJB3";
++    private static final String BONITA_HOME_CLIENT_EJB3 = "bonita_home_client_EJB3";
+ 
+     @Rule
+     public final TestRule restoreSystemProperties = new RestoreSystemProperties();
+diff --git a/community/build.gradle b/community/build.gradle
+index dc765da309..5ac71efd89 100644
+--- a/community/build.gradle
++++ b/community/build.gradle
+@@ -92,8 +92,8 @@ allprojects {
+     }
+ }
+ 
+-subprojects {
+-  if (it.name == "engine")
++subprojects { sub ->
++  if (sub.name == "engine")
+     return
+   apply plugin: 'java'
+   sourceCompatibility = 1.8
+@@ -108,21 +108,31 @@ from sourceSets.main.allSource
+ 
+       afterEvaluate {
+           tasks.withType(Test) { testTask ->
++              workingDir new File(sub.buildDir, "test-run")
++              doFirst {
++                  if (workingDir.exists()) {
++                      sub.delete(workingDir)
++                  }
++                  workingDir.mkdir()
++              }
++              systemProperty "project.dir", sub.projectDir.getAbsolutePath()
++              systemProperty "bonita.version", version
+               if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
+                   def property = project.property('org.gradle.jvmargs')
+-                  if (property) {
++                  if(property){
+                       jvmArgs property.toString().split(" ")
+                   }
+                   def sysProperty = System.getProperty("org.gradle.jvmargs")
+                   if (sysProperty) {
+                       jvmArgs sysProperty.split(" ")
+                   }
++                  testTask.doFirst {
++                      logger.quiet("{} - JVM args: {}", project, jvmArgs)
++                  }
+               }
+           }
+-          allprojects {
+-              tasks.withType(Javadoc) {
+-                  options.addStringOption('Xdoclint:none', '-quiet')
+-              }
++          tasks.withType(Javadoc) {
++              options.addStringOption('Xdoclint:none', '-quiet')
+           }
+       }
+ 
+diff --git a/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/command/configure/TomcatBundleConfiguratorTest.java b/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/command/configure/TomcatBundleConfiguratorTest.java
+index ea06f6a875..fdba855eca 100644
+--- a/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/command/configure/TomcatBundleConfiguratorTest.java
++++ b/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/command/configure/TomcatBundleConfiguratorTest.java
+@@ -13,16 +13,6 @@
+  **/
+ package org.bonitasoft.platform.setup.command.configure;
+ 
+-import static junit.framework.TestCase.fail;
+-import static org.assertj.core.api.Assertions.assertThat;
+-import static org.bonitasoft.platform.setup.PlatformSetup.BONITA_SETUP_FOLDER;
+-import static org.bonitasoft.platform.setup.command.configure.BundleConfiguratorTest.checkFileContains;
+-import static org.mockito.Mockito.*;
+-
+-import java.io.File;
+-import java.nio.file.Path;
+-import java.nio.file.Paths;
+-
+ import org.apache.commons.io.FileUtils;
+ import org.apache.commons.io.filefilter.RegexFileFilter;
+ import org.bonitasoft.platform.exception.PlatformException;
+@@ -36,6 +26,16 @@ import org.junit.rules.TestRule;
+ import org.junit.runner.RunWith;
+ import org.mockito.junit.MockitoJUnitRunner;
+ 
++import java.io.File;
++import java.nio.file.Path;
++import java.nio.file.Paths;
++
++import static junit.framework.TestCase.fail;
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.bonitasoft.platform.setup.PlatformSetup.BONITA_SETUP_FOLDER;
++import static org.bonitasoft.platform.setup.command.configure.BundleConfiguratorTest.checkFileContains;
++import static org.mockito.Mockito.*;
++
+ /**
+  * @author Emmanuel Duchastenier
+  */
+@@ -65,7 +65,7 @@ public class TomcatBundleConfiguratorTest {
+         bundleFolder = temporaryFolderRoot.toPath().toRealPath();
+         tomcatFolder = bundleFolder.resolve("server");
+         configurator = new TomcatBundleConfigurator(bundleFolder);
+-        FileUtils.copyDirectory(Paths.get("src/test/resources/tomcat_conf").toFile(), temporaryFolderRoot);
++        FileUtils.copyDirectory(Paths.get(System.getProperty("project.dir") + "/src/test/resources/tomcat_conf").toFile(), temporaryFolderRoot);
+         System.setProperty(BONITA_SETUP_FOLDER, bundleFolder.resolve("setup").toString());
+         databaseAbsolutePath = BundleConfigurator.convertWindowsBackslashes(bundleFolder.resolve("h2_database").normalize().toString());
+         spy = spy(configurator);
+diff --git a/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/command/configure/WildflyBundleConfiguratorTest.java b/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/command/configure/WildflyBundleConfiguratorTest.java
+index b74975a882..5c00243fb2 100644
+--- a/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/command/configure/WildflyBundleConfiguratorTest.java
++++ b/community/platform/platform-setup/src/test/java/org/bonitasoft/platform/setup/command/configure/WildflyBundleConfiguratorTest.java
+@@ -65,7 +65,7 @@ public class WildflyBundleConfiguratorTest {
+         final File temporaryFolderRoot = temporaryFolder.newFolder();
+         bundleFolder = temporaryFolderRoot.toPath().toRealPath();
+         wildflyFolder = bundleFolder.resolve("server");
+-        FileUtils.copyDirectory(Paths.get("src/test/resources/wildfly_conf").toFile(), temporaryFolderRoot);
++        FileUtils.copyDirectory(Paths.get(System.getProperty("project.dir") + "/src/test/resources/wildfly_conf").toFile(), temporaryFolderRoot);
+         System.setProperty(BONITA_SETUP_FOLDER, bundleFolder.resolve("setup").toString());
+         configurator = new WildflyBundleConfigurator(bundleFolder);
+         databaseAbsolutePath = BundleConfigurator.convertWindowsBackslashes(bundleFolder.resolve("h2_database").normalize().toString());
+diff --git a/community/services/bonita-classloader/src/test/java/org/bonitasoft/engine/classloader/VirtualClassLoaderTest.java b/community/services/bonita-classloader/src/test/java/org/bonitasoft/engine/classloader/VirtualClassLoaderTest.java
+index 420dde18d7..cd9515479c 100644
+--- a/community/services/bonita-classloader/src/test/java/org/bonitasoft/engine/classloader/VirtualClassLoaderTest.java
++++ b/community/services/bonita-classloader/src/test/java/org/bonitasoft/engine/classloader/VirtualClassLoaderTest.java
+@@ -13,21 +13,7 @@
+  **/
+ package org.bonitasoft.engine.classloader;
+ 
+-import static org.assertj.core.api.Assertions.assertThat;
+-import static org.mockito.Mockito.*;
+-
+-import java.io.File;
+-import java.io.IOException;
+-import java.net.URL;
+-import java.util.Collections;
+-import java.util.HashMap;
+-import java.util.Map;
+-import java.util.concurrent.Callable;
+-import java.util.concurrent.ExecutorService;
+-import java.util.concurrent.Executors;
+-import java.util.concurrent.Future;
+-import java.util.concurrent.ThreadFactory;
+-
++import com.thoughtworks.xstream.XStream;
+ import org.apache.commons.io.FileUtils;
+ import org.bonitasoft.engine.commons.JavaMethodInvoker;
+ import org.bonitasoft.engine.data.instance.model.impl.XStreamFactory;
+@@ -40,7 +26,16 @@ import org.junit.runner.RunWith;
+ import org.mockito.Mock;
+ import org.mockito.junit.MockitoJUnitRunner;
+ 
+-import com.thoughtworks.xstream.XStream;
++import java.io.File;
++import java.io.IOException;
++import java.net.URL;
++import java.util.Collections;
++import java.util.HashMap;
++import java.util.Map;
++import java.util.concurrent.*;
++
++import static org.assertj.core.api.Assertions.assertThat;
++import static org.mockito.Mockito.*;
+ 
+ @RunWith(MockitoJUnitRunner.class)
+ public class VirtualClassLoaderTest {
+@@ -74,7 +69,7 @@ public class VirtualClassLoaderTest {
+     public void loadClassStudentInformation_to_VirtualClassLoarder_should_be_get_as_resource() throws Exception {
+         VirtualClassLoader vcl = new VirtualClassLoader("org.bonitasoft", 1L, Thread.currentThread().getContextClassLoader());
+         final Map<String, byte[]> resources = new HashMap<>(1);
+-        resources.put("UOSFaasApplication.jar", FileUtils.readFileToByteArray(new File("src/test/resources/UOSFaasApplication.jar")));
++        resources.put("UOSFaasApplication.jar", FileUtils.readFileToByteArray(new File(System.getProperty("project.dir") + "/src/test/resources/UOSFaasApplication.jar")));
+         final BonitaClassLoader bonitaClassLoader = new BonitaClassLoader(resources, "here", 154L, tempDir.toURI(), BonitaClassLoader.class.getClassLoader());
+ 
+         vcl.replaceClassLoader(bonitaClassLoader);
+@@ -97,7 +92,7 @@ public class VirtualClassLoaderTest {
+     public void loadStudentInformation_toVirtualClassLoader_should_be_usable_via_JavaMethodInvoker() throws Exception {
+         final VirtualClassLoader vcl = new VirtualClassLoader("org.bonitasoft", 1L, Thread.currentThread().getContextClassLoader());
+         final Map<String, byte[]> resources = new HashMap<>(1);
+-        resources.put("UOSFaasApplication.jar", FileUtils.readFileToByteArray(new File("src/test/resources/UOSFaasApplication.jar")));
++        resources.put("UOSFaasApplication.jar", FileUtils.readFileToByteArray(new File(System.getProperty("project.dir") + "/src/test/resources/UOSFaasApplication.jar")));
+         final BonitaClassLoader bonitaClassLoader = new BonitaClassLoader(resources, "here", 154L, tempDir.toURI(), BonitaClassLoader.class.getClassLoader());
+ 
+         vcl.replaceClassLoader(bonitaClassLoader);
+diff --git a/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/JAASAuthenticationServiceImplTest.java b/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/JAASAuthenticationServiceImplTest.java
+index 363052969a..9fdbf1b4d3 100755
+--- a/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/JAASAuthenticationServiceImplTest.java
++++ b/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/JAASAuthenticationServiceImplTest.java
+@@ -44,7 +44,7 @@ public class JAASAuthenticationServiceImplTest {
+ 
+     @BeforeClass
+     public static void classSetUp() {
+-        System.setProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG, "src/test/resources/jaas-test.cfg");
++        System.setProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG, System.getProperty("project.dir") + "/src/test/resources/jaas-test.cfg");
+     }
+ 
+     @AfterClass
+diff --git a/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/JAASGenericAuthenticationServiceImplTest.java b/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/JAASGenericAuthenticationServiceImplTest.java
+index f907c5f7b9..9f72b33490 100644
+--- a/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/JAASGenericAuthenticationServiceImplTest.java
++++ b/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/JAASGenericAuthenticationServiceImplTest.java
+@@ -59,7 +59,7 @@ public class JAASGenericAuthenticationServiceImplTest {
+ 
+     @BeforeClass
+     public static void classSetUp() {
+-        System.setProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG, "src/test/resources/jaas-test.cfg");
++        System.setProperty(JAVA_SECURITY_AUTH_LOGIN_CONFIG, System.getProperty("project.dir") + "/src/test/resources/jaas-test.cfg");
+     }
+ 
+     @AfterClass
+diff --git a/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/cas/CASAuthenticatorImplTest.java b/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/cas/CASAuthenticatorImplTest.java
+index 795e7ff258..8325ac6a86 100644
+--- a/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/cas/CASAuthenticatorImplTest.java
++++ b/subscription/services/bonita-authentication/src/test/java/com/bonitasoft/engine/authentication/impl/cas/CASAuthenticatorImplTest.java
+@@ -364,14 +364,14 @@ public class CASAuthenticatorImplTest {
+     @Test
+     public void testCreateDOMDocumentFromResponseWithLoginForm() throws Exception {
+         final String content = FileUtils
+-                .readFileToString(new File("src/test/resources/com/bonita/engine/authentification/impl/cas/CAS-loginpage.html"), "UTF-8");
++                .readFileToString(new File(System.getProperty("project.dir") + "/src/test/resources/com/bonita/engine/authentification/impl/cas/CAS-loginpage.html"), "UTF-8");
+         final Document doc = casAuthenticatorImpl.createDOMDocumentFromResponse(content);
+         final String xmlDoc = transformDocumentToString(doc).replaceAll(LINE_SEPARATOR, "");
+         // uncomment to see diff in eclipse
+         // assertEquals(sw.toString(), FileUtils.readFileToString(new
+         // File("src/test/resources/com/bonita/engine/authentification/impl/cas/CAS-loginpage.xml")));
+         final String readFileToString = FileUtils
+-                .readFileToString(new File("src/test/resources/com/bonita/engine/authentification/impl/cas/CAS-loginpage.xml"), "UTF-8")
++                .readFileToString(new File(System.getProperty("project.dir") + "/src/test/resources/com/bonita/engine/authentification/impl/cas/CAS-loginpage.xml"), "UTF-8")
+                 .replaceAll(REGEX_LINEBREAK_ALL_PLATFORMS, "");
+         assertThat(xmlDoc).isEqualToIgnoringCase(readFileToString);
+     }
+-- 
+2.18.0
+

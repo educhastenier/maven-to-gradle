@@ -1,0 +1,112 @@
+From 7d0caedde77b4251d49daef20ce9f46f1be24b25 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 26 Jul 2018 11:13:46 +0200
+Subject: [PATCH] fix pom generation of shades
+
+---
+ community/bpm/bonita-server/build.gradle      |  3 --
+ .../engine/gradle/ShadePlugin.groovy          | 36 ++++++++++++++++++-
+ subscription/bpm/bonita-server/build.gradle   |  6 ----
+ 3 files changed, 35 insertions(+), 10 deletions(-)
+
+diff --git a/community/bpm/bonita-server/build.gradle b/community/bpm/bonita-server/build.gradle
+index 9df47ef62a..53a9233cd5 100644
+--- a/community/bpm/bonita-server/build.gradle
++++ b/community/bpm/bonita-server/build.gradle
+@@ -64,7 +64,4 @@ dependencies {
+ shade {
+   exclude project(':engine:platform:platform-setup')
+   exclude project(':engine:platform:platform-resources')
+-  exclude project(':engine:bpm:bonita-api:bonita-common-api')
+-  exclude project(':engine:bpm:bonita-util:bonita-common-util')
+-  exclude project(':engine:bpm:bonita-api:bonita-common-api-impl')
+ }
+\ No newline at end of file
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index 0d80d74557..24d8396341 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -100,6 +100,9 @@ class ShadePlugin implements Plugin<Project> {
+         return projectsToShade.contains(projectDep)
+     }
+ 
++    /*
++     *  get the list of projects to shade
++     */
+     private Set<Project> getShadedProjects(Project project, ShadeExtension extension) {
+         if (!project.ext.has("projectsToShade")) {
+             project.ext.projectsToShade = getAllProjectsToShade(project, extension)
+@@ -107,6 +110,17 @@ class ShadePlugin implements Plugin<Project> {
+         Set<Project> projectsToShade = project.ext.projectsToShade
+         projectsToShade
+     }
++    /*
++     *  get the list of project that are already shaded by other shade
++     *  e.g. bonita-common-util is already shaded by bonita-common
++     */
++    private Set<Project> getProjectAlreadyShaded(Project project, ShadeExtension extension) {
++        if (!project.ext.has("projectsAlreadyShaded")) {
++            project.ext.projectsAlreadyShaded = getAllProjectsAlreadyShaded(project, extension)
++        }
++        Set<Project> projectsToShade = project.ext.projectsAlreadyShaded
++        projectsToShade
++    }
+ 
+     private Project getProjectFromDependency(Project project, ResolvedDependency dependency) {
+         def identifier = dependency.getModuleArtifacts().first().id.componentIdentifier
+@@ -135,6 +149,22 @@ class ShadePlugin implements Plugin<Project> {
+         allProjects
+     }
+ 
++    private Set<Project> getAllProjectsAlreadyShaded(Project project, ShadeExtension extension) {
++        Set allProjects = []
++        def dependencies = project.configurations.compile.dependencies
++        dependencies.forEach {
++            if (it instanceof ProjectDependency) {
++                def projectDependency = it.dependencyProject
++                if (isAShadeProject(projectDependency)) {
++                    //all dependencies of this project are already shaded
++                    allProjects.addAll(getAllProjectsToShade(projectDependency, extension))
++                }else{
++                    allProjects.addAll(getAllProjectsAlreadyShaded(projectDependency, extension))
++                }
++            }
++        }
++        allProjects
++    }
+ 
+     private Set<Dependency> getPomDependencies(Project project, ShadeExtension extension) {
+         Set allDependencies = []
+@@ -142,7 +172,11 @@ class ShadePlugin implements Plugin<Project> {
+         dependencies.forEach {
+             if (it instanceof ProjectDependency) {
+                 def projectDependency = it.dependencyProject
+-                if (isAShadeProject(projectDependency) && !extension.excludes.contains(projectDependency)) {
++                if (extension.excludes.contains(projectDependency)) {
++                    //excluded from shade, add this project and its dependencies
++                    allDependencies.add(projectDependency)
++                    allDependencies.addAll(getPomDependencies(projectDependency, extension))
++                } else if (isAShadeProject(projectDependency)) {
+                     // the project is a shaded project (e.g. bonita-common)
+                     allDependencies.add(projectDependency)
+                 } else {
+diff --git a/subscription/bpm/bonita-server/build.gradle b/subscription/bpm/bonita-server/build.gradle
+index 2a038204bb..6464751aa3 100644
+--- a/subscription/bpm/bonita-server/build.gradle
++++ b/subscription/bpm/bonita-server/build.gradle
+@@ -84,11 +84,5 @@ shade {
+   include group: "org.bonitasoft.security", name: "sysUtil"
+   exclude project(':engine:platform:platform-setup')
+   exclude project(':engine:platform:platform-resources')
+-  exclude project(':engine:bpm:bonita-api:bonita-common-api')
+-  exclude project(':engine:bpm:bonita-util:bonita-common-util')
+-  exclude project(':engine:bpm:bonita-api:bonita-common-api-impl')
+-  exclude project(':engine:bpm:bonita-api:bonita-common-api-impl')
+-  exclude project(':engine:bpm:bonita-api:bonita-common-api')
+-  exclude project(':engine:bpm:bonita-util:bonita-common-util')
+   exclude project(':subscription:platform:platform-resources-sp')
+ }
+\ No newline at end of file
+-- 
+2.18.0
+

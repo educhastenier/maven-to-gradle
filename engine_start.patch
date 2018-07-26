@@ -1,0 +1,66 @@
+From 0dfc3ef1ac0612ae2910b84403e44458669c7a75 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 26 Jul 2018 11:13:21 +0200
+Subject: [PATCH] do not try to start engine if it has failed
+
+---
+ .../engine/test/internal/EngineStarter.java   | 35 ++++++++++++-------
+ 1 file changed, 22 insertions(+), 13 deletions(-)
+
+diff --git a/community/bonita-test-api/src/main/java/org/bonitasoft/engine/test/internal/EngineStarter.java b/community/bonita-test-api/src/main/java/org/bonitasoft/engine/test/internal/EngineStarter.java
+index 2e8a6bc8eb..7fb6c1df35 100644
+--- a/community/bonita-test-api/src/main/java/org/bonitasoft/engine/test/internal/EngineStarter.java
++++ b/community/bonita-test-api/src/main/java/org/bonitasoft/engine/test/internal/EngineStarter.java
+@@ -50,27 +50,36 @@ public class EngineStarter {
+     private static final String DATABASE_DIR = "org.bonitasoft.h2.database.dir";
+ 
+     protected static final Logger LOGGER = LoggerFactory.getLogger(EngineStarter.class.getName());
++    private static boolean hasFailed = false;
+ 
+     private boolean dropOnStart = true;
+     private boolean dropOnStop = true;
+     private ClassPathXmlApplicationContext applicationContext;
+ 
+     public void start() throws Exception {
+-        LOGGER.info("=====================================================");
+-        LOGGER.info("============  Starting Bonita Engine  ===========");
+-        LOGGER.info("=====================================================");
+-        final long startTime = System.currentTimeMillis();
+-        if (System.getProperty("org.bonitasoft.engine.api-type") == null) {
+-            //force it to local if not specified
+-            APITypeManager.setAPITypeAndParams(ApiAccessType.LOCAL, Collections.<String, String> emptyMap());
++        if (hasFailed) {
++            throw new IllegalStateException("Engine has previously failed to start");
+         }
+-        if (APITypeManager.getAPIType().equals(ApiAccessType.LOCAL)) {
+-            prepareEnvironment();
+-            setupPlatform();
+-            initPlatformAndTenant();
++        try {
++            LOGGER.info("=====================================================");
++            LOGGER.info("============  Starting Bonita Engine  ===========");
++            LOGGER.info("=====================================================");
++            final long startTime = System.currentTimeMillis();
++            if (System.getProperty("org.bonitasoft.engine.api-type") == null) {
++                //force it to local if not specified
++                APITypeManager.setAPITypeAndParams(ApiAccessType.LOCAL, Collections.<String, String>emptyMap());
++            }
++            if (APITypeManager.getAPIType().equals(ApiAccessType.LOCAL)) {
++                prepareEnvironment();
++                setupPlatform();
++                initPlatformAndTenant();
++            }
++            deployCommandsOnDefaultTenant();
++            LOGGER.info("==== Finished initialization (took " + (System.currentTimeMillis() - startTime) / 1000 + "s)  ===");
++        } catch (Exception e) {
++            hasFailed = true;
++            throw e;
+         }
+-        deployCommandsOnDefaultTenant();
+-        LOGGER.info("==== Finished initialization (took " + (System.currentTimeMillis() - startTime) / 1000 + "s)  ===");
+     }
+ 
+     protected void setupPlatform() throws NamingException, PlatformException {
+-- 
+2.18.0
+

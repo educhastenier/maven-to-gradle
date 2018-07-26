@@ -104,7 +104,10 @@ git am -3 --ignore-whitespace < $BASEDIR/publish_javadoc.patch # publish javadoc
 git am -3 --ignore-whitespace < $BASEDIR/source_jar.patch # add source jar publishing
 git am -3 --ignore-whitespace < $BASEDIR/global_javadoc.patch # add source jar publishing
 git am -3 --ignore-whitespace < $BASEDIR/dep_mngt_fix.patch # fix dependency management hazelcast version
+<<<<<<< Updated upstream
+git am -3 --ignore-whitespace < $BASEDIR/run_tests_on_all_DB_vendors.patch # run tests on all DB vendors
+=======
 git am -3 --ignore-whitespace < $BASEDIR/shade_pom_gen2.patch # fix pom generation in shades
 git am -3 --ignore-whitespace < $BASEDIR/engine_start.patch # avoid try to start failed engine
 git am -3 --ignore-whitespace < $BASEDIR/test_dir.patch # set and clean test directory
-git am -3 --ignore-whitespace < $BASEDIR/run_tests_on_all_DB_vendors.patch # run tests on all DB vendors
+>>>>>>> Stashed changes
