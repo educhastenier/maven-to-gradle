@@ -1,0 +1,88 @@
+From bfeba1baf77b496090b4242cdaed2d8d4f4d6be0 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 26 Jul 2018 16:02:55 +0200
+Subject: [PATCH] publish platform modules
+
+---
+ build.gradle                                          |  2 +-
+ community/platform/platform-resources/build.gradle    | 11 ++++++++++-
+ .../platform/platform-resources-sp/build.gradle       | 11 ++++++++++-
+ subscription/platform/platform-setup-sp/build.gradle  | 11 ++++++++++-
+ 4 files changed, 31 insertions(+), 4 deletions(-)
+
+diff --git a/build.gradle b/build.gradle
+index fb93a848d5..608eb4f0f2 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -3,7 +3,7 @@ plugins {
+ }
+ 
+ allprojects  {
+-  apply plugin: 'maven'
++  apply plugin: 'maven-publish'
+ 
+   group = 'org.bonitasoft'
+ version = '7.8.0-SNAPSHOT'
+diff --git a/community/platform/platform-resources/build.gradle b/community/platform/platform-resources/build.gradle
+index 1335c0d8f3..f206a79ef3 100644
+--- a/community/platform/platform-resources/build.gradle
++++ b/community/platform/platform-resources/build.gradle
+@@ -32,4 +32,13 @@ distributions {
+ 
+ artifacts {
+     distributionZip distZip
+-}
+\ No newline at end of file
++}
++
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++            artifact distZip
++        }
++    }
++}
+diff --git a/subscription/platform/platform-resources-sp/build.gradle b/subscription/platform/platform-resources-sp/build.gradle
+index 704261461f..9c129a0f54 100644
+--- a/subscription/platform/platform-resources-sp/build.gradle
++++ b/subscription/platform/platform-resources-sp/build.gradle
+@@ -39,4 +39,13 @@ distributions {
+ 
+ artifacts {
+     distributionZip distZip
+-}
+\ No newline at end of file
++}
++
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++            artifact distZip
++        }
++    }
++}
+diff --git a/subscription/platform/platform-setup-sp/build.gradle b/subscription/platform/platform-setup-sp/build.gradle
+index 2fffd9a948..d658eda429 100644
+--- a/subscription/platform/platform-setup-sp/build.gradle
++++ b/subscription/platform/platform-setup-sp/build.gradle
+@@ -84,4 +84,13 @@ tasks.create("integrationTest", Test) {
+   }
+   workingDir testDir
+ }
+-tasks.integrationTest.dependsOn distZip
+\ No newline at end of file
++tasks.integrationTest.dependsOn distZip
++
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++            artifact distZip
++        }
++    }
++}
+-- 
+2.18.0
+
