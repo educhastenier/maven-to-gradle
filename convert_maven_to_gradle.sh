@@ -111,4 +111,4 @@ git am -3 --ignore-whitespace < $BASEDIR/publish_platform.patch # publish platfo
 git am -3 --ignore-whitespace < $BASEDIR/shade_again.patch # shade again
 git am -3 --ignore-whitespace < $BASEDIR/readme.patch # soem readme update and tavis
 git am -3 --ignore-whitespace < $BASEDIR/run_tests_on_all_DB_vendors.patch # run tests on all DB vendors
-git am -3 --ignore-whitespace < $BASEDIR/shade_parent.patch # run tests on all DB vendors
+git am -3 --ignore-whitespace < $BASEDIR/shade_parent.patch # fix parent pom reference

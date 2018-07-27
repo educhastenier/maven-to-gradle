@@ -1,4 +1,4 @@
-From 3b236b38989a003b05c6d96b8cc4eb21a11e26dc Mon Sep 17 00:00:00 2001
+From f92b8031c81bbb3193035cf36c907e50396d7d30 Mon Sep 17 00:00:00 2001
 From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
 Date: Tue, 24 Jul 2018 15:28:03 +0200
 Subject: [PATCH] gradle(DB tests): add capability to run tests on all
@@ -6,7 +6,7 @@ Subject: [PATCH] gradle(DB tests): add capability to run tests on all
 
 ---
  Jenkinsfile                                   |  11 +-
- build.gradle                                  |  12 +-
+ build.gradle                                  |   7 +-
  buildSrc/build.gradle                         |   4 +-
  .../build.gradle                              |   7 +
  community/build.gradle                        |   2 +-
@@ -20,7 +20,7 @@ Subject: [PATCH] gradle(DB tests): add capability to run tests on all
  gradle.properties                             |   2 +-
  .../com/bonitasoft/engine/NodeLauncher.java   |   1 +
  .../build.gradle                              |   7 +-
- 15 files changed, 411 insertions(+), 22 deletions(-)
+ 15 files changed, 410 insertions(+), 18 deletions(-)
  create mode 100644 community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DatabasePluginExtension.groovy
  create mode 100644 community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DbParser.groovy
  create mode 100644 community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DockerDatabaseContainerTasksCreator.groovy
@@ -59,26 +59,21 @@ index 06cb5772d5..7b2ad941ed 100644
              } finally {
                  junit '**/build/test-results/**/*.xml'
 diff --git a/build.gradle b/build.gradle
-index 608eb4f0f2..4039abc9ac 100644
+index 39471858a6..75c22b8709 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -37,12 +37,9 @@ subprojects { sub ->
-   
-   repositories {
+@@ -39,8 +39,8 @@ subprojects { sub ->
      mavenLocal()
--    
--    maven { url "http://repositories.rd.lan/maven/releases/" }
--    maven { url "http://repositories.rd.lan/maven/snapshots/" }
--    maven { url "http://repositories.rd.lan/maven/maintenance.snapshots/" }
+     
+     maven { url "http://repositories.rd.lan/maven/all/" }
 -    maven { url "http://repo.maven.apache.org/maven2" }
 -    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-+    maven { url "http://repositories.rd.lan/maven/all/" }
 +    jcenter()
 +    mavenCentral()
    }
  
    afterEvaluate {
-@@ -56,7 +53,7 @@ subprojects { sub ->
+@@ -54,7 +54,7 @@ subprojects { sub ->
        }
        systemProperty "project.dir", sub.projectDir.getAbsolutePath()
        systemProperty "bonita.version", version
@@ -87,7 +82,7 @@ index 608eb4f0f2..4039abc9ac 100644
          def property = project.property('org.gradle.jvmargs')
          if(property){
            jvmArgs property.toString().split(" ")
-@@ -75,7 +72,6 @@ subprojects { sub ->
+@@ -70,7 +70,6 @@ subprojects { sub ->
      }
    }
  
@@ -133,7 +128,7 @@ index 658e3c3094..f554a97efd 100644
 +    include 'org/bonitasoft/engine/LocalIntegrationTests.class'
 +}
 diff --git a/community/build.gradle b/community/build.gradle
-index 5ac71efd89..b82f39ba98 100644
+index 12681b8096..219ca84410 100644
 --- a/community/build.gradle
 +++ b/community/build.gradle
 @@ -117,7 +117,7 @@ from sourceSets.main.allSource
