@@ -1,0 +1,27 @@
+From 8280e688fddbfe7079f8ceee96b542ab46bee819 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Fri, 27 Jul 2018 16:03:16 +0200
+Subject: [PATCH] fix parent in shade
+
+---
+ .../groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy    | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index 150b3a62ab..0018972f27 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -84,8 +84,8 @@ class ShadePlugin implements Plugin<Project> {
+                         def rootNode = asNode()
+                         if (extension.parentName) {
+                             def parent = rootNode.appendNode("parent")
+-                            parent.appendNode("artifactId",extension.parentGroup)
+-                            parent.appendNode("groupId",extension.parentName)
++                            parent.appendNode("artifactId",extension.parentName)
++                            parent.appendNode("groupId",extension.parentGroup)
+                             parent.appendNode("version",project.version)
+                         }
+                         rootNode.remove(rootNode.children().find { Node child -> child.name() == "dependencyManagement" })
+-- 
+2.18.0
+
