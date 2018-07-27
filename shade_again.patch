@@ -1,0 +1,259 @@
+From 087b0fe4ce46a72d60cb37c8aed1697942c5958f Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Fri, 27 Jul 2018 10:32:33 +0200
+Subject: [PATCH] fix shade for real....
+
+---
+ .../engine/gradle/ShadePlugin.groovy          | 127 +++++++++++-------
+ 1 file changed, 75 insertions(+), 52 deletions(-)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index 24d8396341..afd0e3ca7d 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -2,14 +2,13 @@ package org.bonitasoft.engine.gradle
+ 
+ import org.gradle.api.Plugin
+ import org.gradle.api.Project
+-import org.gradle.api.artifacts.Dependency
+-import org.gradle.api.artifacts.ProjectDependency
+ import org.gradle.api.artifacts.ResolvedDependency
+ import org.gradle.api.artifacts.component.ProjectComponentIdentifier
+ import org.gradle.api.publish.maven.MavenPublication
+ import org.gradle.jvm.tasks.Jar
+ 
+ class ShadePlugin implements Plugin<Project> {
++
+     @Override
+     void apply(Project project) {
+         project.plugins.apply("com.github.johnrengelman.shadow")
+@@ -23,12 +22,20 @@ class ShadePlugin implements Plugin<Project> {
+ 
+         project.afterEvaluate {
+ 
+-
+             project.shadowJar {
+                 classifier = ""
+                 dependencies {
+                     include({
+-                        isIncludedInShade(project, it, extension)
++                        if (!project.ext.has("shadedDependencies")) {
++                            project.ext.shadedDependencies = [] as Set
++                        }
++                        def allProjectsAlreadyShaded = getProjectAlreadyShaded(project, extension)
++                        if (shouldBeIncludedInShade(project, it, extension, allProjectsAlreadyShaded)) {
++                            project.ext.shadedDependencies.add(it)
++                            return true
++                        }
++                        return false
++
+                     })
+                 }
+                 doFirst {
+@@ -36,17 +43,26 @@ class ShadePlugin implements Plugin<Project> {
+                     project.ext.projectsToShade.each {
+                         project.logger.info(" - {}", it)
+                     }
++                    project.logger.info("Effective shading of project {} : ", project.path)
++                    project.ext.shadedDependencies.each {
++                        project.logger.info(" - {}", it)
++                    }
++
+                 }
+             }
+ 
+             project.javadoc {
+-                def projects = getShadedProjects(project, extension)
++                def allProjectsAlreadyShaded = getProjectAlreadyShaded(project, extension)
++                def projects = getShadedProjects(project, extension, allProjectsAlreadyShaded)
+                 source projects.collect { it.sourceSets.main.allJava }
+                 classpath = project.files(projects.collect { it.sourceSets.main.compileClasspath })
+                 options.addStringOption('Xdoclint:none', '-quiet')
+             }
+             project.tasks.create("sourcesJar", Jar) {
+-                from getShadedProjects(project, extension).collect { it.sourceSets.main.allJava }
++                def allProjectsAlreadyShaded = getProjectAlreadyShaded(project, extension)
++                from getShadedProjects(project, extension, allProjectsAlreadyShaded).collect {
++                    it.sourceSets.main.allJava
++                }
+                 classifier = 'sources'
+             }
+             project.tasks.create("javadocJar", Jar) {
+@@ -59,7 +75,8 @@ class ShadePlugin implements Plugin<Project> {
+                     project.shadow.component(publication)
+                     pom.withXml {
+ 
+-                        Set<Dependency> inPom = getPomDependencies(project, extension)
++                        def allProjectsAlreadyShaded = getProjectAlreadyShaded(project, extension)
++                        Set<ResolvedDependency> inPom = getPomDependencies(project, extension, allProjectsAlreadyShaded)
+                         project.logger.info("Include in pom:")
+                         inPom.each {
+                             project.logger.info(" - {}", it)
+@@ -71,9 +88,9 @@ class ShadePlugin implements Plugin<Project> {
+                             Node dependency =
+                                     dependencies
+                                             .appendNode("dependency")
+-                            dependency.appendNode("groupId", gradleDep.group)
+-                            dependency.appendNode("artifactId", gradleDep.name)
+-                            dependency.appendNode("version", gradleDep.version)
++                            dependency.appendNode("groupId", gradleDep.moduleGroup)
++                            dependency.appendNode("artifactId", gradleDep.moduleName)
++                            dependency.appendNode("version", gradleDep.moduleVersion)
+                         }
+                     }
+                 }
+@@ -88,14 +105,14 @@ class ShadePlugin implements Plugin<Project> {
+     }
+ 
+ 
+-    private boolean isIncludedInShade(Project project, ResolvedDependency currentDependency, ShadeExtension extension) {
+-        Set<Project> projectsToShade = getShadedProjects(project, extension)
++    private boolean shouldBeIncludedInShade(Project project, ResolvedDependency currentDependency, ShadeExtension extension, Set<Project> allProjectsAlreadyShaded) {
++        Set<Project> projectsToShade = getShadedProjects(project, extension, allProjectsAlreadyShaded)
+         if (extension.includes.contains(new ShadeInclusion(group: currentDependency.moduleGroup, name: currentDependency.moduleName))) {
+             return true
+         }
+-        def projectDep = getProjectFromDependency(project, currentDependency)
++        def projectDep = getAssociatedProjectFromDependency(project, currentDependency)
+         if (projectDep == null) {
+-            return false
++            return false // dependency is not a project
+         }
+         return projectsToShade.contains(projectDep)
+     }
+@@ -103,26 +120,36 @@ class ShadePlugin implements Plugin<Project> {
+     /*
+      *  get the list of projects to shade
+      */
+-    private Set<Project> getShadedProjects(Project project, ShadeExtension extension) {
++
++    private Set<Project> getShadedProjects(Project project, ShadeExtension extension, Set<Project> allProjectsAlreadyShaded) {
+         if (!project.ext.has("projectsToShade")) {
+-            project.ext.projectsToShade = getAllProjectsToShade(project, extension)
++            project.ext.projectsToShade = getAllProjectsToShade(project, extension, allProjectsAlreadyShaded)
++        }
++        project.ext.projectsToShade
++    }
++
++    private void printTree(Project project, String indentation) {
++        project.configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.each {
++            def dependencyAsProject = getAssociatedProjectFromDependency(project, it)
++            if (dependencyAsProject) {
++                println indentation + dependencyAsProject.name
++                printTree(dependencyAsProject, indentation + "--")
++            }
+         }
+-        Set<Project> projectsToShade = project.ext.projectsToShade
+-        projectsToShade
+     }
+     /*
+      *  get the list of project that are already shaded by other shade
+      *  e.g. bonita-common-util is already shaded by bonita-common
+      */
+-    private Set<Project> getProjectAlreadyShaded(Project project, ShadeExtension extension) {
+-        if (!project.ext.has("projectsAlreadyShaded")) {
+-            project.ext.projectsAlreadyShaded = getAllProjectsAlreadyShaded(project, extension)
++
++    private Set<Project> getProjectAlreadyShaded(Project rootProject, ShadeExtension extension) {
++        if (!rootProject.ext.has("projectsAlreadyShaded")) {
++            rootProject.ext.projectsAlreadyShaded = getAllProjectsAlreadyShaded(rootProject, extension)
+         }
+-        Set<Project> projectsToShade = project.ext.projectsAlreadyShaded
+-        projectsToShade
++        rootProject.ext.projectsAlreadyShaded
+     }
+ 
+-    private Project getProjectFromDependency(Project project, ResolvedDependency dependency) {
++    private Project getAssociatedProjectFromDependency(Project project, ResolvedDependency dependency) {
+         def identifier = dependency.getModuleArtifacts().first().id.componentIdentifier
+         if (!(identifier instanceof ProjectComponentIdentifier)) {
+             return null
+@@ -131,18 +158,17 @@ class ShadePlugin implements Plugin<Project> {
+     }
+ 
+     private boolean isAShadeProject(Project it) {
+-        it.plugins.any { p -> p instanceof ShadePlugin }
++        it.buildFile.text.contains("bonita-shade")
+     }
+ 
+-    private Set<Project> getAllProjectsToShade(Project project, ShadeExtension extension) {
++    private Set<Project> getAllProjectsToShade(Project project, ShadeExtension extension, Set<Project> allProjectsAlreadyShaded) {
+         Set allProjects = []
+-        def dependencies = project.configurations.compile.dependencies
+-        dependencies.forEach {
+-            if (it instanceof ProjectDependency) {
+-                def projectDependency = it.dependencyProject
+-                if (!isAShadeProject(projectDependency) && !extension.excludes.contains(projectDependency)) {
++        project.configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.forEach {
++            def projectDependency = getAssociatedProjectFromDependency(project, it)
++            if (projectDependency) { // is an engine project (service)
++                if (!isAShadeProject(projectDependency) && !extension.excludes.contains(projectDependency) && !allProjectsAlreadyShaded.contains(projectDependency)) {
+                     allProjects.add(projectDependency)
+-                    allProjects.addAll(getAllProjectsToShade(projectDependency, extension))
++                    allProjects.addAll(getAllProjectsToShade(projectDependency, extension, allProjectsAlreadyShaded))
+                 }
+             }
+         }
+@@ -151,13 +177,12 @@ class ShadePlugin implements Plugin<Project> {
+ 
+     private Set<Project> getAllProjectsAlreadyShaded(Project project, ShadeExtension extension) {
+         Set allProjects = []
+-        def dependencies = project.configurations.compile.dependencies
+-        dependencies.forEach {
+-            if (it instanceof ProjectDependency) {
+-                def projectDependency = it.dependencyProject
++        project.configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.forEach {
++            def projectDependency = getAssociatedProjectFromDependency(project, it)
++            if (projectDependency) {
+                 if (isAShadeProject(projectDependency)) {
+                     //all dependencies of this project are already shaded
+-                    allProjects.addAll(getAllProjectsToShade(projectDependency, extension))
++                    allProjects.addAll(getAllProjectsToShade(projectDependency, extension, [] as Set))
+                 }else{
+                     allProjects.addAll(getAllProjectsAlreadyShaded(projectDependency, extension))
+                 }
+@@ -166,28 +191,26 @@ class ShadePlugin implements Plugin<Project> {
+         allProjects
+     }
+ 
+-    private Set<Dependency> getPomDependencies(Project project, ShadeExtension extension) {
++    private Set<ResolvedDependency> getPomDependencies(Project project, ShadeExtension extension, Set<Project> allProjectsAlreadyShaded) {
+         Set allDependencies = []
+-        def dependencies = project.configurations.compile.dependencies
+-        dependencies.forEach {
+-            if (it instanceof ProjectDependency) {
+-                def projectDependency = it.dependencyProject
++        project.configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.forEach {
++            Project projectDependency = getAssociatedProjectFromDependency(project, it)
++            if (projectDependency) {
++                if (allProjectsAlreadyShaded.contains(projectDependency)) {
++                    return // no need to go further
++                }
+                 if (extension.excludes.contains(projectDependency)) {
+-                    //excluded from shade, add this project and its dependencies
+-                    allDependencies.add(projectDependency)
+-                    allDependencies.addAll(getPomDependencies(projectDependency, extension))
++                    //excluded from shade, add this project but NOT its dependencies:
++                    allDependencies.add(it)
+                 } else if (isAShadeProject(projectDependency)) {
+                     // the project is a shaded project (e.g. bonita-common)
+-                    allDependencies.add(projectDependency)
++                    allDependencies.add(it)
+                 } else {
+                     // do not add it: project is shaded inside this project
+-                    allDependencies.addAll(getPomDependencies(projectDependency, extension))
+-                }
+-            } else {
+-                // external: add it in pom only if not in shade
+-                if (!extension.includes.contains(new ShadeInclusion(group: it.group, name: it.name))) {
+-                    allDependencies.add(it)
++                    allDependencies.addAll(getPomDependencies(projectDependency, extension, allProjectsAlreadyShaded))
+                 }
++            } else if (!extension.includes.contains(new ShadeInclusion(group: it.moduleGroup, name: it.moduleName))) {
++                allDependencies.add(it)
+             }
+         }
+         allDependencies
+-- 
+2.18.0
+

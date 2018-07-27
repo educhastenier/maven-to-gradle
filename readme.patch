@@ -1,0 +1,48 @@
+From 3ff02220986f9fdc870611e468b3e47cc60c43d3 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Fri, 27 Jul 2018 10:32:48 +0200
+Subject: [PATCH] update travis and reamde build
+
+---
+ community/.travis.yml | 2 +-
+ community/README.md   | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/community/.travis.yml b/community/.travis.yml
+index 7cb8ba4cb7..7736605be3 100644
+--- a/community/.travis.yml
++++ b/community/.travis.yml
+@@ -10,7 +10,7 @@ before_cache:
+   # ensure that we do not keep bonitasoft artifacts accross builds
+   - rm -f $HOME/.m2/repository/org/bonitasoft
+ 
+-script: ./mvnw --show-version --errors test
++script: ./gradlew --show-version --errors test
+ 
+ branches:
+   only:
+diff --git a/community/README.md b/community/README.md
+index 80f6b62c9c..8e28f4e912 100644
+--- a/community/README.md
++++ b/community/README.md
+@@ -10,7 +10,7 @@ Requirements
+ -------------
+ >     Java JDK 1.8 or higher
+ 
+-This project bundles the [Maven Wrapper](https://github.com/takari/maven-wrapper), so the `mvnw` script is available at
++This project bundles the [Gradle Wrapper](https://github.com/takari/maven-wrapper), so the `mvnw` script is available at
+ the project root.
+ 
+ 
+@@ -18,7 +18,7 @@ Building the Engine
+ -----------------
+ Just run the following Maven command:
+ ```
+-./mvnw install
++./gradlew build
+ ```
+ 
+ To be able to successfully build the Bonita components that use the Engine, run:
+-- 
+2.18.0
+
