@@ -107,7 +107,7 @@ git am -3 --ignore-whitespace < $BASEDIR/dep_mngt_fix.patch # fix dependency man
 git am -3 --ignore-whitespace < $BASEDIR/shade_pom_gen2.patch # fix pom generation in shades
 git am -3 --ignore-whitespace < $BASEDIR/engine_start.patch # avoid try to start failed engine
 git am -3 --ignore-whitespace < $BASEDIR/test_dir.patch # set and clean test directory
-git am -3 --ignore-whitespace < $BASEDIR/run_tests_on_all_DB_vendors.patch # run tests on all DB vendors
 git am -3 --ignore-whitespace < $BASEDIR/publish_platform.patch # publish platform
 git am -3 --ignore-whitespace < $BASEDIR/shade_again.patch # shade again
 git am -3 --ignore-whitespace < $BASEDIR/readme.patch # soem readme update and tavis
+git am -3 --ignore-whitespace < $BASEDIR/run_tests_on_all_DB_vendors.patch # run tests on all DB vendors

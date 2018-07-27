@@ -1,4 +1,4 @@
-From 49a820aaf4534b6cbf02b3929e9099d0dc18f136 Mon Sep 17 00:00:00 2001
+From 3b236b38989a003b05c6d96b8cc4eb21a11e26dc Mon Sep 17 00:00:00 2001
 From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
 Date: Tue, 24 Jul 2018 15:28:03 +0200
 Subject: [PATCH] gradle(DB tests): add capability to run tests on all
@@ -6,7 +6,7 @@ Subject: [PATCH] gradle(DB tests): add capability to run tests on all
 
 ---
  Jenkinsfile                                   |  11 +-
- build.gradle                                  |  11 +-
+ build.gradle                                  |  12 +-
  buildSrc/build.gradle                         |   4 +-
  .../build.gradle                              |   7 +
  community/build.gradle                        |   2 +-
@@ -18,9 +18,9 @@ Subject: [PATCH] gradle(DB tests): add capability to run tests on all
  .../docker/JdbcDriverDependencies.groovy      |  24 +++
  .../bonita-business-data-impl/build.gradle    |  15 ++
  gradle.properties                             |   2 +-
- .../com/bonitasoft/engine/NodeLauncher.java   |   3 +-
+ .../com/bonitasoft/engine/NodeLauncher.java   |   1 +
  .../build.gradle                              |   7 +-
- 15 files changed, 412 insertions(+), 22 deletions(-)
+ 15 files changed, 411 insertions(+), 22 deletions(-)
  create mode 100644 community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DatabasePluginExtension.groovy
  create mode 100644 community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DbParser.groovy
  create mode 100644 community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DockerDatabaseContainerTasksCreator.groovy
@@ -28,7 +28,7 @@ Subject: [PATCH] gradle(DB tests): add capability to run tests on all
  create mode 100644 community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/JdbcDriverDependencies.groovy
 
 diff --git a/Jenkinsfile b/Jenkinsfile
-index 06cb5772d5e..7b2ad941ed7 100644
+index 06cb5772d5..7b2ad941ed 100644
 --- a/Jenkinsfile
 +++ b/Jenkinsfile
 @@ -1,24 +1,17 @@
@@ -59,10 +59,10 @@ index 06cb5772d5e..7b2ad941ed7 100644
              } finally {
                  junit '**/build/test-results/**/*.xml'
 diff --git a/build.gradle b/build.gradle
-index 06eeb143a20..54b388ab793 100644
+index 608eb4f0f2..4039abc9ac 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -15,17 +15,14 @@ subprojects {
+@@ -37,12 +37,9 @@ subprojects { sub ->
    
    repositories {
      mavenLocal()
@@ -78,14 +78,25 @@ index 06eeb143a20..54b388ab793 100644
    }
  
    afterEvaluate {
-     tasks.withType(Test) { testTask ->
+@@ -56,7 +53,7 @@ subprojects { sub ->
+       }
+       systemProperty "project.dir", sub.projectDir.getAbsolutePath()
+       systemProperty "bonita.version", version
 -      if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
 +      if (testTask.name == "integrationTest" || testTask.name == "slowtest" || testTask.name.endsWith('DatabaseTest')) {
          def property = project.property('org.gradle.jvmargs')
          if(property){
            jvmArgs property.toString().split(" ")
+@@ -75,7 +72,6 @@ subprojects { sub ->
+     }
+   }
+ 
+-  
+ }
+ apply plugin: 'maven-publish'
+ 
 diff --git a/buildSrc/build.gradle b/buildSrc/build.gradle
-index e4c7d207f01..d3acddc4c3f 100644
+index e4c7d207f0..d3acddc4c3 100644
 --- a/buildSrc/build.gradle
 +++ b/buildSrc/build.gradle
 @@ -4,7 +4,9 @@ dependencies {
@@ -101,7 +112,7 @@ index e4c7d207f01..d3acddc4c3f 100644
  }
 \ No newline at end of file
 diff --git a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
-index 658e3c3094c..f554a97efde 100644
+index 658e3c3094..f554a97efd 100644
 --- a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
 +++ b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
 @@ -1,5 +1,8 @@
@@ -122,20 +133,20 @@ index 658e3c3094c..f554a97efde 100644
 +    include 'org/bonitasoft/engine/LocalIntegrationTests.class'
 +}
 diff --git a/community/build.gradle b/community/build.gradle
-index bf3a0d8365e..cc63aaa10fa 100644
+index 5ac71efd89..b82f39ba98 100644
 --- a/community/build.gradle
 +++ b/community/build.gradle
-@@ -41,7 +41,7 @@ from sourceSets.main.allSource
- 
-       afterEvaluate {
-           tasks.withType(Test) { testTask ->
+@@ -117,7 +117,7 @@ from sourceSets.main.allSource
+               }
+               systemProperty "project.dir", sub.projectDir.getAbsolutePath()
+               systemProperty "bonita.version", version
 -              if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
 +              if (testTask.name == "integrationTest" || testTask.name == "slowtest" || testTask.name.endsWith('DatabaseTest')) {
                    def property = project.property('org.gradle.jvmargs')
-                   if (property) {
+                   if(property){
                        jvmArgs property.toString().split(" ")
 diff --git a/community/buildSrc/build.gradle b/community/buildSrc/build.gradle
-index 030213f6558..877936880a0 100644
+index 030213f655..877936880a 100644
 --- a/community/buildSrc/build.gradle
 +++ b/community/buildSrc/build.gradle
 @@ -8,14 +8,18 @@ repositories {
@@ -161,7 +172,7 @@ index 030213f6558..877936880a0 100644
 \ No newline at end of file
 diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DatabasePluginExtension.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DatabasePluginExtension.groovy
 new file mode 100644
-index 00000000000..dc0865b7917
+index 0000000000..dc0865b791
 --- /dev/null
 +++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DatabasePluginExtension.groovy
 @@ -0,0 +1,35 @@
@@ -202,7 +213,7 @@ index 00000000000..dc0865b7917
 +}
 diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DbParser.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DbParser.groovy
 new file mode 100644
-index 00000000000..0396cc87cee
+index 0000000000..0396cc87ce
 --- /dev/null
 +++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DbParser.groovy
 @@ -0,0 +1,80 @@
@@ -288,7 +299,7 @@ index 00000000000..0396cc87cee
 +}
 diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DockerDatabaseContainerTasksCreator.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DockerDatabaseContainerTasksCreator.groovy
 new file mode 100644
-index 00000000000..bf3315943d7
+index 0000000000..bf3315943d
 --- /dev/null
 +++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DockerDatabaseContainerTasksCreator.groovy
 @@ -0,0 +1,189 @@
@@ -483,7 +494,7 @@ index 00000000000..bf3315943d7
 +}
 diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DockerDatabasePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DockerDatabasePlugin.groovy
 new file mode 100644
-index 00000000000..418584dffa8
+index 0000000000..418584dffa
 --- /dev/null
 +++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/DockerDatabasePlugin.groovy
 @@ -0,0 +1,38 @@
@@ -527,7 +538,7 @@ index 00000000000..418584dffa8
 +}
 diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/JdbcDriverDependencies.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/JdbcDriverDependencies.groovy
 new file mode 100644
-index 00000000000..f6c9262b31d
+index 0000000000..f6c9262b31
 --- /dev/null
 +++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/docker/JdbcDriverDependencies.groovy
 @@ -0,0 +1,24 @@
@@ -556,7 +567,7 @@ index 00000000000..f6c9262b31d
 +
 +}
 diff --git a/community/services/bonita-business-data/bonita-business-data-impl/build.gradle b/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
-index 8a786d1cc8f..09792b39910 100644
+index 8a786d1cc8..09792b3991 100644
 --- a/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
 +++ b/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
 @@ -1,3 +1,5 @@
@@ -586,7 +597,7 @@ index 8a786d1cc8f..09792b39910 100644
 +}
 \ No newline at end of file
 diff --git a/gradle.properties b/gradle.properties
-index 656f2e60988..0edf5843a7b 100644
+index 656f2e6098..0edf5843a7 100644
 --- a/gradle.properties
 +++ b/gradle.properties
 @@ -1 +1 @@
@@ -595,28 +606,19 @@ index 656f2e60988..0edf5843a7b 100644
 +org.gradle.jvmargs=-Dfile.encoding=UTF-8 -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap
 \ No newline at end of file
 diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java
-index 391e48081c9..7f78f86a901 100644
+index 550992cc2b..0a6d47dae8 100644
 --- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java
 +++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java
-@@ -24,7 +24,7 @@ import com.bonitasoft.engine.api.PlatformAPIAccessor;
- public class NodeLauncher {
- 
-     public static NodeRef start(String nodeName, int port, int healthCheckServerPort) throws IOException {
--        File target = new File("");
-+        File target = new File(".");
- 
-         List<String> command = new ArrayList<>();
-         command.add(getJavaPath());
-@@ -33,6 +33,7 @@ public class NodeLauncher {
-                 .getInputArguments()
+@@ -34,6 +34,7 @@ public class NodeLauncher {
                  .stream()
+                 .distinct()
                  .filter(arg -> arg.startsWith("-XX"))
 +                .distinct()
                  .collect(Collectors.toList());
          if (!jvmFlags.isEmpty()) {
              System.out.println("Adding flags from source JVM: " + jvmFlags);
 diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle
-index 2f3cd304e38..d5b6527b8af 100644
+index 2f3cd304e3..d5b6527b8a 100644
 --- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle
 +++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle
 @@ -1,11 +1,11 @@
