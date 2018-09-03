@@ -1,0 +1,22 @@
+From df484656370f826d5259e1b46c954ac5c95a872d Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Mon, 3 Sep 2018 16:11:45 +0200
+Subject: [PATCH] test: fix compile of http-api tests
+
+---
+ community/bpm/bonita-api/bonita-server-api-http/build.gradle | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/community/bpm/bonita-api/bonita-server-api-http/build.gradle b/community/bpm/bonita-api/bonita-server-api-http/build.gradle
+index 0d36c11296..6a20392f01 100644
+--- a/community/bpm/bonita-api/bonita-server-api-http/build.gradle
++++ b/community/bpm/bonita-api/bonita-server-api-http/build.gradle
+@@ -15,4 +15,5 @@ dependencies {
+     testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
+     testCompile group: 'org.springframework', name: 'spring-webmvc', version:'5.0.6.RELEASE'
+     compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version:'3.0.1'
++  testCompile group: 'javax.servlet', name: 'javax.servlet-api', version:'3.0.1'
+ }
+-- 
+2.18.0
+

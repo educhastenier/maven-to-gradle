@@ -62,17 +62,6 @@ diff --git a/build.gradle b/build.gradle
 index 39471858a6..75c22b8709 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -39,8 +39,8 @@ subprojects { sub ->
-     mavenLocal()
-     
-     maven { url "http://repositories.rd.lan/maven/all/" }
--    maven { url "http://repo.maven.apache.org/maven2" }
--    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
-+    jcenter()
-+    mavenCentral()
-   }
- 
-   afterEvaluate {
 @@ -54,7 +54,7 @@ subprojects { sub ->
        }
        systemProperty "project.dir", sub.projectDir.getAbsolutePath()
@@ -82,14 +71,6 @@ index 39471858a6..75c22b8709 100644
          def property = project.property('org.gradle.jvmargs')
          if(property){
            jvmArgs property.toString().split(" ")
-@@ -70,7 +70,6 @@ subprojects { sub ->
-     }
-   }
- 
--  
- }
- apply plugin: 'maven-publish'
- 
 diff --git a/buildSrc/build.gradle b/buildSrc/build.gradle
 index e4c7d207f0..d3acddc4c3 100644
 --- a/buildSrc/build.gradle

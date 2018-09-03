@@ -113,3 +113,4 @@ git am -3 --ignore-whitespace < $BASEDIR/readme.patch # soem readme update and t
 git am -3 --ignore-whitespace < $BASEDIR/run_tests_on_all_DB_vendors.patch # run tests on all DB vendors
 git am -3 --ignore-whitespace < $BASEDIR/shade_parent.patch # fix parent pom reference
 git am -3 --ignore-whitespace < $BASEDIR/shade_parent2.patch # fix parent pom reference
+git am -3 --ignore-whitespace < $BASEDIR/http_tests.patch # fix compile of http tests
