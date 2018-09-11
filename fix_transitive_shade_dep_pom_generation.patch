@@ -1,0 +1,147 @@
+From f30318191e09dac1223b9b7ddcd4c0b8acd7bb9c Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Mon, 10 Sep 2018 22:19:41 +0200
+Subject: [PATCH] Fix pom generation when transitive dep is itself a shade
+
+---
+ .../engine/gradle/ShadePlugin.groovy          | 48 +++++++++++--------
+ 1 file changed, 29 insertions(+), 19 deletions(-)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index 0018972f27..ce7b240214 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -23,13 +23,14 @@ class ShadePlugin implements Plugin<Project> {
+         project.afterEvaluate {
+ 
+             project.shadowJar {
+-                classifier = ""
++                classifier = "" // we replace the original jar by the shadow jar
+                 dependencies {
+                     include({
+                         if (!project.ext.has("shadedDependencies")) {
++                            // "shadedDependencies" property is used for display only
+                             project.ext.shadedDependencies = [] as Set
+                         }
+-                        def allProjectsAlreadyShaded = getProjectAlreadyShaded(project, extension)
++                        def allProjectsAlreadyShaded = getProjectsAlreadyShaded(project, extension)
+                         if (shouldBeIncludedInShade(project, it, extension, allProjectsAlreadyShaded)) {
+                             project.ext.shadedDependencies.add(it)
+                             return true
+@@ -52,14 +53,14 @@ class ShadePlugin implements Plugin<Project> {
+             }
+ 
+             project.javadoc {
+-                def allProjectsAlreadyShaded = getProjectAlreadyShaded(project, extension)
++                def allProjectsAlreadyShaded = getProjectsAlreadyShaded(project, extension)
+                 def projects = getShadedProjects(project, extension, allProjectsAlreadyShaded)
+                 source projects.collect { it.sourceSets.main.allJava }
+                 classpath = project.files(projects.collect { it.sourceSets.main.compileClasspath })
+                 options.addStringOption('Xdoclint:none', '-quiet')
+             }
+             project.tasks.create("sourcesJar", Jar) {
+-                def allProjectsAlreadyShaded = getProjectAlreadyShaded(project, extension)
++                def allProjectsAlreadyShaded = getProjectsAlreadyShaded(project, extension)
+                 from getShadedProjects(project, extension, allProjectsAlreadyShaded).collect {
+                     it.sourceSets.main.allJava
+                 }
+@@ -74,9 +75,8 @@ class ShadePlugin implements Plugin<Project> {
+                 shadow(MavenPublication) { publication ->
+                     project.shadow.component(publication)
+                     pom.withXml {
+-
+-                        def allProjectsAlreadyShaded = getProjectAlreadyShaded(project, extension)
+-                        Set<ResolvedDependency> inPom = getPomDependencies(project, extension, allProjectsAlreadyShaded)
++                        def allProjectsAlreadyShaded = getProjectsAlreadyShaded(project, extension)
++                        Set<ResolvedDependency> inPom = getPomDependencies(project, extension, allProjectsAlreadyShaded, true)
+                         project.logger.info("Include in pom:")
+                         inPom.each {
+                             project.logger.info(" - {}", it)
+@@ -84,9 +84,9 @@ class ShadePlugin implements Plugin<Project> {
+                         def rootNode = asNode()
+                         if (extension.parentName) {
+                             def parent = rootNode.appendNode("parent")
+-                            parent.appendNode("artifactId",extension.parentName)
+-                            parent.appendNode("groupId",extension.parentGroup)
+-                            parent.appendNode("version",project.version)
++                            parent.appendNode("artifactId", extension.parentName)
++                            parent.appendNode("groupId", extension.parentGroup)
++                            parent.appendNode("version", project.version)
+                         }
+                         rootNode.remove(rootNode.children().find { Node child -> child.name() == "dependencyManagement" })
+                         Node dependencies = rootNode.children().find { Node child -> child.name() == "dependencies" }
+@@ -143,18 +143,22 @@ class ShadePlugin implements Plugin<Project> {
+             }
+         }
+     }
++
+     /*
+      *  get the list of project that are already shaded by other shade
+      *  e.g. bonita-common-util is already shaded by bonita-common
+      */
+ 
+-    private Set<Project> getProjectAlreadyShaded(Project rootProject, ShadeExtension extension) {
+-        if (!rootProject.ext.has("projectsAlreadyShaded")) {
++    private Set<Project> getProjectsAlreadyShaded(Project rootProject, ShadeExtension extension) {
++        if (!rootProject.ext.has("projectsAlreadyShaded")) { // add property "projectsAlreadyShaded" to act like a cache
+             rootProject.ext.projectsAlreadyShaded = getAllProjectsAlreadyShaded(rootProject, extension)
+         }
+         rootProject.ext.projectsAlreadyShaded
+     }
+ 
++    /**
++     * get the Project (object) from the ResolvedDependency (object)
++     */
+     private Project getAssociatedProjectFromDependency(Project project, ResolvedDependency dependency) {
+         def identifier = dependency.getModuleArtifacts().first().id.componentIdentifier
+         if (!(identifier instanceof ProjectComponentIdentifier)) {
+@@ -183,13 +187,14 @@ class ShadePlugin implements Plugin<Project> {
+ 
+     private Set<Project> getAllProjectsAlreadyShaded(Project project, ShadeExtension extension) {
+         Set allProjects = []
++        // Take all declared compilation dependencies:
+         project.configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.forEach {
+             def projectDependency = getAssociatedProjectFromDependency(project, it)
+             if (projectDependency) {
+-                if (isAShadeProject(projectDependency)) {
+-                    //all dependencies of this project are already shaded
++                if (isAShadeProject(projectDependency)) { // this dependency is a shade project
++                    //all dependencies of this shade project are already shaded, let's add them all to the list:
+                     allProjects.addAll(getAllProjectsToShade(projectDependency, extension, [] as Set))
+-                }else{
++                } else {
+                     allProjects.addAll(getAllProjectsAlreadyShaded(projectDependency, extension))
+                 }
+             }
+@@ -197,7 +202,7 @@ class ShadePlugin implements Plugin<Project> {
+         allProjects
+     }
+ 
+-    private Set<ResolvedDependency> getPomDependencies(Project project, ShadeExtension extension, Set<Project> allProjectsAlreadyShaded) {
++    private Set<ResolvedDependency> getPomDependencies(Project project, ShadeExtension extension, Set<Project> allProjectsAlreadyShaded, boolean isRootProject) {
+         Set allDependencies = []
+         project.configurations.compile.resolvedConfiguration.firstLevelModuleDependencies.forEach {
+             Project projectDependency = getAssociatedProjectFromDependency(project, it)
+@@ -209,11 +214,16 @@ class ShadePlugin implements Plugin<Project> {
+                     //excluded from shade, add this project but NOT its dependencies:
+                     allDependencies.add(it)
+                 } else if (isAShadeProject(projectDependency)) {
+-                    // the project is a shaded project (e.g. bonita-common)
+-                    allDependencies.add(it)
++                    // the project is a shaded project (e.g. bonita-common-sp in bonita-server-sp)
++                    // only add it if it is not a shade pulled by transitivity:
++                    if (isRootProject) {
++                        allDependencies.add(it)
++                    } else {
++                        project.logger.info(" Shade POM generation: ignoring {}, as it is pulled as transitive shade project", projectDependency.name)
++                    }
+                 } else {
+                     // do not add it: project is shaded inside this project
+-                    allDependencies.addAll(getPomDependencies(projectDependency, extension, allProjectsAlreadyShaded))
++                    allDependencies.addAll(getPomDependencies(projectDependency, extension, allProjectsAlreadyShaded, false))
+                 }
+             } else if (!extension.includes.contains(new ShadeInclusion(group: it.moduleGroup, name: it.moduleName))) {
+                 allDependencies.add(it)
+-- 
+2.17.1
+

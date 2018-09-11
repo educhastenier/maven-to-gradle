@@ -114,3 +114,4 @@ git am -3 --ignore-whitespace < $BASEDIR/run_tests_on_all_DB_vendors.patch # run
 git am -3 --ignore-whitespace < $BASEDIR/shade_parent.patch # fix parent pom reference
 git am -3 --ignore-whitespace < $BASEDIR/shade_parent2.patch # fix parent pom reference
 git am -3 --ignore-whitespace < $BASEDIR/http_tests.patch # fix compile of http tests
+git am -3 --ignore-whitespace < $BASEDIR/fix_transitive_shade_dep_pom_generation.patch # Fix pom generation when transitive dep is itself a shade
