@@ -1,0 +1,44 @@
+From db976861be8d60552a9f1d501fa4e29647b8fd4b Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Tue, 11 Sep 2018 17:18:24 +0200
+Subject: [PATCH] Fix pom generation by declaring all transitive deps of 3rd
+ party libs
+
+---
+ .../bonitasoft/engine/gradle/ShadePlugin.groovy | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index ce7b240214..9276a2a13e 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -226,10 +226,25 @@ class ShadePlugin implements Plugin<Project> {
+                     allDependencies.addAll(getPomDependencies(projectDependency, extension, allProjectsAlreadyShaded, false))
+                 }
+             } else if (!extension.includes.contains(new ShadeInclusion(group: it.moduleGroup, name: it.moduleName))) {
+-                allDependencies.add(it)
++                // also add transitive dependencies of third-party libs:
++                allDependencies.addAll(getTransitiveThirdPartyDependencies(it, "", project))
+             }
+         }
+         allDependencies
+     }
+ 
++    /**
++     * Returns a Set of the passed ResolvedDependency itself + all its children, recursively
++     * @param indent indentation string, for display purposes
++     */
++    private Set<ResolvedDependency> getTransitiveThirdPartyDependencies(ResolvedDependency current, String indent, Project project) {
++        def res = [] as Set
++        res.add(current)
++        project.logger.debug(" Shade POM generation: adding ${indent}${current.name}")
++        current.getChildren().forEach { child ->
++            res.addAll(getTransitiveThirdPartyDependencies(child, indent + "  ", project))
++        }
++        return res
++    }
++
+ }
+-- 
+2.17.1
+
