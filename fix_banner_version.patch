@@ -1,0 +1,65 @@
+From 3dffb9db563f5eb57a7a24bb19d27096469f50c9 Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Thu, 13 Sep 2018 15:45:58 +0200
+Subject: [PATCH] Fix resource filtering Gradle != Maven (banner.txt)
+
+---
+ community/platform/platform-setup/build.gradle    | 15 ++++++---------
+ .../src/main/resources/PLATFORM_ENGINE_VERSION    |  2 +-
+ .../platform-setup/src/main/resources/banner.txt  |  2 +-
+ 3 files changed, 8 insertions(+), 11 deletions(-)
+
+diff --git a/community/platform/platform-setup/build.gradle b/community/platform/platform-setup/build.gradle
+index 958568e0b0..15f253dc3d 100644
+--- a/community/platform/platform-setup/build.gradle
++++ b/community/platform/platform-setup/build.gradle
+@@ -1,3 +1,5 @@
++import org.apache.tools.ant.filters.ReplaceTokens
++
+ group = 'org.bonitasoft.platform'
+ 
+ apply plugin: 'distribution'
+@@ -45,17 +47,12 @@ task packageTests(type: Jar) {
+ }
+ artifacts.archives packageTests
+ 
+-
+-def generatePlatformEngineVersion = task("generatePlatformEngineVersion") {
+-    doFirst{
+-        project.file("build/generated/main/resources/").mkdirs()
+-        project.file("build/generated/main/resources/PLATFORM_ENGINE_VERSION").text =
+-                "$project.version"
++processResources {
++    from('src/main/resources') {
++        include '*'
++        filter(ReplaceTokens, tokens: [version: project.version])
+     }
+-    inputs.property "version", project.version
+-    outputs.file project.file("build/generated/main/resources/PLATFORM_ENGINE_VERSION")
+ }
+-processResources.dependsOn generatePlatformEngineVersion
+ 
+ sourceSets {
+     main {
+diff --git a/community/platform/platform-setup/src/main/resources/PLATFORM_ENGINE_VERSION b/community/platform/platform-setup/src/main/resources/PLATFORM_ENGINE_VERSION
+index f2ab45c3b0..75c5f7d16c 100644
+--- a/community/platform/platform-setup/src/main/resources/PLATFORM_ENGINE_VERSION
++++ b/community/platform/platform-setup/src/main/resources/PLATFORM_ENGINE_VERSION
+@@ -1 +1 @@
+-${project.version}
+\ No newline at end of file
++@version@
+\ No newline at end of file
+diff --git a/community/platform/platform-setup/src/main/resources/banner.txt b/community/platform/platform-setup/src/main/resources/banner.txt
+index a082602809..eec3c0681a 100644
+--- a/community/platform/platform-setup/src/main/resources/banner.txt
++++ b/community/platform/platform-setup/src/main/resources/banner.txt
+@@ -5,4 +5,4 @@
+ | |_) | (_) | | | | | || (_| |
+ |____/ \___/|_| |_|_|\__\__,_|
+ 
+-(Platform Setup ${project.version})
++(Platform Setup @version@)
+-- 
+2.17.1
+
