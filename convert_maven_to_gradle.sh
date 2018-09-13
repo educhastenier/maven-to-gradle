@@ -116,3 +116,4 @@ git am -3 --ignore-whitespace < $BASEDIR/shade_parent2.patch # fix parent pom re
 git am -3 --ignore-whitespace < $BASEDIR/http_tests.patch # fix compile of http tests
 git am -3 --ignore-whitespace < $BASEDIR/fix_transitive_shade_dep_pom_generation.patch # Fix pom generation when transitive dep is itself a shade
 git am -3 --ignore-whitespace < $BASEDIR/fix_transitive_3rd_patry_deps_pom_generation.patch # Fix pom generation by declaring all transitive deps of 3rd party libs
+git am -3 --ignore-whitespace < $BASEDIR/shade_pom_generation_declarative_exclusions.patch # Shade Pom generation: Support declarative exclusions

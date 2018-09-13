@@ -1,0 +1,151 @@
+From 6e9394e82d4f0d1c4677c098732a2c2a53fa3f96 Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Thu, 13 Sep 2018 14:43:21 +0200
+Subject: [PATCH] Shade Pom generation: Support declarative exclusions
+
+---
+ community/bpm/bonita-server/build.gradle          |  6 ++++++
+ ...adeInclusion.groovy => ShadeDependency.groovy} |  2 +-
+ .../engine/gradle/ShadeExtension.groovy           |  9 +++++++--
+ .../bonitasoft/engine/gradle/ShadePlugin.groovy   | 15 ++++++++++++---
+ subscription/bpm/bonita-server/build.gradle       |  4 ++++
+ 5 files changed, 30 insertions(+), 6 deletions(-)
+ rename community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/{ShadeInclusion.groovy => ShadeDependency.groovy} (88%)
+
+diff --git a/community/bpm/bonita-server/build.gradle b/community/bpm/bonita-server/build.gradle
+index 34bed39339..f54f96dbf0 100644
+--- a/community/bpm/bonita-server/build.gradle
++++ b/community/bpm/bonita-server/build.gradle
+@@ -1,3 +1,5 @@
++import org.bonitasoft.engine.gradle.ShadeDependency
++
+ apply plugin: 'bonita-shade'
+ 
+ description = 'Bonita Server'
+@@ -64,6 +66,10 @@ dependencies {
+ shade {
+   exclude project(':engine:platform:platform-setup')
+   exclude project(':engine:platform:platform-resources')
++
++  excludeLibs('hibernate-core', new ShadeDependency(group: 'org.jboss.spec.javax.transaction', name: 'jboss-transaction-api_1.2_spec'))
++  excludeLibs('hibernate-entitymanager', new ShadeDependency(group: 'org.jboss.spec.javax.transaction', name: 'jboss-transaction-api_1.2_spec'))
++
+   parentGroup 'org.bonitasoft.engine'
+   parentName 'bonita-engine'
+ }
+\ No newline at end of file
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeInclusion.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeDependency.groovy
+similarity index 88%
+rename from community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeInclusion.groovy
+rename to community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeDependency.groovy
+index 9bf27f120e..0ed2ddbb03 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeInclusion.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeDependency.groovy
+@@ -5,7 +5,7 @@ import groovy.transform.ToString
+ 
+ @ToString
+ @EqualsAndHashCode
+-class ShadeInclusion {
++class ShadeDependency {
+ 
+     String group
+     String name
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy
+index f983c93138..076905ed81 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy
+@@ -4,16 +4,21 @@ import org.gradle.api.Project
+ 
+ class ShadeExtension {
+ 
+-    List<ShadeInclusion> includes = []
++    List<ShadeDependency> includes = []
+     List<Project> excludes = []
++    Map<String, List<ShadeDependency>> libExclusions = [:] as Map
+     String parentGroup
+     String parentName
+ 
+     def include(Map<String, String> artifact) {
+-        includes.add(new ShadeInclusion(artifact))
++        includes.add(new ShadeDependency(artifact))
+     }
+ 
+     def exclude(Project project) {
+         excludes.add(project)
+     }
++
++    def excludeLibs(String refereeLib, ShadeDependency... libsToExclude) {
++        libExclusions.put(refereeLib, Arrays.asList(libsToExclude))
++    }
+ }
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index 9276a2a13e..a6eebcc0d7 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -97,6 +97,15 @@ class ShadePlugin implements Plugin<Project> {
+                             dependency.appendNode("groupId", gradleDep.moduleGroup)
+                             dependency.appendNode("artifactId", gradleDep.moduleName)
+                             dependency.appendNode("version", gradleDep.moduleVersion)
++                            if (extension.libExclusions.containsKey(gradleDep.moduleName)) {
++                                Node es = dependency.appendNode('exclusions')
++                                List<ShadeDependency> excludes = extension.libExclusions.get(gradleDep.moduleName)
++                                excludes.each {
++                                    Node e = es.appendNode('exclusion')
++                                    e.appendNode('groupId', it.group)
++                                    e.appendNode('artifactId', it.name)
++                                }
++                            }
+                         }
+                     }
+                 }
+@@ -113,7 +122,7 @@ class ShadePlugin implements Plugin<Project> {
+ 
+     private boolean shouldBeIncludedInShade(Project project, ResolvedDependency currentDependency, ShadeExtension extension, Set<Project> allProjectsAlreadyShaded) {
+         Set<Project> projectsToShade = getShadedProjects(project, extension, allProjectsAlreadyShaded)
+-        if (extension.includes.contains(new ShadeInclusion(group: currentDependency.moduleGroup, name: currentDependency.moduleName))) {
++        if (extension.includes.contains(new ShadeDependency(group: currentDependency.moduleGroup, name: currentDependency.moduleName))) {
+             return true
+         }
+         def projectDep = getAssociatedProjectFromDependency(project, currentDependency)
+@@ -225,7 +234,7 @@ class ShadePlugin implements Plugin<Project> {
+                     // do not add it: project is shaded inside this project
+                     allDependencies.addAll(getPomDependencies(projectDependency, extension, allProjectsAlreadyShaded, false))
+                 }
+-            } else if (!extension.includes.contains(new ShadeInclusion(group: it.moduleGroup, name: it.moduleName))) {
++            } else if (!extension.includes.contains(new ShadeDependency(group: it.moduleGroup, name: it.moduleName))) {
+                 // also add transitive dependencies of third-party libs:
+                 allDependencies.addAll(getTransitiveThirdPartyDependencies(it, "", project))
+             }
+@@ -239,8 +248,8 @@ class ShadePlugin implements Plugin<Project> {
+      */
+     private Set<ResolvedDependency> getTransitiveThirdPartyDependencies(ResolvedDependency current, String indent, Project project) {
+         def res = [] as Set
+-        res.add(current)
+         project.logger.debug(" Shade POM generation: adding ${indent}${current.name}")
++        res.add(current)
+         current.getChildren().forEach { child ->
+             res.addAll(getTransitiveThirdPartyDependencies(child, indent + "  ", project))
+         }
+diff --git a/subscription/bpm/bonita-server/build.gradle b/subscription/bpm/bonita-server/build.gradle
+index f8e71e82f6..f3c781e175 100644
+--- a/subscription/bpm/bonita-server/build.gradle
++++ b/subscription/bpm/bonita-server/build.gradle
+@@ -1,3 +1,5 @@
++import org.bonitasoft.engine.gradle.ShadeDependency
++
+ apply plugin: 'bonita-shade'
+ 
+ group = 'com.bonitasoft.engine'
+@@ -85,6 +87,8 @@ shade {
+   exclude project(':engine:platform:platform-setup')
+   exclude project(':engine:platform:platform-resources')
+   exclude project(':subscription:platform:platform-resources-sp')
++  excludeLibs('hibernate-core', new ShadeDependency(group: 'org.jboss.spec.javax.transaction', name: 'jboss-transaction-api_1.2_spec'))
++  excludeLibs('hibernate-entitymanager', new ShadeDependency(group: 'org.jboss.spec.javax.transaction', name: 'jboss-transaction-api_1.2_spec'))
+   parentGroup 'com.bonitasoft.engine'
+   parentName 'bonita-engine-sp'
+ }
+\ No newline at end of file
+-- 
+2.17.1
+
