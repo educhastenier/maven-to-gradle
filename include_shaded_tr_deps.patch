@@ -1,0 +1,53 @@
+From 0310bafa25d82c70ff423e2cf416e71590b3ed16 Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Fri, 14 Sep 2018 14:03:35 +0200
+Subject: [PATCH] Fix server + server sp missing or extra dependencies in pom
+
+---
+ community/bpm/bonita-server/build.gradle    | 1 +
+ subscription/bpm/bonita-server/build.gradle | 8 ++++++--
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/community/bpm/bonita-server/build.gradle b/community/bpm/bonita-server/build.gradle
+index f54f96dbf0..db7632ae39 100644
+--- a/community/bpm/bonita-server/build.gradle
++++ b/community/bpm/bonita-server/build.gradle
+@@ -69,6 +69,7 @@ shade {
+ 
+   excludeLibs('hibernate-core', new ShadeDependency(group: 'org.jboss.spec.javax.transaction', name: 'jboss-transaction-api_1.2_spec'))
+   excludeLibs('hibernate-entitymanager', new ShadeDependency(group: 'org.jboss.spec.javax.transaction', name: 'jboss-transaction-api_1.2_spec'))
++  excludeLibs('platform-setup', new ShadeDependency(group: 'ch.qos.logback', name: '*'))
+ 
+   parentGroup 'org.bonitasoft.engine'
+   parentName 'bonita-engine'
+diff --git a/subscription/bpm/bonita-server/build.gradle b/subscription/bpm/bonita-server/build.gradle
+index f3c781e175..17a3a75c37 100644
+--- a/subscription/bpm/bonita-server/build.gradle
++++ b/subscription/bpm/bonita-server/build.gradle
+@@ -78,7 +78,7 @@ dependencies {
+     compile group: 'com.hazelcast', name: 'hazelcast-hibernate4', version:'3.8.1'
+     compile group: 'com.hazelcast', name: 'hazelcast', version:'3.8.1'
+     compile group: 'com.hazelcast', name: 'hazelcast-spring', version:'3.8.1'
+-    runtime group: 'com.hazelcast', name: 'hazelcast-aws', version:'2.0.1'
++    compile group: 'com.hazelcast', name: 'hazelcast-aws', version: '2.0.1'
+ }
+ 
+ shade {
+@@ -87,8 +87,12 @@ shade {
+   exclude project(':engine:platform:platform-setup')
+   exclude project(':engine:platform:platform-resources')
+   exclude project(':subscription:platform:platform-resources-sp')
++
+   excludeLibs('hibernate-core', new ShadeDependency(group: 'org.jboss.spec.javax.transaction', name: 'jboss-transaction-api_1.2_spec'))
+   excludeLibs('hibernate-entitymanager', new ShadeDependency(group: 'org.jboss.spec.javax.transaction', name: 'jboss-transaction-api_1.2_spec'))
+-  parentGroup 'com.bonitasoft.engine'
++    excludeLibs('jaxb-core', new ShadeDependency(group: 'javax.xml.bind', name: 'jaxb-api'))
++    excludeLibs('platform-setup', new ShadeDependency(group: 'ch.qos.logback', name: '*'))
++
++    parentGroup 'com.bonitasoft.engine'
+   parentName 'bonita-engine-sp'
+ }
+\ No newline at end of file
+-- 
+2.18.0
+

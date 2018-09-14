@@ -120,3 +120,4 @@ git am -3 --ignore-whitespace < $BASEDIR/shade_pom_generation_declarative_exclus
 git am -3 --ignore-whitespace < $BASEDIR/fix_banner_version.patch # Fix resource filtering Gradle != Maven (banner.txt)
 git am -3 --ignore-whitespace < $BASEDIR/excluded_third_party_libs.patch # do not include excluded third party lib in pom
 git am -3 --ignore-whitespace < $BASEDIR/fix_deps_server_plus_server-sp.patch # Fix server + server sp missing or extra dependencies in pom
+git am -3 --ignore-whitespace < $BASEDIR/include_shaded_tr_deps.patch # Add transitive dependencies of shaded external dependency in pom
