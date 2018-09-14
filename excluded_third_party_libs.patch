@@ -1,0 +1,43 @@
+From 372aca24fcab8b40b4410c6b5053686b06b4a32b Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Fri, 14 Sep 2018 11:24:46 +0200
+Subject: [PATCH] do not include excluded third party lib in pom
+
+---
+ .../org/bonitasoft/engine/gradle/ShadePlugin.groovy      | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index a6eebcc0d7..0aa1c1d954 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -236,7 +236,7 @@ class ShadePlugin implements Plugin<Project> {
+                 }
+             } else if (!extension.includes.contains(new ShadeDependency(group: it.moduleGroup, name: it.moduleName))) {
+                 // also add transitive dependencies of third-party libs:
+-                allDependencies.addAll(getTransitiveThirdPartyDependencies(it, "", project))
++                allDependencies.addAll(getTransitiveThirdPartyDependencies(it, "", project, extension))
+             }
+         }
+         allDependencies
+@@ -246,12 +246,15 @@ class ShadePlugin implements Plugin<Project> {
+      * Returns a Set of the passed ResolvedDependency itself + all its children, recursively
+      * @param indent indentation string, for display purposes
+      */
+-    private Set<ResolvedDependency> getTransitiveThirdPartyDependencies(ResolvedDependency current, String indent, Project project) {
++    private Set<ResolvedDependency> getTransitiveThirdPartyDependencies(ResolvedDependency current, String indent, Project project, ShadeExtension extension) {
+         def res = [] as Set
+         project.logger.debug(" Shade POM generation: adding ${indent}${current.name}")
+         res.add(current)
++        def thirdPartyExclusion = extension.libExclusions.get(current.moduleName)
+         current.getChildren().forEach { child ->
+-            res.addAll(getTransitiveThirdPartyDependencies(child, indent + "  ", project))
++            if (!thirdPartyExclusion || !thirdPartyExclusion.contains(new ShadeDependency(group: child.moduleGroup, name: child.moduleName))) {
++                res.addAll(getTransitiveThirdPartyDependencies(child, indent + "  ", project, extension))
++            }
+         }
+         return res
+     }
+-- 
+2.17.1
+
