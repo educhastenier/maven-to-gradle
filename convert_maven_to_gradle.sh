@@ -121,3 +121,5 @@ git am -3 --ignore-whitespace < $BASEDIR/fix_banner_version.patch # Fix resource
 git am -3 --ignore-whitespace < $BASEDIR/excluded_third_party_libs.patch # do not include excluded third party lib in pom
 git am -3 --ignore-whitespace < $BASEDIR/fix_deps_server_plus_server-sp.patch # Fix server + server sp missing or extra dependencies in pom
 git am -3 --ignore-whitespace < $BASEDIR/include_shaded_tr_deps.patch # Add transitive dependencies of shaded external dependency in pom
+git am -3 --ignore-whitespace < $BASEDIR/javadoc_include_author.patch # Include author in javadoc (fix studio test)
+git am -3 --ignore-whitespace < $BASEDIR/dao_client_resources.patch # add client dao resources in the shade of bdm generator

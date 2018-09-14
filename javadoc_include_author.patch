@@ -1,0 +1,24 @@
+From d3555b6442e7cf7c88a01ebece256cdabf3c7e01 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Fri, 14 Sep 2018 16:34:23 +0200
+Subject: [PATCH] fix studio test (javadoc generation)
+
+---
+ .../main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy  | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index e71f036ec2..7dbd6adbbb 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -58,6 +58,7 @@ class ShadePlugin implements Plugin<Project> {
+                 source projects.collect { it.sourceSets.main.allJava }
+                 classpath = project.files(projects.collect { it.sourceSets.main.compileClasspath })
+                 options.addStringOption('Xdoclint:none', '-quiet')
++                options.addBooleanOption("author", true) // FIXME update studio test org.bonitasoft.studio.tests.engine.TestJavaDoc.testHasJavaDoc
+             }
+             project.tasks.create("sourcesJar", Jar) {
+                 def allProjectsAlreadyShaded = getProjectsAlreadyShaded(project, extension)
+-- 
+2.18.0
+

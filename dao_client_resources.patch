@@ -1,0 +1,28 @@
+From c00d04cc9eee4b10adf01da08f73532d0706844e Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Fri, 14 Sep 2018 17:17:08 +0200
+Subject: [PATCH] add dao client resources in bdm generator
+
+---
+ .../bonita-business-data-generator/build.gradle              | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/community/services/bonita-business-data/bonita-business-data-generator/build.gradle b/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
+index 7785d40f1b..8e6812b6ff 100644
+--- a/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
++++ b/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
+@@ -27,6 +27,11 @@ exclude(module: 'jaxb-api')
+   testCompile project(':engine:services:bonita-business-data:bonita-business-data-api')
+ }
+ 
++processResources {
++    from(project.project(':engine:services:bonita-business-data:bonita-business-data-client-resources').file('src/main/java/')){
++        include '**/*.java'
++    }
++}
+ 
+ shadowJar {
+     classifier = "studio"
+-- 
+2.18.0
+
