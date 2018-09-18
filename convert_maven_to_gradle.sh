@@ -123,3 +123,15 @@ git am -3 --ignore-whitespace < $BASEDIR/fix_deps_server_plus_server-sp.patch # 
 git am -3 --ignore-whitespace < $BASEDIR/include_shaded_tr_deps.patch # Add transitive dependencies of shaded external dependency in pom
 git am -3 --ignore-whitespace < $BASEDIR/javadoc_include_author.patch # Include author in javadoc (fix studio test)
 git am -3 --ignore-whitespace < $BASEDIR/dao_client_resources.patch # add client dao resources in the shade of bdm generator
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/java_doc_name.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/sp_pom.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/bos_pom.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_bdm_generator.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/la_builder_bdm_gen_pom.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_bonita-commons_la-builder.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_integ_test_sp_1_selenium.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_integ_test_sp_2_selenium.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_integ_test_selenium.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_common-util_selenium.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_test_api_sp_selenium.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_common-util-test-sp_selenium.patch

@@ -1,0 +1,29 @@
+From 1564d633c28bad86fa78c3596f4c08fb4d6a44c7 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Sun, 16 Sep 2018 18:34:26 +0200
+Subject: [PATCH] publish bonita-integration-test-client (selenium)
+
+---
+ .../bonita-integration-tests-client/build.gradle           | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
+index f2f24e8530..9505b55eac 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
++++ b/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
+@@ -44,4 +44,11 @@ test {
+             rename 'bonita-client-invalid.properties', 'bonita-client-community.properties'
+         }
+     }
++}
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++        }
++    }
+ }
+\ No newline at end of file
+-- 
+2.18.0
+

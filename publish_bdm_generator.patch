@@ -1,0 +1,26 @@
+From 47464fcef0242d9207906b5114ebea9154b3d4a3 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Fri, 14 Sep 2018 23:27:25 +0200
+Subject: [PATCH] publish non shaded bdm generator for studio
+
+---
+ .../bonita-business-data-generator/build.gradle                | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/community/services/bonita-business-data/bonita-business-data-generator/build.gradle b/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
+index 8e6812b6ff..e175e39ce4 100644
+--- a/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
++++ b/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
+@@ -46,5 +46,8 @@ publishing {
+         shadow(MavenPublication) { publication ->
+             project.shadow.component(publication)
+         }
++        mavenJava(MavenPublication) {
++            from project.components.java
++        }
+     }
+ }
+\ No newline at end of file
+-- 
+2.18.0
+

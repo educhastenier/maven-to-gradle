@@ -1,0 +1,28 @@
+From 0d1093352332e12a6bd2d8d9886b3b8420568bb7 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Sun, 16 Sep 2018 19:01:49 +0200
+Subject: [PATCH] publish bonita-common-util (selenium)
+
+---
+ .../bpm/bonita-util/bonita-common-util-test/build.gradle   | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/community/bpm/bonita-util/bonita-common-util-test/build.gradle b/community/bpm/bonita-util/bonita-common-util-test/build.gradle
+index 69e89abe03..0a63199bca 100644
+--- a/community/bpm/bonita-util/bonita-common-util-test/build.gradle
++++ b/community/bpm/bonita-util/bonita-common-util-test/build.gradle
+@@ -8,3 +8,10 @@ dependencies {
+     compile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
+     testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version:'1.25.1'
+ }
++publishing {
++  publications {
++    mavenJava(MavenPublication) {
++      from project.components.java
++    }
++  }
++}
+\ No newline at end of file
+-- 
+2.18.0
+

@@ -1,0 +1,31 @@
+From 78cc404a501bdf16cd1341dd5c54d85be6db8a81 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Sat, 15 Sep 2018 19:25:29 +0200
+Subject: [PATCH] publish bonita-commons (la-builder)
+
+---
+ community/services/bonita-commons/build.gradle | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/community/services/bonita-commons/build.gradle b/community/services/bonita-commons/build.gradle
+index 735df6de7b..f1a9501a6b 100644
+--- a/community/services/bonita-commons/build.gradle
++++ b/community/services/bonita-commons/build.gradle
+@@ -25,4 +25,13 @@ test {
+     useJUnitPlatform {
+         includeEngines 'junit-jupiter', 'junit-vintage'
+     }
++}
++
++
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++        }
++    }
+ }
+\ No newline at end of file
+-- 
+2.18.0
+

@@ -1,0 +1,29 @@
+From 6d3dff4561469defb494460d455515d872c85efd Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Sun, 16 Sep 2018 20:01:08 +0200
+Subject: [PATCH] publish common-util-test-sp (selenium)
+
+---
+ .../bpm/bonita-util-sp/bonita-common-util-sp/build.gradle | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/subscription/bpm/bonita-util-sp/bonita-common-util-sp/build.gradle b/subscription/bpm/bonita-util-sp/bonita-common-util-sp/build.gradle
+index 073ceb7297..9ee2f6e403 100644
+--- a/subscription/bpm/bonita-util-sp/bonita-common-util-sp/build.gradle
++++ b/subscription/bpm/bonita-util-sp/bonita-common-util-sp/build.gradle
+@@ -78,3 +78,11 @@ tasks.processResources.dependsOn tasks.schemagen
+ //}
+ //
+ //tasks.processResources.dependsOn tasks.jaxbSchemaGenAccesscontrol
++
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++        }
++    }
++}
+\ No newline at end of file
+-- 
+2.18.0
+

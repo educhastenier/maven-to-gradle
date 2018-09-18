@@ -1,0 +1,34 @@
+From 14fdbf66310683cefa2ca5496a1101d1cb424a60 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Fri, 14 Sep 2018 20:36:17 +0200
+Subject: [PATCH] publish subscription pom
+
+---
+ subscription/bpm/build.gradle | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+ create mode 100644 subscription/bpm/build.gradle
+
+diff --git a/subscription/bpm/build.gradle b/subscription/bpm/build.gradle
+new file mode 100644
+index 0000000000..3be8f568f0
+--- /dev/null
++++ b/subscription/bpm/build.gradle
+@@ -0,0 +1,14 @@
++publishing {
++    publications {
++        maven(MavenPublication) {
++            groupId = 'com.bonitasoft.engine'
++            artifactId = 'bpm'
++            pom.withXml {
++                def parent = asNode().appendNode('parent')
++                parent.appendNode('groupId', 'com.bonitasoft.engine')
++                parent.appendNode('artifactId', 'bonita-engine-sp')
++                parent.appendNode('version', version)
++            }
++        }
++    }
++}
+\ No newline at end of file
+-- 
+2.18.0
+

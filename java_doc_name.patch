@@ -1,0 +1,47 @@
+From 70fb1910e92fad3aa777e6de1ee461252d471e1a Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Fri, 14 Sep 2018 18:48:23 +0200
+Subject: [PATCH] fix global-javadoc name
+
+---
+ subscription/bpm/bonita-global-javadoc/build.gradle | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+diff --git a/subscription/bpm/bonita-global-javadoc/build.gradle b/subscription/bpm/bonita-global-javadoc/build.gradle
+index 889e10111a..48657e0923 100644
+--- a/subscription/bpm/bonita-global-javadoc/build.gradle
++++ b/subscription/bpm/bonita-global-javadoc/build.gradle
+@@ -13,6 +13,7 @@ project.javadoc {
+     classpath = project.files(projects.collect { it.sourceSets.main.compileClasspath })
+     title = "Bonita Engine ${version} API"
+     options.addStringOption('Xdoclint:none', '-quiet')
++    options.addBooleanOption("author", true) // FIXME update studio test org.bonitasoft.studio.tests.engine.TestJavaDoc.testHasJavaDoc
+     options.links("https://docs.oracle.com/javase/8/docs/api/")
+     // TODO change it when SP is up and running:
+     options.stylesheetFile = new File("$projectDir/src/main/javadoc", "stylesheet.css")
+@@ -20,7 +21,7 @@ project.javadoc {
+     options.bottom = "Copyright &copy; ${new Date().format('yyyy')} <a href=\"http://community.bonitasoft.com/\">Bonitasoft S.A.</a> All rights reserved."
+ }
+ 
+-project.tasks.create("javadocJar", org.gradle.jvm.tasks.Jar) {
++task javadocJar(type: Jar){
+     from javadoc
+     classifier = 'javadoc'
+ }
+@@ -28,8 +29,10 @@ project.tasks.create("javadocJar", org.gradle.jvm.tasks.Jar) {
+ publishing{
+     publications {
+         mavenJava(MavenPublication) {
+-            from project.components.java
+-            artifact project.javadocJar
++            groupId = 'com.bonitasoft.engine'
++            artifactId = 'bonita-global-javadoc'
++            from components.java
++            artifact javadocJar
+         }
+     }
+ }
+\ No newline at end of file
+-- 
+2.18.0
+

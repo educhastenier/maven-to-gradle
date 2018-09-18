@@ -1,0 +1,25 @@
+From 2f2b490785c63675e86f1b5537441b00b4095508 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Sun, 16 Sep 2018 18:24:48 +0200
+Subject: [PATCH] publish bonita-integration-test-client-sp (selenium)
+
+---
+ .../bonita-integration-tests-client/build.gradle                 | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle
+index 5df8dfd65b..bebd233618 100644
+--- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle
++++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle
+@@ -22,6 +22,7 @@ publishing {
+   publications {
+     mavenJava(MavenPublication) {
+       from project.components.java
++      artifactId = 'bonita-integration-tests-client-sp'
+     }
+   }
+ }
+\ No newline at end of file
+-- 
+2.18.0
+

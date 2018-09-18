@@ -1,0 +1,34 @@
+From 9cc03d0704a6eb66c15b5ad51a8a30c3ecdf2c83 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Fri, 14 Sep 2018 21:52:44 +0200
+Subject: [PATCH] publish community bpm pom
+
+---
+ community/bpm/build.gradle | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+ create mode 100644 community/bpm/build.gradle
+
+diff --git a/community/bpm/build.gradle b/community/bpm/build.gradle
+new file mode 100644
+index 0000000000..b454a883e0
+--- /dev/null
++++ b/community/bpm/build.gradle
+@@ -0,0 +1,14 @@
++publishing {
++    publications {
++        maven(MavenPublication) {
++            groupId = 'org.bonitasoft.engine'
++            artifactId = 'bpm'
++            pom.withXml {
++                def parent = asNode().appendNode('parent')
++                parent.appendNode('groupId', 'org.bonitasoft.engine')
++                parent.appendNode('artifactId', 'bonita-engine')
++                parent.appendNode('version', version)
++            }
++        }
++    }
++}
+\ No newline at end of file
+-- 
+2.18.0
+
