@@ -137,3 +137,4 @@ git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_test_api_sp_sel
 git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_common-util-test-sp_selenium.patch
 git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/lazy_shade.patch
 git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/fix_wildfly.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/fix_transitive_deps_of_excluded_modules.patch
