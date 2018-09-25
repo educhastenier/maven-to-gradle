@@ -1,0 +1,39 @@
+From dc460112417d77b6bb79b9c9e85edd9b3ac14aa0 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@gmail.com>
+Date: Wed, 19 Sep 2018 23:00:20 +0200
+Subject: [PATCH] make shade dependency resolution lazy
+
+---
+ .../org/bonitasoft/engine/gradle/ShadePlugin.groovy   | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index 7dbd6adbbb..5d9b4b253f 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -53,18 +53,15 @@ class ShadePlugin implements Plugin<Project> {
+             }
+ 
+             project.javadoc {
+-                def allProjectsAlreadyShaded = getProjectsAlreadyShaded(project, extension)
+-                def projects = getShadedProjects(project, extension, allProjectsAlreadyShaded)
+-                source projects.collect { it.sourceSets.main.allJava }
+-                classpath = project.files(projects.collect { it.sourceSets.main.compileClasspath })
++                source {getShadedProjects(project, extension, getProjectsAlreadyShaded(project, extension)).collect { it.sourceSets.main.allJava }}
++                classpath = project.files({getShadedProjects(project, extension, getProjectsAlreadyShaded(project, extension)).collect { it.sourceSets.main.compileClasspath }})
+                 options.addStringOption('Xdoclint:none', '-quiet')
+                 options.addBooleanOption("author", true) // FIXME update studio test org.bonitasoft.studio.tests.engine.TestJavaDoc.testHasJavaDoc
+             }
+             project.tasks.create("sourcesJar", Jar) {
+-                def allProjectsAlreadyShaded = getProjectsAlreadyShaded(project, extension)
+-                from getShadedProjects(project, extension, allProjectsAlreadyShaded).collect {
++                from {getShadedProjects(project, extension, getProjectsAlreadyShaded(project, extension)).collect {
+                     it.sourceSets.main.allJava
+-                }
++                }}
+                 classifier = 'sources'
+             }
+             project.tasks.create("javadocJar", Jar) {
+-- 
+2.18.0
+

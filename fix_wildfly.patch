@@ -1,0 +1,27 @@
+From 493494bbd01e9554363693cfa8671db1cfb470fe Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Mon, 24 Sep 2018 16:07:14 +0200
+Subject: [PATCH] try to fix transitive deps of excluded modules
+
+---
+ .../groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy     | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+index 5d9b4b253f..5e9792a525 100644
+--- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
++++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
+@@ -218,8 +218,9 @@ class ShadePlugin implements Plugin<Project> {
+                     return // no need to go further
+                 }
+                 if (extension.excludes.contains(projectDependency)) {
+-                    //excluded from shade, add this project but NOT its dependencies:
++                    //excluded from shade, add this project AND its dependencies:
+                     allDependencies.add(it)
++                    allDependencies.addAll(getPomDependencies(projectDependency, extension, allProjectsAlreadyShaded, false))
+                 } else if (isAShadeProject(projectDependency)) {
+                     // the project is a shaded project (e.g. bonita-common-sp in bonita-server-sp)
+                     // only add it if it is not a shade pulled by transitivity:
+-- 
+2.18.0
+

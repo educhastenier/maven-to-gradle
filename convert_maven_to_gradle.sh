@@ -135,3 +135,5 @@ git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_integ_test_sele
 git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_common-util_selenium.patch
 git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_test_api_sp_selenium.patch
 git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/publish_common-util-test-sp_selenium.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/lazy_shade.patch
+git am -3 --ignore-whitespace < $BASEDIR/maven-to-gradle/fix_wildfly.patch
