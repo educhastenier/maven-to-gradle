@@ -1,0 +1,22 @@
+From 48b530a7a3d362c28199e3c84e3da7e159929c56 Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Thu, 4 Oct 2018 17:05:26 +0200
+Subject: [PATCH] fix lombok scope
+
+---
+ subscription/bpm/bonita-core/bonita-process-engine/build.gradle | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/subscription/bpm/bonita-core/bonita-process-engine/build.gradle b/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
+index b38bb6bf420..58b5ab8d822 100644
+--- a/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
++++ b/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
+@@ -28,4 +28,5 @@ dependencies {
+   testCompile project(':subscription:bpm:bonita-common-sp')
+     compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version:'3.0.1'
+     compileOnly group: 'org.projectlombok', name: 'lombok', version:'1.16.20'
++    testCompile group: 'org.projectlombok', name: 'lombok', version:'1.16.20'
+ }
+-- 
+2.17.1
+
