@@ -1,36 +1,40 @@
-From ba792fb69ee2bc2378adf1399925b178e169f72e Mon Sep 17 00:00:00 2001
+From 3cf4fff7c95eac6fd09bcfca4b1965ef7ab74bc9 Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Mon, 16 Jul 2018 16:47:02 +0200
 Subject: [PATCH] use JVM flag for memory mngmt in docker
 
 should factorise the code to get jvm options
 ---
- Jenkinsfile            |  2 +-
+ Jenkinsfile            |  6 +++---
  build.gradle           | 15 ++++++++++++++-
  community/build.gradle | 17 ++++++++++++++++-
  gradle.properties      |  1 +
- 4 files changed, 32 insertions(+), 3 deletions(-)
+ 4 files changed, 34 insertions(+), 5 deletions(-)
  create mode 100644 gradle.properties
 
 diff --git a/Jenkinsfile b/Jenkinsfile
-index be7f729ac1..678094f916 100644
+index b2f73529646..06cb5772d5e 100644
 --- a/Jenkinsfile
 +++ b/Jenkinsfile
-@@ -18,7 +18,7 @@ timestamps {
+@@ -17,9 +17,9 @@ timestamps {
+             }
  
              try {
-                  stage('Build and Test') {
+-                    stage('Build and Test') {
 -                     sh './gradlew build iT'
+-                }
++                 stage('Build and Test') {
 +                     sh './gradlew build iT -Dorg.gradle.jvmargs="-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"'
-                  }
++                 }
              } finally {
                  junit '**/build/test-results/**/*.xml'
+             }
 diff --git a/build.gradle b/build.gradle
-index aa0258c1d5..5cc5eef880 100644
+index 809b7697439..f191f2d46e3 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -23,7 +23,20 @@ subprojects {
-     maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+@@ -18,7 +18,20 @@ subprojects {
+     maven { url "http://repo.maven.apache.org/maven2" }
    }
  
 -  
@@ -52,7 +56,7 @@ index aa0258c1d5..5cc5eef880 100644
    
  }
 diff --git a/community/build.gradle b/community/build.gradle
-index e46185d95c..446e6f35a5 100644
+index a90e67954cf..858ef6fe3cd 100644
 --- a/community/build.gradle
 +++ b/community/build.gradle
 @@ -19,7 +19,22 @@ subprojects {
@@ -81,7 +85,7 @@ index e46185d95c..446e6f35a5 100644
      mavenLocal()
 diff --git a/gradle.properties b/gradle.properties
 new file mode 100644
-index 0000000000..656f2e6098
+index 00000000000..656f2e60988
 --- /dev/null
 +++ b/gradle.properties
 @@ -0,0 +1 @@

@@ -1,17 +1,17 @@
-From f12c9a8a620ee522334330d26ca236061d541086 Mon Sep 17 00:00:00 2001
+From 0542435676d87021d10625570877fdc6b0e21eed Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Fri, 13 Jul 2018 16:35:56 +0200
 Subject: [PATCH] update jenkins file
 
 ---
- Jenkinsfile | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
+ Jenkinsfile | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
 diff --git a/Jenkinsfile b/Jenkinsfile
-index a509eaefbb..996f9dd896 100644
+index f006f6520fc..b2f73529646 100644
 --- a/Jenkinsfile
 +++ b/Jenkinsfile
-@@ -17,17 +17,11 @@ timestamps {
+@@ -17,20 +17,11 @@ timestamps {
              }
  
              try {
@@ -20,13 +20,14 @@ index a509eaefbb..996f9dd896 100644
 -                        mvn "clean deploy -Ptests,javadoc -DaltDeploymentRepository=${env.ALT_DEPLOYMENT_REPOSITORY_SNAPSHOTS}"
 -                    }
 -                } else {
--                    stage('Build and Test') {
+                     stage('Build and Test') {
 -                        mvn 'install -Ptests'
 -                    }
 -                }
-+                 stage('Build and Test') {
+-                stage('AS Tests') {
+-                    mvn 'verify -Ptests,as-tests -pl :bonita-integration-tests-as,:bonita-integration-tests-as-sp -amd'
 +                     sh './gradlew build iT'
-+                 }
+                 }
              } finally {
 -                junit '**/target/*-reports/*.xml'
 +                junit '**/build/test-results/**/*.xml'
