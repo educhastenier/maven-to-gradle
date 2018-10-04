@@ -1,0 +1,222 @@
+From 1837c8b5e2467d7f9af7af1063151abefa27f0e3 Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Fri, 28 Sep 2018 18:10:40 +0200
+Subject: [PATCH] externalize spring and bonita-manager version in
+ gradle.properties file
+
+---
+ build.gradle                                  | 30 +++++++++----------
+ .../gradle/LicenseExtractorPlugin.groovy      |  3 +-
+ community/build.gradle                        |  2 +-
+ community/gradle.properties                   |  3 +-
+ gradle.properties                             |  3 +-
+ .../bonita-process-engine/build.gradle        |  2 +-
+ .../bonita-core/bonita-reporting/build.gradle |  2 +-
+ .../build.gradle                              |  2 +-
+ .../bonita-authentication/build.gradle        |  2 +-
+ .../bonita-cluster-services/build.gradle      |  2 +-
+ .../services/bonita-persistence/build.gradle  |  2 +-
+ .../services/bonita-scheduler/build.gradle    |  2 +-
+ .../services/bonita-services-sp/build.gradle  |  2 +-
+ 13 files changed, 30 insertions(+), 27 deletions(-)
+
+diff --git a/build.gradle b/build.gradle
+index d8703c19a51..00c0ec462e7 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -2,27 +2,27 @@ plugins {
+   id "io.spring.dependency-management"
+ }
+ 
+-allprojects  {
++allprojects {
+   apply plugin: 'maven-publish'
+ 
+   group = 'org.bonitasoft'
+ version = '7.8.0-SNAPSHOT'
+ 
+ 
+-  apply plugin: 'io.spring.dependency-management'
+-  dependencyManagement {
+-    dependencies {
+-      dependency 'com.bonitasoft.manager:manager:1.12.2'
+-      dependency 'org.bonitasoft.security:test-licenses:1.12.2'
+-      dependencySet(group: 'com.hazelcast', version: '3.8.1') {
+-        entry 'hazelcast'
+-        entry 'hazelcast-hibernate4'
+-        entry 'hazelcast-spring'
+-      }
+-      dependency 'com.hazelcast:hazelcast-aws:2.0.1'
+-      dependency 'org.hibernate:hibernate-ehcache:4.3.11.Final'
+-      dependency 'io.projectreactor:reactor-core:3.0.5.RELEASE'
+-      dependency 'io.projectreactor.addons:reactor-test:3.0.5.RELEASE'
++    apply plugin: 'io.spring.dependency-management'
++    dependencyManagement {
++        dependencies {
++            dependency "com.bonitasoft.manager:manager:${bonita_manager_version}"
++            dependency "org.bonitasoft.security:test-licenses:${bonita_manager_version}"
++            dependencySet(group: 'com.hazelcast', version: '3.8.1') {
++                entry 'hazelcast'
++                entry 'hazelcast-hibernate4'
++                entry 'hazelcast-spring'
++            }
++            dependency 'com.hazelcast:hazelcast-aws:2.0.1'
++            dependency 'org.hibernate:hibernate-ehcache:4.3.11.Final'
++            dependency 'io.projectreactor:reactor-core:3.0.5.RELEASE'
++            dependency 'io.projectreactor.addons:reactor-test:3.0.5.RELEASE'
+     }
+   }
+ }
+diff --git a/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/LicenseExtractorPlugin.groovy b/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/LicenseExtractorPlugin.groovy
+index 3c4fdf8d055..8465fd55311 100644
+--- a/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/LicenseExtractorPlugin.groovy
++++ b/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/LicenseExtractorPlugin.groovy
+@@ -15,7 +15,8 @@ class LicenseExtractorPlugin implements Plugin<Project> {
+                 lic
+             }
+             project.dependencies {
+-                lic 'org.bonitasoft.security:test-licenses:1.12.2@zip'
++                project.rootProject
++                lic 'org.bonitasoft.security:test-licenses@zip'
+             }
+             def extractLicenses = project.tasks.create(name: "extractLicenses", type: Copy) {
+                 from project.zipTree(project.configurations.lic.resolvedConfiguration.resolvedArtifacts.first().file)
+diff --git a/community/build.gradle b/community/build.gradle
+index 8f45b8ac1b0..664a4ba6854 100644
+--- a/community/build.gradle
++++ b/community/build.gradle
+@@ -31,7 +31,7 @@ allprojects {
+             dependency 'com.h2database:h2:1.3.175'
+             dependency 'net.sf.ehcache:ehcache-core:2.4.7'
+ 
+-            dependencySet(group:'org.springframework', version:'5.0.6.RELEASE'){
++            dependencySet(group: 'org.springframework', version: "$spring_version") {
+                 entry 'spring-context'
+                 entry 'spring-core'
+                 entry 'spring-test'
+diff --git a/community/gradle.properties b/community/gradle.properties
+index 656f2e60988..067e4522492 100644
+--- a/community/gradle.properties
++++ b/community/gradle.properties
+@@ -1 +1,2 @@
+-org.gradle.jvmargs=-Dfile.encoding=UTF-8
+\ No newline at end of file
++org.gradle.jvmargs=-Dfile.encoding=UTF-8
++spring_version=5.0.6.RELEASE
+\ No newline at end of file
+diff --git a/gradle.properties b/gradle.properties
+index 0edf5843a7b..7cf228d4dc1 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -1 +1,2 @@
+-org.gradle.jvmargs=-Dfile.encoding=UTF-8 -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap
+\ No newline at end of file
++org.gradle.jvmargs=-Dfile.encoding=UTF-8 -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap
++bonita_manager_version=1.13.0
+\ No newline at end of file
+diff --git a/subscription/bpm/bonita-core/bonita-process-engine/build.gradle b/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
+index d942d867961..b38bb6bf420 100644
+--- a/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
++++ b/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
+@@ -1,7 +1,7 @@
+ group = 'com.bonitasoft.engine.core'
+ description = 'Bonita Process Engine'
+ dependencies {
+-    compile group: 'com.bonitasoft.manager', name: 'manager', version:'1.13.0'
++    compile group: 'com.bonitasoft.manager', name: 'manager'
+   compile project(':subscription:services:bonita-services-sp')
+   compile project(':engine:bpm:bonita-core:bonita-process-definition')
+   compile project(':subscription:platform:platform-resources-sp')
+diff --git a/subscription/bpm/bonita-core/bonita-reporting/build.gradle b/subscription/bpm/bonita-core/bonita-reporting/build.gradle
+index bcc4a9eda6a..619677df9f6 100644
+--- a/subscription/bpm/bonita-core/bonita-reporting/build.gradle
++++ b/subscription/bpm/bonita-core/bonita-reporting/build.gradle
+@@ -3,7 +3,7 @@ description = 'Bonita Reporting Service'
+ dependencies {
+   compile project(':engine:services:bonita-log')
+     compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.3.2'
+-    compile group: 'com.bonitasoft.manager', name: 'manager', version:'1.13.0'
++    compile group: 'com.bonitasoft.manager', name: 'manager'
+   compile project(':engine:services:bonita-recorder')
+   compile project(':engine:services:bonita-log-technical')
+   compile project(':engine:services:bonita-events')
+diff --git a/subscription/bpm/bonita-synchro-repository-sp/bonita-synchro-service-clustered/build.gradle b/subscription/bpm/bonita-synchro-repository-sp/bonita-synchro-service-clustered/build.gradle
+index 40e2366f84d..28cad7b2165 100644
+--- a/subscription/bpm/bonita-synchro-repository-sp/bonita-synchro-service-clustered/build.gradle
++++ b/subscription/bpm/bonita-synchro-repository-sp/bonita-synchro-service-clustered/build.gradle
+@@ -4,6 +4,6 @@ dependencies {
+   compile project(':engine:bpm:bonita-synchro-repository:bonita-synchro-service-impl')
+   compile project(':engine:services:bonita-log-technical')
+   compile project(':engine:services:bonita-cache')
+-    compile group: 'com.bonitasoft.manager', name: 'manager', version:'1.13.0'
++    compile group: 'com.bonitasoft.manager', name: 'manager'
+     compile group: 'com.hazelcast', name: 'hazelcast', version:'3.8.1'
+ }
+diff --git a/subscription/services/bonita-authentication/build.gradle b/subscription/services/bonita-authentication/build.gradle
+index 85944621690..053f9fb2f1f 100644
+--- a/subscription/services/bonita-authentication/build.gradle
++++ b/subscription/services/bonita-authentication/build.gradle
+@@ -7,7 +7,7 @@ dependencies {
+   compile project(':engine:services:bonita-session')
+     compile group: 'org.apache.httpcomponents', name: 'httpclient', version:'4.5.2'
+   compile project(':engine:services:bonita-log-technical')
+-    compile group: 'com.bonitasoft.manager', name: 'manager', version:'1.13.0'
++    compile group: 'com.bonitasoft.manager', name: 'manager'
+   compile project(':engine:services:bonita-authentication')
+   compile project(':engine:services:bonita-commons')
+     compile group: 'commons-io', name: 'commons-io', version:'2.5'
+diff --git a/subscription/services/bonita-cluster-services/build.gradle b/subscription/services/bonita-cluster-services/build.gradle
+index f6ad0ae65d5..5a3d8b9857a 100644
+--- a/subscription/services/bonita-cluster-services/build.gradle
++++ b/subscription/services/bonita-cluster-services/build.gradle
+@@ -1,7 +1,7 @@
+ group = 'com.bonitasoft.engine'
+ description = ''
+ dependencies {
+-    compile group: 'com.bonitasoft.manager', name: 'manager', version:'1.13.0'
++    compile group: 'com.bonitasoft.manager', name: 'manager'
+   compile project(':engine:services:bonita-log-technical')
+   compile project(':engine:services:bonita-cache')
+   compile project(':engine:services:bonita-commons')
+diff --git a/subscription/services/bonita-persistence/build.gradle b/subscription/services/bonita-persistence/build.gradle
+index fbfb9205539..a048f8a8bc4 100644
+--- a/subscription/services/bonita-persistence/build.gradle
++++ b/subscription/services/bonita-persistence/build.gradle
+@@ -2,7 +2,7 @@ group = 'com.bonitasoft.engine.persistence'
+ description = 'Bonita Persistence'
+ dependencies {
+   compile project(':engine:services:bonita-persistence')
+-    compile group: 'com.bonitasoft.manager', name: 'manager', version:'1.13.0'
++    compile group: 'com.bonitasoft.manager', name: 'manager'
+   compile project(':engine:services:bonita-log-technical')
+     compile group: 'org.hibernate', name: 'hibernate-ehcache', version:'4.3.11.Final'
+     compile group: 'net.sf.ehcache', name: 'ehcache-core', version:'2.4.7'
+diff --git a/subscription/services/bonita-scheduler/build.gradle b/subscription/services/bonita-scheduler/build.gradle
+index 1eaec5847a5..212d4ab9768 100644
+--- a/subscription/services/bonita-scheduler/build.gradle
++++ b/subscription/services/bonita-scheduler/build.gradle
+@@ -1,7 +1,7 @@
+ group = 'com.bonitasoft.engine.scheduler'
+ description = ''
+ dependencies {
+-    compile group: 'com.bonitasoft.manager', name: 'manager', version:'1.13.0'
++    compile group: 'com.bonitasoft.manager', name: 'manager'
+   compile project(':engine:services:bonita-log-technical')
+   compile project(':engine:services:bonita-scheduler')
+ }
+diff --git a/subscription/services/bonita-services-sp/build.gradle b/subscription/services/bonita-services-sp/build.gradle
+index 3a3690550b8..e8620cf1c84 100644
+--- a/subscription/services/bonita-services-sp/build.gradle
++++ b/subscription/services/bonita-services-sp/build.gradle
+@@ -3,7 +3,7 @@ description = ''
+ dependencies {
+     compile group: 'org.springframework', name: 'spring-context', version:'5.0.6.RELEASE'
+     compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.25'
+-    compile group: 'com.bonitasoft.manager', name: 'manager', version:'1.13.0'
++    compile group: 'com.bonitasoft.manager', name: 'manager'
+     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
+     testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
+     testCompile group: 'junit', name: 'junit', version:'4.12'
+-- 
+2.17.1
+

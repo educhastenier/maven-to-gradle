@@ -137,3 +137,4 @@ git am -3 --ignore-whitespace < $BASEDIR/publish_test_api_sp_selenium.patch
 git am -3 --ignore-whitespace < $BASEDIR/publish_common-util-test-sp_selenium.patch
 git am -3 --ignore-whitespace < $BASEDIR/lazy_shade.patch
 git am -3 --ignore-whitespace < $BASEDIR/fix_transitive_deps_of_excluded_modules.patch # fixes WildFly deps (maybe)
+git am -3 --ignore-whitespace < $BASEDIR/externalize_spring_and_bonita-manager_version.patch # externalize spring and bonita-manager version in gradle.properties file
