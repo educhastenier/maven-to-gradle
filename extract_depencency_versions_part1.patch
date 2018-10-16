@@ -1,0 +1,259 @@
+From c93f7bf718746a7d365011fd211a6ec824eccdc5 Mon Sep 17 00:00:00 2001
+From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
+Date: Tue, 16 Oct 2018 16:10:09 +0200
+Subject: [PATCH] WIP: extract spring + hibernate version to gradle.properties
+ file
+
+---
+ .../bonita-integration-tests-client/build.gradle            | 2 +-
+ .../bonita-query-tests/build.gradle                         | 6 +++---
+ community/bonita-test-api/build.gradle                      | 2 +-
+ community/bpm/bonita-core/bonita-form-mapping/build.gradle  | 2 +-
+ .../bpm/bonita-core/bonita-process-engine/build.gradle      | 2 +-
+ community/build.gradle                                      | 3 ++-
+ community/gradle.properties                                 | 3 ++-
+ community/platform/platform-setup/build.gradle              | 2 +-
+ .../bonita-business-data-client-resources/build.gradle      | 2 +-
+ .../bonita-business-data-generator/build.gradle             | 6 ++----
+ .../bonita-business-data-impl/build.gradle                  | 4 ++--
+ community/services/bonita-commons/build.gradle              | 2 +-
+ community/services/bonita-persistence/build.gradle          | 2 +-
+ subscription/platform/platform-setup-sp/build.gradle        | 2 +-
+ subscription/services/bonita-business-data/build.gradle     | 2 +-
+ subscription/services/bonita-services-sp/build.gradle       | 2 +-
+ 16 files changed, 22 insertions(+), 22 deletions(-)
+
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
+index 9505b55eac1..6f7f5eea4e2 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
++++ b/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
+@@ -2,7 +2,7 @@ group = 'org.bonitasoft.engine.test'
+ description = ''
+ dependencies {
+     compile project(':engine:bonita-test-api')
+-    compile group: 'org.springframework', name: 'spring-context', version: '5.0.6.RELEASE'
++    compile group: 'org.springframework', name: 'spring-context'
+     compile group: 'junit', name: 'junit', version: '4.12'
+     compile group: 'org.awaitility', name: 'awaitility', version: '2.0.0'
+     compile group: 'xmlunit', name: 'xmlunit', version: '1.4'
+diff --git a/community/bonita-integration-tests/bonita-query-tests/build.gradle b/community/bonita-integration-tests/bonita-query-tests/build.gradle
+index 1ce1cd33726..66047afd09b 100644
+--- a/community/bonita-integration-tests/bonita-query-tests/build.gradle
++++ b/community/bonita-integration-tests/bonita-query-tests/build.gradle
+@@ -4,10 +4,10 @@ dependencies {
+     testCompile group: 'junit', name: 'junit', version:'4.12'
+     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
+     testCompile group: 'com.h2database', name: 'h2', version:'1.3.175'
+-    testCompile group: 'org.springframework', name: 'spring-core', version:'5.0.6.RELEASE'
+-    testCompile group: 'org.springframework', name: 'spring-beans', version:'5.0.6.RELEASE'
++    testCompile group: 'org.springframework', name: 'spring-core'
++    testCompile group: 'org.springframework', name: 'spring-beans'
+     testCompile group: 'org.springframework', name: 'spring-tx', version:'5.0.6.RELEASE'
+-    testCompile group: 'org.springframework', name: 'spring-test', version:'5.0.6.RELEASE'
++    testCompile group: 'org.springframework', name: 'spring-test'
+     testCompile group: 'org.springframework', name: 'spring-orm', version:'4.3.16.RELEASE'
+     testCompile group: 'org.springframework', name: 'spring-jdbc', version:'5.0.6.RELEASE'
+     testCompile group: 'javax.inject', name: 'javax.inject', version:'1'
+diff --git a/community/bonita-test-api/build.gradle b/community/bonita-test-api/build.gradle
+index 2c29a90cea4..a81ea85a048 100644
+--- a/community/bonita-test-api/build.gradle
++++ b/community/bonita-test-api/build.gradle
+@@ -4,7 +4,7 @@ dependencies {
+     compile project(':engine:bpm:bonita-client')
+     compile project(':engine:platform:platform-setup')
+     compile project(':engine:bpm:bonita-common')
+-    compile group: 'org.springframework', name: 'spring-context', version: '5.0.6.RELEASE'
++    compile group: 'org.springframework', name: 'spring-context'
+     compile group: 'org.codehaus.btm', name: 'btm', version: '2.1.4'
+     compile group: 'javax.transaction', name: 'jta', version: '1.1'
+     compile group: 'com.zaxxer', name: 'HikariCP', version: '2.6.1'
+diff --git a/community/bpm/bonita-core/bonita-form-mapping/build.gradle b/community/bpm/bonita-core/bonita-form-mapping/build.gradle
+index 7a353a5da30..9de289030d7 100644
+--- a/community/bpm/bonita-core/bonita-form-mapping/build.gradle
++++ b/community/bpm/bonita-core/bonita-form-mapping/build.gradle
+@@ -10,7 +10,7 @@ dependencies {
+   compile project(':engine:services:bonita-commons')
+   compile project(':engine:services:bonita-events')
+   compile project(':engine:services:bonita-recorder')
+-    compile(group: 'org.hibernate', name: 'hibernate-core', version:'4.3.11.Final') {
++    compile(group: 'org.hibernate', name: 'hibernate-core') {
+ exclude(module: 'jboss-transaction-api_1.2_spec')
+     }
+     testCompile group: 'junit', name: 'junit', version:'4.12'
+diff --git a/community/bpm/bonita-core/bonita-process-engine/build.gradle b/community/bpm/bonita-core/bonita-process-engine/build.gradle
+index 8e659936ec6..b28b4e4c62b 100644
+--- a/community/bpm/bonita-core/bonita-process-engine/build.gradle
++++ b/community/bpm/bonita-core/bonita-process-engine/build.gradle
+@@ -60,7 +60,7 @@ dependencies {
+   compile project(':engine:platform:platform-setup')
+   compile project(':engine:platform:platform-resources')
+     compile group: 'commons-io', name: 'commons-io', version:'2.5'
+-    compile group: 'org.springframework', name: 'spring-context', version:'5.0.6.RELEASE'
++    compile group: 'org.springframework', name: 'spring-context'
+     compile group: 'org.codehaus.groovy', name: 'groovy-all', version:'2.4.4'
+     testCompile group: 'junit', name: 'junit', version:'4.12'
+     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
+diff --git a/community/build.gradle b/community/build.gradle
+index 664a4ba6854..274ec3943f0 100644
+--- a/community/build.gradle
++++ b/community/build.gradle
+@@ -35,8 +35,9 @@ allprojects {
+                 entry 'spring-context'
+                 entry 'spring-core'
+                 entry 'spring-test'
++                entry 'spring-beans'
+             }
+-            dependency('org.hibernate:hibernate-core:4.3.11.Final'){
++            dependency(group: 'org.hibernate', name: 'hibernate-core', version: "$hibernate_version") {
+                 exclude 'org.jboss.spec.javax.transaction:jboss-transaction-api_1.2_spec'
+                 exclude 'org.hibernate:hibernate-entitymanager'
+             }
+diff --git a/community/gradle.properties b/community/gradle.properties
+index 067e4522492..ea22df828ea 100644
+--- a/community/gradle.properties
++++ b/community/gradle.properties
+@@ -1,2 +1,3 @@
+ org.gradle.jvmargs=-Dfile.encoding=UTF-8
+-spring_version=5.0.6.RELEASE
+\ No newline at end of file
++spring_version=5.0.6.RELEASE
++hibernate_version=4.3.11.Final
+diff --git a/community/platform/platform-setup/build.gradle b/community/platform/platform-setup/build.gradle
+index 15f253dc3d1..3e8f60c5f6e 100644
+--- a/community/platform/platform-setup/build.gradle
++++ b/community/platform/platform-setup/build.gradle
+@@ -21,7 +21,7 @@ exclude(module: 'log4j-to-slf4j')
+     compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version:'2.0.2.RELEASE'
+     compile group: 'org.springframework', name: 'spring-tx', version:'5.0.6.RELEASE'
+     compile group: 'org.springframework', name: 'spring-jdbc', version:'5.0.6.RELEASE'
+-    compile group: 'org.springframework', name: 'spring-context', version:'5.0.6.RELEASE'
++    compile group: 'org.springframework', name: 'spring-context'
+     compile group: 'org.postgresql', name: 'postgresql', version:'9.3-1102-jdbc41'
+     compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.26'
+     compile group: 'com.h2database', name: 'h2', version:'1.3.175'
+diff --git a/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle b/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle
+index 6da8b4eb3b3..dee806341b9 100644
+--- a/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle
++++ b/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle
+@@ -6,7 +6,7 @@ dependencies {
+     testCompile group: 'junit', name: 'junit', version:'4.12'
+     testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
+     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
+-    testCompile(group: 'org.hibernate', name: 'hibernate-core', version:'4.3.11.Final') {
++    testCompile(group: 'org.hibernate', name: 'hibernate-core') {
+ exclude(module: 'jboss-transaction-api_1.2_spec')
+     }
+   compileOnly project(':engine:bpm:bonita-client')
+diff --git a/community/services/bonita-business-data/bonita-business-data-generator/build.gradle b/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
+index 3476c6a0bc1..7ac159810ba 100644
+--- a/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
++++ b/community/services/bonita-business-data/bonita-business-data-generator/build.gradle
+@@ -1,5 +1,3 @@
+-import groovy.xml.XmlUtil
+-
+ apply plugin: 'com.github.johnrengelman.shadow'
+ apply plugin: 'maven-publish'
+ 
+@@ -9,10 +7,10 @@ dependencies {
+     compile(project(':engine:services:bonita-commons')) {
+         exclude(module: '*')
+     }
+-    compile(group: 'org.hibernate', name: 'hibernate-core', version:'4.3.11.Final') {
++    compile(group: 'org.hibernate', name: 'hibernate-core') {
+ exclude(module: '*')
+     }
+-    compile group: 'org.springframework', name: 'spring-core', version:'5.0.6.RELEASE'
++    compile group: 'org.springframework', name: 'spring-core'
+     compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version:'1.0.0.Final'
+   compile project(':engine:bpm:bonita-util:bonita-common-util')
+     compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.3.2'
+diff --git a/community/services/bonita-business-data/bonita-business-data-impl/build.gradle b/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
+index 09792b39910..73ba2d8cc8d 100644
+--- a/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
++++ b/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
+@@ -11,7 +11,7 @@ dependencies {
+   compile project(':engine:services:bonita-resources')
+   compile project(':engine:services:bonita-transaction')
+   compile project(':engine:services:bonita-commons')
+-    compile(group: 'org.hibernate', name: 'hibernate-core', version:'4.3.11.Final') {
++    compile(group: 'org.hibernate', name: 'hibernate-core') {
+ exclude(module: 'jboss-transaction-api_1.2_spec')
+     }
+     compile(group: 'org.hibernate', name: 'hibernate-entitymanager', version:'4.3.11.Final') {
+@@ -28,7 +28,7 @@ exclude(module: 'jboss-transaction-api_1.2_spec')
+     testCompile group: 'mysql', name: 'mysql-connector-java', version:'5.1.26'
+     testCompile group: 'org.postgresql', name: 'postgresql', version:'9.3-1102-jdbc41'
+     testCompile group: 'org.slf4j', name: 'slf4j-simple', version:'1.7.25'
+-    testCompile group: 'org.springframework', name: 'spring-context', version:'4.3.7.RELEASE'
++    testCompile group: 'org.springframework', name: 'spring-context'
+     testCompile group: 'org.springframework', name: 'spring-test', version:'4.3.7.RELEASE'
+     testCompile group: 'org.springframework', name: 'spring-jdbc', version:'4.3.7.RELEASE'
+     testCompile group: 'com.zaxxer', name: 'HikariCP', version:'2.6.1'
+diff --git a/community/services/bonita-commons/build.gradle b/community/services/bonita-commons/build.gradle
+index f1a9501a6b6..18457c9ade3 100644
+--- a/community/services/bonita-commons/build.gradle
++++ b/community/services/bonita-commons/build.gradle
+@@ -5,7 +5,7 @@ dependencies {
+         exclude(module: 'commons-collections')
+     }
+     compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+-    compile group: 'org.springframework', name: 'spring-context', version: '5.0.6.RELEASE'
++    compile group: 'org.springframework', name: 'spring-context'
+     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.3.2'
+     compile(group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.10') {
+diff --git a/community/services/bonita-persistence/build.gradle b/community/services/bonita-persistence/build.gradle
+index edc5ee97265..55a0097ef8e 100644
+--- a/community/services/bonita-persistence/build.gradle
++++ b/community/services/bonita-persistence/build.gradle
+@@ -3,7 +3,7 @@ description = 'Bonita Persistence'
+ dependencies {
+     compile group: 'org.apache.commons', name: 'commons-lang3', version:'3.3.2'
+   compile project(':engine:services:bonita-log-technical')
+-    compile(group: 'org.hibernate', name: 'hibernate-core', version:'4.3.11.Final') {
++    compile(group: 'org.hibernate', name: 'hibernate-core') {
+ exclude(module: 'jboss-transaction-api_1.2_spec')
+     }
+   compile project(':engine:services:bonita-session')
+diff --git a/subscription/platform/platform-setup-sp/build.gradle b/subscription/platform/platform-setup-sp/build.gradle
+index d658eda4294..ea01945a233 100644
+--- a/subscription/platform/platform-setup-sp/build.gradle
++++ b/subscription/platform/platform-setup-sp/build.gradle
+@@ -16,7 +16,7 @@ dependencies {
+     compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.25'
+     compile group: 'org.springframework.boot', name: 'spring-boot-starter', version:'2.0.2.RELEASE'
+     compile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version:'2.0.2.RELEASE'
+-    compile group: 'org.springframework', name: 'spring-context', version:'5.0.6.RELEASE'
++    compile group: 'org.springframework', name: 'spring-context'
+     compile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
+     compile group: 'org.postgresql', name: 'postgresql', version:'9.3-1102-jdbc41'
+     compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.26'
+diff --git a/subscription/services/bonita-business-data/build.gradle b/subscription/services/bonita-business-data/build.gradle
+index d99ee63c37f..911122e35a8 100644
+--- a/subscription/services/bonita-business-data/build.gradle
++++ b/subscription/services/bonita-business-data/build.gradle
+@@ -8,7 +8,7 @@ dependencies {
+   compile project(':engine:services:bonita-session')
+     compile group: 'com.github.bohnman', name: 'squiggly-filter-jackson', version:'1.3.6'
+     compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version:'1.0.0.Final'
+-    compile group: 'org.springframework', name: 'spring-context', version:'5.0.6.RELEASE'
++    compile group: 'org.springframework', name: 'spring-context'
+     testCompile group: 'junit', name: 'junit', version:'4.12'
+     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
+     testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version:'1.25.1'
+diff --git a/subscription/services/bonita-services-sp/build.gradle b/subscription/services/bonita-services-sp/build.gradle
+index e8620cf1c84..70d13fb960e 100644
+--- a/subscription/services/bonita-services-sp/build.gradle
++++ b/subscription/services/bonita-services-sp/build.gradle
+@@ -1,7 +1,7 @@
+ group = 'com.bonitasoft.engine'
+ description = ''
+ dependencies {
+-    compile group: 'org.springframework', name: 'spring-context', version:'5.0.6.RELEASE'
++    compile group: 'org.springframework', name: 'spring-context'
+     compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.25'
+     compile group: 'com.bonitasoft.manager', name: 'manager'
+     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
+-- 
+2.17.1
+
