@@ -28,12 +28,12 @@ git am -3 --ignore-whitespace < $BASEDIR/9e4bb1ab215a97a48632589f7128b19ce9e7d06
 git am -3 --ignore-whitespace < $BASEDIR/7f3f57de9e389f589bc383654422f84a3cf7cec4.patch # version.properties file generation
 git am -3 --ignore-whitespace < $BASEDIR/5a4b586048fc254ce48bb7b7c88b912807fc20b1.patch # fix various tests
 git am -3 --ignore-whitespace < $BASEDIR/7fa5f7eb3e0152b480a8ea445497f18894ec1cb7.patch # run integration test in a specific task
-git am -3 --ignore-whitespace < $BASEDIR/bab1e9917c4f355c268fe2fe73bec66ca2cf9b4e.patch # fix business data module dependnecies
+#git am -3 --ignore-whitespace < $BASEDIR/bab1e9917c4f355c268fe2fe73bec66ca2cf9b4e.patch # fix business data module dependnecies
 git am -3 --ignore-whitespace < $BASEDIR/11162e273a87ed8d30f1b98a1e9a4de2bc0c604d.patch # fix hibernate tests
 git am -3 --ignore-whitespace < $BASEDIR/34d4b6fadfc5d93978eb1957119959e08c6db8c3.patch # fix bdm tests
 git am -3 --ignore-whitespace < $BASEDIR/08c5c97bfe7dcfe83c21b575676fdaca18cbc336.patch # compile security scripts
 git am -3 --ignore-whitespace < $BASEDIR/0b4c4616470f18fcea15e132d8960d41e8a763f7.patch # ignore test shade
-git am -3 --ignore-whitespace < $BASEDIR/b170919763d65529d37d509ed3fcf08da82ce46b.patch # fix ejb tests
+#git am -3 --ignore-whitespace < $BASEDIR/b170919763d65529d37d509ed3fcf08da82ce46b.patch # fix ejb tests
 git am -3 --ignore-whitespace < $BASEDIR/1b30f9d4042acfc1bab8d2242ab690c7c3c5d9e1.patch # fix http api test
 git am -3 --ignore-whitespace < $BASEDIR/f3c3e992cb7dfab30f8ca9519c4259744ac74373.patch # restore platform-setup zip file (previously from Assembly)
 git am -3 --ignore-whitespace < $BASEDIR/906b72837ba9910dbc4db32f5df7d1138e5a4cf2.patch # javadoc(BOS): generate javadoc for all Community
@@ -48,6 +48,7 @@ git add --all &&  git commit -a -m "extract community settings gradle"
 
 git am -3 --ignore-whitespace < $BASEDIR/09c0d50f8856f3f5e2004810cbd937e2bd89f3a0.patch # new settings.gradle
 git am -3 --ignore-whitespace < $BASEDIR/7a3d7bdf12e8dda455679751e26e45c9e3ec0bfc.patch # do not apply Java plugin to root project Community
+git am -3 --ignore-whitespace < $BASEDIR/lombok_79.patch # fixes for lombok and some changes made in 7.9
 
 cd ..
 echo "Subscription:"
@@ -91,7 +92,7 @@ git am -3 --ignore-whitespace < $BASEDIR/cluster-test-flags.patch # cluster test
 git am -3 --ignore-whitespace < $BASEDIR/shade.patch # shade
 git am -3 --ignore-whitespace < $BASEDIR/shade2.patch # rename original jar
 git am -3 --ignore-whitespace < $BASEDIR/shade3.patch # shade external dependencies
-git am -3 --ignore-whitespace < $BASEDIR/shade-bdm-generator.patch # bdm generator shade
+#git am -3 --ignore-whitespace < $BASEDIR/shade-bdm-generator.patch # bdm generator shade
 git am -3 --ignore-whitespace < $BASEDIR/application_xsd.patch # remove schema2.xsd of application xsd gen
 git am -3 --ignore-whitespace < $BASEDIR/shade_transitive.patch # fix transitive shade dependencies
 git am -3 --ignore-whitespace < $BASEDIR/simplify_extract_license_plugin.patch # simplify license extractor plugin
@@ -106,14 +107,14 @@ git am -3 --ignore-whitespace < $BASEDIR/global_javadoc.patch # add source jar p
 git am -3 --ignore-whitespace < $BASEDIR/dep_mngt_fix.patch # fix dependency management hazelcast version
 git am -3 --ignore-whitespace < $BASEDIR/shade_pom_gen2.patch # fix pom generation in shades
 git am -3 --ignore-whitespace < $BASEDIR/engine_start.patch # avoid try to start failed engine
-git am -3 --ignore-whitespace < $BASEDIR/test_dir.patch # set and clean test directory
+#git am -3 --ignore-whitespace < $BASEDIR/test_dir.patch # set and clean test directory
 git am -3 --ignore-whitespace < $BASEDIR/publish_platform.patch # publish platform
 git am -3 --ignore-whitespace < $BASEDIR/shade_again.patch # shade again
 git am -3 --ignore-whitespace < $BASEDIR/readme.patch # soem readme update and tavis
-git am -3 --ignore-whitespace < $BASEDIR/run_tests_on_all_DB_vendors.patch # run tests on all DB vendors
+#git am -3 --ignore-whitespace < $BASEDIR/run_tests_on_all_DB_vendors.patch # run tests on all DB vendors
 git am -3 --ignore-whitespace < $BASEDIR/shade_parent.patch # fix parent pom reference
 git am -3 --ignore-whitespace < $BASEDIR/shade_parent2.patch # fix parent pom reference
-git am -3 --ignore-whitespace < $BASEDIR/http_tests.patch # fix compile of http tests
+#git am -3 --ignore-whitespace < $BASEDIR/http_tests.patch # fix compile of http tests
 git am -3 --ignore-whitespace < $BASEDIR/fix_transitive_shade_dep_pom_generation.patch # Fix pom generation when transitive dep is itself a shade
 git am -3 --ignore-whitespace < $BASEDIR/fix_transitive_3rd_patry_deps_pom_generation.patch # Fix pom generation by declaring all transitive deps of 3rd party libs
 git am -3 --ignore-whitespace < $BASEDIR/shade_pom_generation_declarative_exclusions.patch # Shade Pom generation: Support declarative exclusions
@@ -122,7 +123,7 @@ git am -3 --ignore-whitespace < $BASEDIR/excluded_third_party_libs.patch # do no
 git am -3 --ignore-whitespace < $BASEDIR/fix_deps_server_plus_server-sp.patch # Fix server + server sp missing or extra dependencies in pom
 git am -3 --ignore-whitespace < $BASEDIR/include_shaded_tr_deps.patch # Add transitive dependencies of shaded external dependency in pom
 git am -3 --ignore-whitespace < $BASEDIR/javadoc_include_author.patch # Include author in javadoc (fix studio test)
-git am -3 --ignore-whitespace < $BASEDIR/dao_client_resources.patch # add client dao resources in the shade of bdm generator
+#git am -3 --ignore-whitespace < $BASEDIR/dao_client_resources.patch # add client dao resources in the shade of bdm generator
 git am -3 --ignore-whitespace < $BASEDIR/java_doc_name.patch
 git am -3 --ignore-whitespace < $BASEDIR/sp_pom.patch
 git am -3 --ignore-whitespace < $BASEDIR/bos_pom.patch
@@ -132,10 +133,15 @@ git am -3 --ignore-whitespace < $BASEDIR/publish_bonita-commons_la-builder.patch
 git am -3 --ignore-whitespace < $BASEDIR/publish_integ_test_sp_1_selenium.patch
 git am -3 --ignore-whitespace < $BASEDIR/publish_integ_test_sp_2_selenium.patch
 git am -3 --ignore-whitespace < $BASEDIR/publish_integ_test_selenium.patch
-git am -3 --ignore-whitespace < $BASEDIR/publish_common-util_selenium.patch
+#git am -3 --ignore-whitespace < $BASEDIR/publish_common-util_selenium.patch
 git am -3 --ignore-whitespace < $BASEDIR/publish_test_api_sp_selenium.patch
-git am -3 --ignore-whitespace < $BASEDIR/publish_common-util-test-sp_selenium.patch
+#git am -3 --ignore-whitespace < $BASEDIR/publish_common-util-test-sp_selenium.patch
 git am -3 --ignore-whitespace < $BASEDIR/lazy_shade.patch
-git am -3 --ignore-whitespace < $BASEDIR/fix_transitive_deps_of_excluded_modules.patch # fixes WildFly deps (maybe)
-git am -3 --ignore-whitespace < $BASEDIR/externalize_spring_and_bonita-manager_version.patch # externalize spring and bonita-manager version in gradle.properties file
-git am -3 --ignore-whitespace < $BASEDIR/lombok_for_compileOnly_and_test.patch # fix lombok scope in bonita-process-engine
+git am -3 --ignore-whitespace < $BASEDIR/rebase_sp_7.9.patch
+
+
+
+#NOT FIXED YET
+#git am -3 --ignore-whitespace < $BASEDIR/fix_transitive_deps_of_excluded_modules.patch # fixes WildFly deps (maybe)
+#git am -3 --ignore-whitespace < $BASEDIR/externalize_spring_and_bonita-manager_version.patch # externalize spring and bonita-manager version in gradle.properties file
+#git am -3 --ignore-whitespace < $BASEDIR/lombok_for_compileOnly_and_test.patch # fix lombok scope in bonita-process-engine

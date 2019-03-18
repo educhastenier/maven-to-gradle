@@ -1,20 +1,23 @@
-From aa76e25b92353c7ba53c41016768cb32d8a36d3b Mon Sep 17 00:00:00 2001
+From 869138bcb3c29fd260207fdfda1347b68f9035f8 Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@gmail.com>
 Date: Sun, 16 Sep 2018 18:16:23 +0200
 Subject: [PATCH] publish bonita-integration-test-client-sp (selenium)
 
 ---
- .../bonita-integration-tests-client/build.gradle          | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ .../bonita-integration-tests-client/build.gradle         | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle
-index 049bf5ad2d..5df8dfd65b 100644
+index f476f03a9b..d0a97942aa 100644
 --- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle
 +++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle
-@@ -17,3 +17,11 @@ task packageTests(type: Jar) {
-   classifier = 'tests'
+@@ -17,6 +17,13 @@ task testsJar(type: Jar) {
+     classifier = 'tests'
+     from(sourceSets.test.output)
  }
- artifacts.archives packageTests
+-
+ group = 'com.bonitasoft.engine.test'
+ publishing.publications.maven.artifact(testsJar)
 +
 +publishing {
 +  publications {
@@ -23,7 +26,6 @@ index 049bf5ad2d..5df8dfd65b 100644
 +    }
 +  }
 +}
-\ No newline at end of file
 -- 
-2.18.0
+2.20.1
 

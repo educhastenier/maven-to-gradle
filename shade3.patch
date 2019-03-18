@@ -1,4 +1,4 @@
-From 175af9936e8be474432f8276a9cfc2488690ec10 Mon Sep 17 00:00:00 2001
+From 06d0d3b9993a47c0e4d144dd513fa5e6108fc160 Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Mon, 23 Jul 2018 13:59:10 +0200
 Subject: [PATCH] shade manager
@@ -7,8 +7,8 @@ Subject: [PATCH] shade manager
  .../engine/gradle/ShadeExtension.groovy       | 10 +++
  .../engine/gradle/ShadeInclusion.groovy       | 13 +++
  .../engine/gradle/ShadePlugin.groovy          | 85 ++++++++++++-------
- subscription/bpm/bonita-server/build.gradle   |  5 ++
- 4 files changed, 80 insertions(+), 33 deletions(-)
+ subscription/bpm/bonita-server/build.gradle   |  4 +
+ 4 files changed, 79 insertions(+), 33 deletions(-)
  create mode 100644 community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy
  create mode 100644 community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeInclusion.groovy
 
@@ -181,19 +181,17 @@ index e93aa66616..a3e0015b8c 100644
          }
          allDependencies
 diff --git a/subscription/bpm/bonita-server/build.gradle b/subscription/bpm/bonita-server/build.gradle
-index 1a7546f0dc..22e531617c 100644
+index ffc6924445..75e17f7aa4 100644
 --- a/subscription/bpm/bonita-server/build.gradle
 +++ b/subscription/bpm/bonita-server/build.gradle
-@@ -78,3 +78,8 @@ dependencies {
-     compile group: 'com.hazelcast', name: 'hazelcast-spring', version:'3.8.1'
-     runtime group: 'com.hazelcast', name: 'hazelcast-aws', version:'2.0.1'
- }
-+
+@@ -23,3 +23,7 @@ dependencies {
+ 
+ group = 'com.bonitasoft.engine'
+ description = 'Bonita Server SP'
 +shade {
 +  include group: "com.bonitasoft.manager", name: "manager"
 +  include group: "org.bonitasoft.security", name: "sysUtil"
 +}
-\ No newline at end of file
 -- 
-2.18.0
+2.20.1
 

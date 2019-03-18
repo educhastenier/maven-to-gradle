@@ -1,46 +1,58 @@
-From 9e3795626834b6a61d4a0952a002bcff65bde3f1 Mon Sep 17 00:00:00 2001
+From 222ba01351ec8164ebff300cf63b8b0933c87ee3 Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Wed, 25 Jul 2018 11:21:36 +0200
 Subject: [PATCH] publish javadoc of projects
 
 ---
- build.gradle                                  |  3 +++
- community/build.gradle                        |  5 ++++
+ build.gradle                                  |  4 +++
+ community/build.gradle                        |  5 ++--
  .../engine/gradle/ShadePlugin.groovy          | 25 ++++++++++++++++---
- 3 files changed, 29 insertions(+), 4 deletions(-)
+ 3 files changed, 28 insertions(+), 6 deletions(-)
 
 diff --git a/build.gradle b/build.gradle
-index 56f55e0345..bb0409df8c 100644
+index 18717fe996..352a0a9965 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -61,6 +61,9 @@ subprojects {
+@@ -76,6 +76,10 @@ subprojects {
+             options.encoding = 'UTF-8'
          }
-       }
      }
 +    tasks.withType(Javadoc) {
 +      options.addStringOption('Xdoclint:none', '-quiet')
 +    }
-   }
-   
-   
++
+ }
+ apply plugin: 'maven-publish'
+ 
 diff --git a/community/build.gradle b/community/build.gradle
-index 7cfe8c5dcd..f748805a72 100644
+index 15936f444b..209d28dfb7 100644
 --- a/community/build.gradle
 +++ b/community/build.gradle
-@@ -119,6 +119,11 @@ from sourceSets.main.allSource
-                   }
-               }
-           }
-+          allprojects {
-+              tasks.withType(Javadoc) {
-+                  options.addStringOption('Xdoclint:none', '-quiet')
-+              }
-+          }
-       }
+@@ -102,7 +102,6 @@ subprojects {
+                 }
+             }
+         }
+-
+         task sourcesJar(type: Jar) {
+             classifier = 'sources'
+             from(sourceSets.main.allJava)
+@@ -141,11 +140,13 @@ subprojects {
+         tasks.withType(JavaCompile) {
+             options.encoding = 'UTF-8'
+         }
++        tasks.withType(Javadoc) {
++            options.addStringOption('Xdoclint:none', '-quiet')
++        }
  
-   }
+     }
+ }
+ 
+-
+ task allJavadoc(type: Javadoc) {
+     def candidates = [
+             ':engine:platform:platform-setup',
 diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
-index 1629fa1c26..213e48f5f5 100644
+index 3739c95cfe..18c22628a9 100644
 --- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
 +++ b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
 @@ -7,6 +7,7 @@ import org.gradle.api.artifacts.ProjectDependency
@@ -68,7 +80,7 @@ index 1629fa1c26..213e48f5f5 100644
  
              project.publishing.publications {
                  shadow(MavenPublication) { publication ->
-@@ -62,6 +73,7 @@ class ShadePlugin implements Plugin<Project> {
+@@ -64,6 +75,7 @@ class ShadePlugin implements Plugin<Project> {
                  }
                  mavenJava(MavenPublication) {
                      from project.components.java
@@ -76,7 +88,7 @@ index 1629fa1c26..213e48f5f5 100644
                  }
              }
          }
-@@ -70,13 +82,10 @@ class ShadePlugin implements Plugin<Project> {
+@@ -72,13 +84,10 @@ class ShadePlugin implements Plugin<Project> {
  
  
      private boolean isIncludedInShade(Project project, ResolvedDependency currentDependency, ShadeExtension extension) {
@@ -91,7 +103,7 @@ index 1629fa1c26..213e48f5f5 100644
          def projectDep = getProjectFromDependency(project, currentDependency)
          if (projectDep == null) {
              return false
-@@ -84,6 +93,14 @@ class ShadePlugin implements Plugin<Project> {
+@@ -86,6 +95,14 @@ class ShadePlugin implements Plugin<Project> {
          return projectsToShade.contains(projectDep)
      }
  
@@ -107,5 +119,5 @@ index 1629fa1c26..213e48f5f5 100644
          def identifier = dependency.getModuleArtifacts().first().id.componentIdentifier
          if (!(identifier instanceof ProjectComponentIdentifier)) {
 -- 
-2.18.0
+2.20.1
 

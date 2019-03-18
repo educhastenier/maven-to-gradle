@@ -1,86 +1,57 @@
-From 6375523cabe4bd2220e900cdd1f4d9a19847afb1 Mon Sep 17 00:00:00 2001
+From 0adcd61d84751e53b3117652c592e47c715d1088 Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Fri, 13 Jul 2018 15:56:13 +0200
 Subject: [PATCH] run as tests unsing integrationTest instead of test
 
 ---
- .../bonita-integration-ejb-api/build.gradle                  | 5 +++++
- .../bonita-integration-http-api/build.gradle                 | 5 +++++
- .../bonita-integration-cluster/build.gradle                  | 5 +++++
- .../bonita-integration-ejb-api-sp/build.gradle               | 5 +++++
- .../bonita-integration-http-api-sp/build.gradle              | 5 +++++
- 5 files changed, 25 insertions(+)
+ .../bonita-integration-http-api/build.gradle                | 6 ++++++
+ .../bonita-integration-cluster/build.gradle                 | 6 +++++-
+ .../bonita-integration-http-api-sp/build.gradle             | 5 +++++
+ 3 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle
-index e55918d827..5bb2633ca5 100644
---- a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle
-+++ b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-ejb-api/build.gradle
-@@ -7,3 +7,8 @@ dependencies {
-     compile group: 'org.apache.openejb', name: 'tomee-embedded', version: '1.7.5'
-     compile group: 'org.hibernate.javax.persistence', name: 'hibernate-jpa-2.1-api', version:'1.0.0.Final'
- }
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
+index 44302d8666..91487f1b3c 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
++++ b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
+@@ -13,3 +13,9 @@ dependencies {
+ 
+ group = 'org.bonitasoft.engine.test'
+ description = 'HTTP API Integration Tests on Embedded Jetty'
++
 +test {
 +    include ''
 +}
 +task integrationTest(type: Test) {
 +}
 \ No newline at end of file
-diff --git a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
-index 2542e60d72..b6bf0c424d 100644
---- a/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
-+++ b/community/bonita-integration-tests/bonita-integration-tests-as/bonita-integration-http-api/build.gradle
-@@ -8,3 +8,8 @@ dependencies {
-     compile group: 'org.eclipse.jetty', name: 'jetty-servlet', version:'9.4.9.v20180320'
-   testCompile project(':engine:bonita-integration-tests:bonita-integration-tests-client')
- }
-+test {
-+  include ''
-+}
-+task integrationTest(type: Test) {
-+}
-\ No newline at end of file
 diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
-index 43f6ecb9eb..69dce0fb6f 100644
+index 5746b665c3..74c55fe5b1 100644
 --- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
 +++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
-@@ -10,3 +10,8 @@ dependencies {
-     testCompile group: 'ch.qos.logback', name: 'logback-core', version:'1.2.3'
-     testCompile group: 'ch.qos.logback', name: 'logback-classic', version:'1.2.3'
+@@ -12,5 +12,9 @@ dependencies {
+     testCompile 'ch.qos.logback:logback-core:1.2.3'
+     testCompile 'ch.qos.logback:logback-classic:1.2.3'
  }
+-
+ group = 'com.bonitasoft.engine.test'
 +test {
 +  include ''
 +}
 +task integrationTest(type: Test) {
 +}
-\ No newline at end of file
-diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-ejb-api-sp/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-ejb-api-sp/build.gradle
-index 5b5b5a61a1..be3fd8fe41 100644
---- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-ejb-api-sp/build.gradle
-+++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-ejb-api-sp/build.gradle
-@@ -4,3 +4,8 @@ dependencies {
-   compile project(':engine:bonita-integration-tests:bonita-integration-tests-as:bonita-integration-ejb-api')
-   testCompile project(':subscription:bpm:bonita-server-sp')
- }
-+test {
-+  include ''
-+}
-+task integrationTest(type: Test) {
-+}
-\ No newline at end of file
 diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-http-api-sp/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-http-api-sp/build.gradle
-index de0a45432f..584743a95e 100644
+index 7c49245bfb..3180c5297b 100644
 --- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-http-api-sp/build.gradle
 +++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-http-api-sp/build.gradle
-@@ -7,3 +7,8 @@ dependencies {
-     testCompile group: 'org.eclipse.jetty', name: 'jetty-server', version:'9.4.9.v20180320'
-     testCompile group: 'org.eclipse.jetty', name: 'jetty-servlet', version:'9.4.9.v20180320'
- }
+@@ -12,3 +12,8 @@ dependencies {
+ 
+ group = 'com.bonitasoft.engine.test'
+ description = 'HTTP API Integration Tests on Embedded Jetty - SP'
 +test {
 +  include ''
 +}
 +task integrationTest(type: Test) {
 +}
-\ No newline at end of file
 -- 
-2.17.1
+2.20.1
 

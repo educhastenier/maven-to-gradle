@@ -1,29 +1,28 @@
-From 8ddb57148e33fa42c1351307fd53c4998bc9da21 Mon Sep 17 00:00:00 2001
+From 043596b6ed577df1e665c6ea05a7b0da05eef617 Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Wed, 25 Jul 2018 14:50:41 +0200
 Subject: [PATCH] add global javadoc
 
 ---
- community/build.gradle                        | 20 -----------
- settings.gradle                               |  5 ++-
+ community/build.gradle                        | 19 ----------
+ settings.gradle                               |  1 +
  .../bpm/bonita-global-javadoc/build.gradle    | 35 +++++++++++++++++++
- 3 files changed, 39 insertions(+), 21 deletions(-)
+ 3 files changed, 36 insertions(+), 19 deletions(-)
  create mode 100644 subscription/bpm/bonita-global-javadoc/build.gradle
 
 diff --git a/community/build.gradle b/community/build.gradle
-index f748805a72..dc765da309 100644
+index 209d28dfb7..74126ed152 100644
 --- a/community/build.gradle
 +++ b/community/build.gradle
-@@ -145,26 +145,6 @@ artifacts.archives packageSources
+@@ -147,25 +147,6 @@ subprojects {
+     }
  }
- 
  
 -task allJavadoc(type: Javadoc) {
 -    def candidates = [
 -            ':engine:platform:platform-setup',
--            ':engine:bpm:bonita-api:bonita-common-api',
--            ':engine:bpm:bonita-api:bonita-common-api-impl',
--            ':engine:bpm:bonita-util:bonita-client-util'
+-            ':engine:bpm:bonita-common',
+-            ':engine:bpm:bonita-client'
 -    ]
 -    source candidates.collect { project(it).sourceSets.main.allJava }
 -    classpath = files(candidates.collect { project(it).sourceSets.main.compileClasspath })
@@ -42,20 +41,17 @@ index f748805a72..dc765da309 100644
      publications {
          maven(MavenPublication) {
 diff --git a/settings.gradle b/settings.gradle
-index 40f217182e..a714b7bae5 100644
+index 179b119eda..89e14bc6af 100644
 --- a/settings.gradle
 +++ b/settings.gradle
-@@ -72,4 +72,7 @@ include ':subscription'
+@@ -149,6 +149,7 @@ include(':subscription:bonita-integration-tests-sp:bonita-integration-tests-as-s
+ include(':subscription:bonita-integration-tests-sp:bonita-integration-tests-as:bonita-integration-cluster')
+ include(':subscription:bonita-integration-tests-sp:bonita-integration-tests-as')
+ include(':subscription:bonita-integration-tests-sp')
++include(':subscription:bpm:bonita-global-javadoc')
+ include(':subscription')
  
  project(':subscription:bpm:bonita-common-sp').projectDir = "$rootDir/subscription/bpm/bonita-common" as File
- project(':subscription:bpm:bonita-client-sp').projectDir = "$rootDir/subscription/bpm/bonita-client" as File
--project(':subscription:bpm:bonita-server-sp').projectDir = "$rootDir/subscription/bpm/bonita-server" as File
-\ No newline at end of file
-+project(':subscription:bpm:bonita-server-sp').projectDir = "$rootDir/subscription/bpm/bonita-server" as File
-+
-+
-+include ':subscription:bpm:bonita-global-javadoc'
-\ No newline at end of file
 diff --git a/subscription/bpm/bonita-global-javadoc/build.gradle b/subscription/bpm/bonita-global-javadoc/build.gradle
 new file mode 100644
 index 0000000000..889e10111a
@@ -99,5 +95,5 @@ index 0000000000..889e10111a
 +}
 \ No newline at end of file
 -- 
-2.18.0
+2.20.1
 

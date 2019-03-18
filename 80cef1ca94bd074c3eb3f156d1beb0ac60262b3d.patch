@@ -1,66 +1,29 @@
-From 80cef1ca94bd074c3eb3f156d1beb0ac60262b3d Mon Sep 17 00:00:00 2001
+From 289ff8cc29f7f57121f2caa7a9a474e743b4ee77 Mon Sep 17 00:00:00 2001
 From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
 Date: Fri, 13 Jul 2018 16:27:10 +0200
 Subject: [PATCH] Restore test BonitaClientXMLTest
 
 ---
- .../build.gradle                              | 63 ++++++++++++-------
- .../engine/client/BonitaClientXMLTest.java    |  9 +--
- 2 files changed, 43 insertions(+), 29 deletions(-)
+ .../build.gradle                              | 20 +++++++++++++++++++
+ .../engine/client/BonitaClientXMLTest.java    |  9 ++-------
+ 2 files changed, 22 insertions(+), 7 deletions(-)
 
 diff --git a/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
-index 2844bacd56..a1a6ba81cf 100644
+index 492007656b..935df444f8 100644
 --- a/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
 +++ b/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
-@@ -1,26 +1,45 @@
- group = 'org.bonitasoft.engine.test'
- description = ''
- dependencies {
--  compile project(':engine:bonita-test-api')
--    compile group: 'org.springframework', name: 'spring-context', version:'5.0.6.RELEASE'
--    compile group: 'junit', name: 'junit', version:'4.12'
--    compile group: 'org.awaitility', name: 'awaitility', version:'2.0.0'
--    compile group: 'xmlunit', name: 'xmlunit', version:'1.4'
--    compile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
--    compile group: 'commons-pool', name: 'commons-pool', version:'1.5.5'
--    compile group: 'commons-io', name: 'commons-io', version:'2.5'
--    compile group: 'com.thoughtworks.xstream', name: 'xstream', version:'1.4.10'
--  compile project(':engine:bpm:bonita-common')
--  compile project(':engine:bpm:bonita-client')
--  compile project(':engine:bonita-integration-tests:bonita-test-utils:bonita-common-test-utils')
--  compile project(':engine:bonita-integration-tests:bonita-test-utils:bonita-client-test-utils')
--    compile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
--    compile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version:'1.25.1'
--    compile group: 'com.github.stefanbirkner', name: 'system-rules', version:'1.16.0'
--  compile project(':engine:bpm:bonita-util:bonita-common-util-test')
--  compile project(':engine:bpm:bonita-api:bonita-common-api')
--    compile group: 'net.jodah', name: 'concurrentunit', version:'0.4.0'
--    runtime group: 'ch.qos.logback', name: 'logback-classic', version:'1.2.3'
--  testCompile project(':engine:bpm:bonita-server')
--    testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
-+    compile project(':engine:bonita-test-api')
-+    compile group: 'org.springframework', name: 'spring-context', version: '5.0.6.RELEASE'
-+    compile group: 'junit', name: 'junit', version: '4.12'
-+    compile group: 'org.awaitility', name: 'awaitility', version: '2.0.0'
-+    compile group: 'xmlunit', name: 'xmlunit', version: '1.4'
-+    compile group: 'commons-dbcp', name: 'commons-dbcp', version: '1.4'
-+    compile group: 'commons-pool', name: 'commons-pool', version: '1.5.5'
-+    compile group: 'commons-io', name: 'commons-io', version: '2.5'
-+    compile group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.10'
-+    compile project(':engine:bpm:bonita-common')
-+    compile project(':engine:bpm:bonita-client')
-+    compile project(':engine:bonita-integration-tests:bonita-test-utils:bonita-common-test-utils')
-+    compile project(':engine:bonita-integration-tests:bonita-test-utils:bonita-client-test-utils')
-+    compile group: 'org.assertj', name: 'assertj-core', version: '3.7.0'
-+    compile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: '1.25.1'
-+    compile group: 'com.github.stefanbirkner', name: 'system-rules', version: '1.16.0'
-+    compile project(':engine:bpm:bonita-util:bonita-common-util-test')
-+    compile project(':engine:bpm:bonita-api:bonita-common-api')
-+    compile group: 'net.jodah', name: 'concurrentunit', version: '0.4.0'
-+    runtime group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
-+    testCompile project(':engine:bpm:bonita-server')
-+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.17.0'
+@@ -16,6 +16,7 @@ dependencies {
+     compile project(':engine:bpm:bonita-client')
+     compile project(':engine:bonita-integration-tests:bonita-test-utils:bonita-common-test-utils')
+     compile project(':engine:bonita-integration-tests:bonita-test-utils:bonita-client-test-utils')
++<<<<<<< HEAD
+     compile 'org.assertj:assertj-core:3.7.0'
+     compile 'net.javacrumbs.json-unit:json-unit-fluent:1.25.1'
+     compile 'com.github.stefanbirkner:system-rules:1.16.0'
+@@ -27,3 +28,22 @@ dependencies {
  }
+ 
+ group = 'org.bonitasoft.engine.test'
 +
 +test.doFirst {
 +    def emptyFile = new File("$project.buildDir/bonita_home_client_EJB3/engine-client/conf/bonita-client-custom.properties")
@@ -80,9 +43,8 @@ index 2844bacd56..a1a6ba81cf 100644
 +        rename 'bonita-client-invalid.properties', 'bonita-client-community.properties'
 +    }
 +}
-\ No newline at end of file
 diff --git a/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java b/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java
-index 9843190a2e..3185c95c10 100644
+index 9843190a2e..3a95cd6465 100644
 --- a/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java
 +++ b/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java
 @@ -25,7 +25,6 @@ import org.bonitasoft.engine.exception.UnknownAPITypeException;
@@ -137,5 +99,5 @@ index 9843190a2e..3185c95c10 100644
          System.setProperty(BonitaHome.BONITA_HOME, BONITA_HOME_CLIENT_INVALID_API_TYPE);
          TenantAPIAccessor.getLoginAPI();
 -- 
-2.17.1
+2.20.1
 

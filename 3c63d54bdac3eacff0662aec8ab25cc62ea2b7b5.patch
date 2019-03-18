@@ -1,18 +1,21 @@
-From 3c63d54bdac3eacff0662aec8ab25cc62ea2b7b5 Mon Sep 17 00:00:00 2001
-From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
-Date: Thu, 12 Jul 2018 16:27:21 +0200
-Subject: [PATCH] Fix SP settings.gradle
+From e8aa4f71d94c84e875dce012da3aadd65d200875 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Sun, 17 Mar 2019 17:21:00 +0100
+Subject: [PATCH] fix sp settings
 
 ---
- settings.gradle | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ settings.gradle | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
 diff --git a/settings.gradle b/settings.gradle
-index 6bf2b27cf6..0a4719768d 100644
+index bfa74b1717..2d3de2727b 100644
 --- a/settings.gradle
 +++ b/settings.gradle
-@@ -1,4 +1,19 @@
+@@ -3,6 +3,22 @@
+  */
+ 
  rootProject.name = 'bonita-modules'
++
 +
 +apply from: 'community/engine-settings.gradle'
 +
@@ -28,17 +31,17 @@ index 6bf2b27cf6..0a4719768d 100644
 +include ':engine'
 +project(':engine').projectDir = "$rootDir/community" as File
 +
- include ':subscription:platform:platform-resources-sp'
- include ':subscription:platform:platform-setup-sp'
- include ':subscription:platform'
-@@ -34,3 +49,6 @@ include ':subscription:bonita-integration-tests-sp:bonita-integration-tests-as'
- include ':subscription:bonita-integration-tests-sp'
- include ':subscription'
- 
+ include(':bonita-engine:bonita-platform:platform-resources')
+ include(':bonita-engine:bonita-platform:platform-setup')
+ include(':bonita-engine:bonita-platform:platform-setup-test')
+@@ -125,3 +141,7 @@ include(':subscription:bonita-integration-tests-sp:bonita-integration-tests-as:b
+ include(':subscription:bonita-integration-tests-sp:bonita-integration-tests-as')
+ include(':subscription:bonita-integration-tests-sp')
+ include(':subscription')
++
 +project(':subscription:bpm:bonita-common-sp').projectDir = "$rootDir/subscription/bpm/bonita-common" as File
 +project(':subscription:bpm:bonita-client-sp').projectDir = "$rootDir/subscription/bpm/bonita-client" as File
 +project(':subscription:bpm:bonita-server-sp').projectDir = "$rootDir/subscription/bpm/bonita-server" as File
-\ No newline at end of file
 -- 
-2.17.1
+2.20.1
 

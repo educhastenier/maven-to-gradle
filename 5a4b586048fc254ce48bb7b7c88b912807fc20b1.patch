@@ -1,4 +1,4 @@
-From 5a4b586048fc254ce48bb7b7c88b912807fc20b1 Mon Sep 17 00:00:00 2001
+From ce40c4cadb030d443eedeae9ba79c15d008da588 Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Thu, 12 Jul 2018 09:38:51 +0200
 Subject: [PATCH] fix various tests
@@ -8,11 +8,11 @@ Subject: [PATCH] fix various tests
  .../setup/PlatformSetupDistributionIT.java    |  5 +++++
  ...AOImplWithLazyReferenceOnEmployee.java.txt | 13 ++++++------
  .../generator/client/PersonneDAOImpl.java.txt | 21 ++++++++++---------
- .../bonita-business-data-impl/build.gradle    | 12 ++++++-----
- 5 files changed, 35 insertions(+), 21 deletions(-)
+ .../bonita-business-data-impl/build.gradle    |  8 +++++--
+ 5 files changed, 34 insertions(+), 18 deletions(-)
 
 diff --git a/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java b/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java
-index 67718a5bc8..ff2b07b906 100644
+index 67718a5bc8..9843190a2e 100644
 --- a/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java
 +++ b/community/bonita-integration-tests/bonita-integration-tests-client/src/main/java/org/bonitasoft/engine/client/BonitaClientXMLTest.java
 @@ -25,6 +25,7 @@ import org.bonitasoft.engine.exception.UnknownAPITypeException;
@@ -267,35 +267,24 @@ index 53ae07031a..050b56611a 100644
              commandParameters.put("queryName", "Personne.countForFind");
              commandParameters.put("returnsList", false);
 diff --git a/community/services/bonita-business-data/bonita-business-data-impl/build.gradle b/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
-index 07b29ec814..0183e0af1e 100644
+index 8b350090c2..57dff08ffc 100644
 --- a/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
 +++ b/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
-@@ -20,18 +20,20 @@ exclude(module: 'jboss-transaction-api_1.2_spec')
-     testCompile group: 'junit', name: 'junit', version:'4.12'
-     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
-     testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version:'1.25.1'
--    testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
-+    testCompile group: 'org.mockito', name: 'mockito-core', version:'2.7.22'
-     testCompile group: 'org.codehaus.btm', name: 'btm', version:'2.1.4'
-     testCompile group: 'com.h2database', name: 'h2', version:'1.3.175'
-     testCompile group: 'mysql', name: 'mysql-connector-java', version:'5.1.26'
-     testCompile group: 'org.postgresql', name: 'postgresql', version:'9.3-1102-jdbc41'
-     testCompile group: 'org.slf4j', name: 'slf4j-simple', version:'1.7.25'
--    testCompile group: 'org.springframework', name: 'spring-context', version:'5.0.6.RELEASE'
--    testCompile group: 'org.springframework', name: 'spring-test', version:'5.0.6.RELEASE'
--    testCompile group: 'org.springframework', name: 'spring-jdbc', version:'5.0.6.RELEASE'
-+    testCompile group: 'org.springframework', name: 'spring-context', version:'4.3.7.RELEASE'
-+    testCompile group: 'org.springframework', name: 'spring-test', version:'4.3.7.RELEASE'
-+    testCompile group: 'org.springframework', name: 'spring-jdbc', version:'4.3.7.RELEASE'
-     testCompile group: 'com.zaxxer', name: 'HikariCP', version:'2.6.1'
-   testCompile project(':bpm:bonita-util:bonita-common-util-test')
-     compileOnly group: 'javax.transaction', name: 'jta', version:'1.1'
-   compileOnly project(':bpm:bonita-util:bonita-common-util')
--    compileOnly group: 'javax.xml.bind', name: 'jaxb-api', version:'2.2.7'
-+    compileOnly group: 'javax.xml.bind', name: 'jaxb-api', version: '2.2.7'
-+    testCompile project(path: ':bpm:bonita-util:bonita-common-util', configuration: 'testArtifacts')
-+
- }
+@@ -11,8 +11,12 @@ dependencies {
+     compile project(':services:bonita-resources')
+     compile project(':services:bonita-transaction')
+     compile project(':services:bonita-commons')
+-    compile 'org.hibernate:hibernate-core:4.3.11.Final'
+-    compile 'org.hibernate:hibernate-entitymanager:4.3.11.Final'
++    compile(group: 'org.hibernate', name: 'hibernate-core', version:'4.3.11.Final') {
++        exclude(module: 'jboss-transaction-api_1.2_spec')
++    }
++    compile(group: 'org.hibernate', name: 'hibernate-entitymanager', version:'4.3.11.Final') {
++        exclude(module: 'jboss-transaction-api_1.2_spec')
++    }
+     compile 'org.apache.commons:commons-lang3:3.3.2'
+     compile project(':services:bonita-classloader')
+     testCompile 'junit:junit:4.12'
 -- 
-2.17.1
+2.20.1
 

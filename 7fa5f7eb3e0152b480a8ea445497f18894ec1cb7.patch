@@ -1,47 +1,21 @@
-From 7fa5f7eb3e0152b480a8ea445497f18894ec1cb7 Mon Sep 17 00:00:00 2001
+From ee2f5baa580653e0fab2ddc77d927aa902ef332f Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Thu, 8 Mar 2018 13:09:23 +0100
 Subject: [PATCH] run integration test in a specific task
 
 ---
- .../build.gradle                              | 29 ++++++++++++-------
- 1 file changed, 18 insertions(+), 11 deletions(-)
+ .../bonita-integration-tests-local/build.gradle           | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 diff --git a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
-index e2fe75fd7a..6b77d61a44 100644
+index 33d8788fd7..625b8d1e80 100644
 --- a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
 +++ b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
-@@ -1,19 +1,26 @@
- group = 'org.bonitasoft.engine.test'
- description = ''
- dependencies {
--    compile group: 'junit', name: 'junit', version:'4.12'
--    compile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
--  compile project(':bonita-integration-tests:bonita-integration-tests-client')
--  compile project(':bpm:bonita-server')
--    compile group: 'commons-collections', name: 'commons-collections', version:'3.2.1'
--    compile group: 'dom4j', name: 'dom4j', version:'1.6.1'
--  compile project(':bonita-integration-tests:bonita-test-utils:bonita-server-test-utils')
--    compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.26'
--    compile group: 'org.postgresql', name: 'postgresql', version:'9.3-1102-jdbc41'
-+    compile group: 'junit', name: 'junit', version: '4.12'
-+    compile group: 'org.assertj', name: 'assertj-core', version: '3.7.0'
-+    compile project(':bonita-integration-tests:bonita-integration-tests-client')
-+    compile project(':bpm:bonita-server')
-+    compile group: 'commons-collections', name: 'commons-collections', version: '3.2.1'
-+    compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
-+    compile project(':bonita-integration-tests:bonita-test-utils:bonita-server-test-utils')
-+    compile group: 'mysql', name: 'mysql-connector-java', version: '5.1.26'
-+    compile group: 'org.postgresql', name: 'postgresql', version: '9.3-1102-jdbc41'
- }
+@@ -22,3 +22,11 @@ task testsJar(type: Jar) {
  
- task packageTests(type: Jar) {
--  from sourceSets.test.output
--  classifier = 'tests'
-+    from sourceSets.test.output
-+    classifier = 'tests'
- }
- artifacts.archives packageTests
+ group = 'org.bonitasoft.engine.test'
+ publishing.publications.maven.artifact(testsJar)
++
 +test {
 +    include ''
 +}
@@ -50,5 +24,5 @@ index e2fe75fd7a..6b77d61a44 100644
 +    include 'org/bonitasoft/engine/LocalIntegrationTests.class'
 +}
 -- 
-2.17.1
+2.20.1
 

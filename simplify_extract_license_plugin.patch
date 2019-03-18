@@ -1,4 +1,4 @@
-From 637bab49af3066542dac3863595ce85fd9461ab5 Mon Sep 17 00:00:00 2001
+From 29d29b4b28106cbf49b038eedc068e3b12431745 Mon Sep 17 00:00:00 2001
 From: Emmanuel Duchastenier <emmanuel.duchastenier@bonitasoft.com>
 Date: Fri, 20 Jul 2018 16:50:50 +0200
 Subject: [PATCH] simplify SP plugin responsibility
@@ -7,19 +7,18 @@ Extract specific plugin for 'license extractor'
 ---
  .../gradle/IntegrationTestSPPlugin.groovy     | 62 -------------------
  .../gradle/LicenseExtractorPlugin.groovy      | 30 +++++++++
- .../bonita-integration-cluster/build.gradle   | 11 +++-
- .../com/bonitasoft/engine/NodeLauncher.java   | 19 +++---
- .../build.gradle                              | 10 ++-
+ .../bonita-integration-cluster/build.gradle   | 16 +++--
+ .../com/bonitasoft/engine/NodeLauncher.java   | 11 ++--
  .../build.gradle                              | 10 ++-
  .../build.gradle                              | 12 ++--
- subscription/bonita-test-api-sp/build.gradle  | 12 ++--
- 8 files changed, 74 insertions(+), 92 deletions(-)
+ subscription/bonita-test-api-sp/build.gradle  | 15 +++--
+ 7 files changed, 67 insertions(+), 89 deletions(-)
  delete mode 100644 buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
  create mode 100644 buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/LicenseExtractorPlugin.groovy
 
 diff --git a/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy b/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
 deleted file mode 100644
-index 91e785ff0df..00000000000
+index 91e785ff0d..0000000000
 --- a/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/IntegrationTestSPPlugin.groovy
 +++ /dev/null
 @@ -1,62 +0,0 @@
@@ -87,7 +86,7 @@ index 91e785ff0df..00000000000
 -}
 diff --git a/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/LicenseExtractorPlugin.groovy b/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/LicenseExtractorPlugin.groovy
 new file mode 100644
-index 00000000000..3c4fdf8d055
+index 0000000000..3c4fdf8d05
 --- /dev/null
 +++ b/buildSrc/src/main/groovy/com/bonitasoft/engine/gradle/LicenseExtractorPlugin.groovy
 @@ -0,0 +1,30 @@
@@ -122,58 +121,54 @@ index 00000000000..3c4fdf8d055
 +    }
 +}
 diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
-index 264012320cc..59340cb5a6b 100644
+index 2fd229f6f6..b19173178d 100644
 --- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
 +++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
-@@ -1,6 +1,6 @@
+@@ -1,7 +1,8 @@
 -import com.bonitasoft.engine.gradle.IntegrationTestSPPlugin
+-
+-apply plugin: IntegrationTestSPPlugin
 +import com.bonitasoft.engine.gradle.LicenseExtractorPlugin
  
--apply plugin: IntegrationTestSPPlugin
 +apply plugin: LicenseExtractorPlugin
- group = 'com.bonitasoft.engine.test'
- description = ''
++group = 'com.bonitasoft.engine.test'
++description = ''
+ 
  dependencies {
-@@ -14,6 +14,11 @@ dependencies {
-     testCompile group: 'ch.qos.logback', name: 'logback-core', version:'1.2.3'
-     testCompile group: 'ch.qos.logback', name: 'logback-classic', version:'1.2.3'
+     testCompile project(':subscription:bonita-integration-tests-sp:bonita-integration-tests-client')
+@@ -14,7 +15,10 @@ dependencies {
+     testCompile 'ch.qos.logback:logback-core:1.2.3'
+     testCompile 'ch.qos.logback:logback-classic:1.2.3'
  }
+-group = 'com.bonitasoft.engine.test'
 -integrationTest {
-+
+-    include 'com/bonitasoft/engine/ClusteredTestSuiteIT.class'
 +test {
 +  include ''
 +}
 +
 +task integrationTest(type: Test) {
-   include 'com/bonitasoft/engine/ClusteredTestSuiteIT.class'
++  include 'com/bonitasoft/engine/ClusteredTestSuiteIT.class'
  }
-\ No newline at end of file
 diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java
-index 0284591c9f4..550992cc2b3 100644
+index ce6ab9af81..26f894d0ac 100644
 --- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java
 +++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/src/test/java/com/bonitasoft/engine/NodeLauncher.java
-@@ -15,17 +15,16 @@ import java.util.List;
- import java.util.Map;
- import java.util.stream.Collectors;
+@@ -31,12 +31,10 @@ import org.bonitasoft.engine.util.APITypeManager;
+ import com.bonitasoft.engine.api.PlatformAPIAccessor;
  
--import com.bonitasoft.engine.api.PlatformAPIAccessor;
- import org.awaitility.Awaitility;
- import org.bonitasoft.engine.api.ApiAccessType;
- import org.bonitasoft.engine.util.APITypeManager;
+ public class NodeLauncher {
+-
+     public static final String NODE_NAME = "node.name";
  
--public class NodeLauncher {
-+import com.bonitasoft.engine.api.PlatformAPIAccessor;
- 
-+public class NodeLauncher {
- 
-     public static NodeRef start(String nodeName, int port, int healthCheckServerPort) throws IOException {
+     public static Process start(String nodeName, String databaseUrl, int port, int healthCheckServerPort, String clusterName) throws IOException {
 -        File target = new File("target");
 -
 +        File target = new File(".");
  
          List<String> command = new ArrayList<>();
          command.add(getJavaPath());
-@@ -33,6 +32,7 @@ public class NodeLauncher {
+@@ -44,6 +42,7 @@ public class NodeLauncher {
                  .getRuntimeMXBean()
                  .getInputArguments()
                  .stream()
@@ -181,16 +176,7 @@ index 0284591c9f4..550992cc2b3 100644
                  .filter(arg -> arg.startsWith("-XX"))
                  .collect(Collectors.toList());
          if (!jvmFlags.isEmpty()) {
-@@ -82,7 +82,7 @@ public class NodeLauncher {
-     }
- 
-     private static String getDatabaseDir(File target) {
--        return new File(target,"h2db").getAbsolutePath();
-+        return new File(target, "h2db").getAbsolutePath();
-     }
- 
-     private static File getNodeDir(String nodeName, File target) {
-@@ -104,9 +104,9 @@ public class NodeLauncher {
+@@ -110,9 +109,9 @@ public class NodeLauncher {
      private static void print(String nodeName, InputStream inputStream) {
          Runnable runnable = () -> {
              try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
@@ -203,42 +189,8 @@ index 0284591c9f4..550992cc2b3 100644
                  }
              } catch (Exception e) {
                  System.err.println("Unable to read logs from the forked JVM: " + e.getMessage());
-@@ -117,7 +117,4 @@ public class NodeLauncher {
-         thread.start();
-     }
- 
--
--
--
- }
-diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-ejb-api-sp/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-ejb-api-sp/build.gradle
-index 41473ec1cb0..3733594ae67 100644
---- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-ejb-api-sp/build.gradle
-+++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-ejb-api-sp/build.gradle
-@@ -1,6 +1,6 @@
--import com.bonitasoft.engine.gradle.IntegrationTestSPPlugin
-+import com.bonitasoft.engine.gradle.LicenseExtractorPlugin
- 
--apply plugin: IntegrationTestSPPlugin
-+apply plugin: LicenseExtractorPlugin
- 
- group = 'com.bonitasoft.engine.test'
- description = ''
-@@ -10,6 +10,10 @@ dependencies {
-   testCompile project(':subscription:bonita-integration-tests-sp:bonita-integration-tests-client')
- }
- 
--integrationTest {
-+test {
-+  include ''
-+}
-+
-+task integrationTest(type: Test) {
-   include '**/*IT.class'
- }
-\ No newline at end of file
 diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-http-api-sp/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-http-api-sp/build.gradle
-index ba90538419c..756f73c8c57 100644
+index 7dca234be8..e1087c0d3d 100644
 --- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-http-api-sp/build.gradle
 +++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-http-api-sp/build.gradle
 @@ -1,6 +1,6 @@
@@ -248,12 +200,12 @@ index ba90538419c..756f73c8c57 100644
 -apply plugin: IntegrationTestSPPlugin
 +apply plugin: LicenseExtractorPlugin
  
+ dependencies {
+     testCompile project(':engine:bpm:bonita-api:bonita-server-api-http')
+@@ -13,6 +13,10 @@ dependencies {
+ 
  group = 'com.bonitasoft.engine.test'
  description = 'HTTP API Integration Tests on Embedded Jetty - SP'
-@@ -13,6 +13,10 @@ dependencies {
-   testCompile project(':subscription:bonita-integration-tests-sp:bonita-integration-tests-client')
- }
- 
 -integrationTest {
 +test {
 +  include ''
@@ -262,9 +214,8 @@ index ba90538419c..756f73c8c57 100644
 +task integrationTest(type: Test) {
    include '**/*IT.class'
  }
-\ No newline at end of file
 diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle
-index 491b9f4e803..2f3cd304e38 100644
+index 6aa1bd8831..6a8ca6da3c 100644
 --- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle
 +++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle
 @@ -1,6 +1,6 @@
@@ -274,11 +225,11 @@ index 491b9f4e803..2f3cd304e38 100644
 -apply plugin: IntegrationTestSPPlugin
 +apply plugin: LicenseExtractorPlugin
  
+ dependencies {
+     compile project(':subscription:bonita-test-api-sp')
+@@ -22,9 +22,13 @@ task testsJar(type: Jar) {
  group = 'com.bonitasoft.engine.test'
- description = ''
-@@ -22,9 +22,13 @@ task packageTests(type: Jar) {
- }
- artifacts.archives packageTests
+ publishing.publications.maven.artifact(testsJar)
  
 -integrationTest {
 +test {
@@ -293,7 +244,7 @@ index 491b9f4e803..2f3cd304e38 100644
      include 'com/bonitasoft/engine/SlowExecutionLocalIntegrationTestsSP.class'
  }
 diff --git a/subscription/bonita-test-api-sp/build.gradle b/subscription/bonita-test-api-sp/build.gradle
-index c297b7051f9..68ce441fdb5 100644
+index 9cc368298a..9b69a55e05 100644
 --- a/subscription/bonita-test-api-sp/build.gradle
 +++ b/subscription/bonita-test-api-sp/build.gradle
 @@ -1,6 +1,6 @@
@@ -303,10 +254,10 @@ index c297b7051f9..68ce441fdb5 100644
 -apply plugin: IntegrationTestSPPlugin
 +apply plugin: LicenseExtractorPlugin
  
- group = 'com.bonitasoft.engine'
- 
-@@ -21,9 +21,9 @@ dependencies {
-     testCompile group: 'mysql', name: 'mysql-connector-java', version: '5.1.26'
+ configurations {
+     lic
+@@ -20,11 +20,10 @@ dependencies {
+     testCompile 'com.microsoft.sqlserver:mssql-jdbc:7.0.0.jre8'
  }
  
 -unitTest {
@@ -316,10 +267,12 @@ index c297b7051f9..68ce441fdb5 100644
  }
 -integrationTest {
 -    include '**/TestEngineSPIT.class'
+-}
+-
+ group = 'com.bonitasoft.engine'
 +
 +task integrationTest(type: Test) {
- }
-\ No newline at end of file
++}
 -- 
-2.17.1
+2.20.1
 

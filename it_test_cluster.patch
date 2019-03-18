@@ -1,33 +1,17 @@
-From 4499e06cf3551857a97badd39b137dbfe3ddd79b Mon Sep 17 00:00:00 2001
+From 7bd50f226be3ed81181152ba5eaffb577e187d5e Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Fri, 13 Jul 2018 17:17:13 +0200
 Subject: [PATCH] fix integration tests
 
 ---
- settings.gradle                                            | 4 ++--
  .../bonita-integration-cluster/build.gradle                | 7 +++++++
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ 1 file changed, 7 insertions(+)
 
-diff --git a/settings.gradle b/settings.gradle
-index 25f863f4d8..83dec68e10 100644
---- a/settings.gradle
-+++ b/settings.gradle
-@@ -50,8 +50,8 @@ include ':subscription:bpm'
- include ':subscription:bonita-test-api-sp'
- include ':subscription:bonita-integration-tests-sp:bonita-integration-tests-client'
- include ':subscription:bonita-integration-tests-sp:bonita-integration-tests-local'
--include ':subscription:bonita-integration-tests-sp:bonita-integration-tests-as-sp:bonita-integration-http-api'
--include ':subscription:bonita-integration-tests-sp:bonita-integration-tests-as-sp:bonita-integration-ejb-api'
-+include ':subscription:bonita-integration-tests-sp:bonita-integration-tests-as:bonita-integration-http-api-sp'
-+include ':subscription:bonita-integration-tests-sp:bonita-integration-tests-as:bonita-integration-ejb-api-sp'
- include ':subscription:bonita-integration-tests-sp:bonita-integration-tests-as:bonita-integration-cluster'
- include ':subscription:bonita-integration-tests-sp:bonita-integration-tests-as'
- include ':subscription:bonita-integration-tests-sp'
 diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
-index a3132cfab9..be76248cae 100644
+index 9fb6022dfc..04c122761a 100644
 --- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
 +++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
-@@ -15,4 +15,11 @@ test {
+@@ -18,4 +18,11 @@ test {
    include ''
  }
  task integrationTest(type: Test) {
@@ -39,7 +23,6 @@ index a3132cfab9..be76248cae 100644
 +    new File(testDir, "target").mkdir()
 +  }
  }
-\ No newline at end of file
 -- 
-2.17.1
+2.20.1
 

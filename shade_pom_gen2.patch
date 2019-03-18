@@ -1,27 +1,24 @@
-From 7d0caedde77b4251d49daef20ce9f46f1be24b25 Mon Sep 17 00:00:00 2001
+From 277c8820675ccf92b045a31aafa4fc480e9bc0cf Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Thu, 26 Jul 2018 11:13:46 +0200
 Subject: [PATCH] fix pom generation of shades
 
 ---
- community/bpm/bonita-server/build.gradle      |  3 --
+ community/bpm/bonita-server/build.gradle      |  1 -
  .../engine/gradle/ShadePlugin.groovy          | 36 ++++++++++++++++++-
- subscription/bpm/bonita-server/build.gradle   |  6 ----
- 3 files changed, 35 insertions(+), 10 deletions(-)
+ subscription/bpm/bonita-server/build.gradle   |  1 -
+ 3 files changed, 35 insertions(+), 3 deletions(-)
 
 diff --git a/community/bpm/bonita-server/build.gradle b/community/bpm/bonita-server/build.gradle
-index 9df47ef62a..53a9233cd5 100644
+index 433a60a340..aeb2745a9b 100644
 --- a/community/bpm/bonita-server/build.gradle
 +++ b/community/bpm/bonita-server/build.gradle
-@@ -64,7 +64,4 @@ dependencies {
+@@ -67,5 +67,4 @@ description = 'Bonita Server'
  shade {
    exclude project(':engine:platform:platform-setup')
    exclude project(':engine:platform:platform-resources')
--  exclude project(':engine:bpm:bonita-api:bonita-common-api')
--  exclude project(':engine:bpm:bonita-util:bonita-common-util')
--  exclude project(':engine:bpm:bonita-api:bonita-common-api-impl')
+-  exclude project(':engine:bpm:bonita-common')
  }
-\ No newline at end of file
 diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
 index 0d80d74557..24d8396341 100644
 --- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy
@@ -91,22 +88,16 @@ index 0d80d74557..24d8396341 100644
                      allDependencies.add(projectDependency)
                  } else {
 diff --git a/subscription/bpm/bonita-server/build.gradle b/subscription/bpm/bonita-server/build.gradle
-index 2a038204bb..6464751aa3 100644
+index 9fdb1f7f65..ce0f435247 100644
 --- a/subscription/bpm/bonita-server/build.gradle
 +++ b/subscription/bpm/bonita-server/build.gradle
-@@ -84,11 +84,5 @@ shade {
+@@ -28,6 +28,5 @@ shade {
    include group: "org.bonitasoft.security", name: "sysUtil"
    exclude project(':engine:platform:platform-setup')
    exclude project(':engine:platform:platform-resources')
--  exclude project(':engine:bpm:bonita-api:bonita-common-api')
--  exclude project(':engine:bpm:bonita-util:bonita-common-util')
--  exclude project(':engine:bpm:bonita-api:bonita-common-api-impl')
--  exclude project(':engine:bpm:bonita-api:bonita-common-api-impl')
--  exclude project(':engine:bpm:bonita-api:bonita-common-api')
--  exclude project(':engine:bpm:bonita-util:bonita-common-util')
+-  exclude project(':engine:bpm:bonita-common')
    exclude project(':subscription:platform:platform-resources-sp')
  }
-\ No newline at end of file
 -- 
-2.18.0
+2.20.1
 

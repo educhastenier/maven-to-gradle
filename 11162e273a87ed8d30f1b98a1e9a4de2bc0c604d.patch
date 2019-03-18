@@ -1,22 +1,35 @@
-From 11162e273a87ed8d30f1b98a1e9a4de2bc0c604d Mon Sep 17 00:00:00 2001
+From 7bdfd72ba0f0146aa6b8b229c337e1e0a10e98b7 Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Thu, 12 Apr 2018 10:03:23 +0200
 Subject: [PATCH] fix hibernate tests
 
 ---
- community/services/bonita-persistence/build.gradle | 1 +
- 1 file changed, 1 insertion(+)
+ community/services/bonita-persistence/build.gradle | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/community/services/bonita-persistence/build.gradle b/community/services/bonita-persistence/build.gradle
-index d635e57d88..0e3821bfa7 100644
+index f498cca503..527d4274d0 100644
 --- a/community/services/bonita-persistence/build.gradle
 +++ b/community/services/bonita-persistence/build.gradle
-@@ -14,4 +14,5 @@ exclude(module: 'jboss-transaction-api_1.2_spec')
-     testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
-     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
-     compileOnly group: 'javax.transaction', name: 'jta', version:'1.1'
-+    testCompile group: 'javax.transaction', name: 'jta', version: '1.1'
+@@ -5,7 +5,9 @@
+ dependencies {
+     compile 'org.apache.commons:commons-lang3:3.3.2'
+     compile project(':services:bonita-log-technical')
+-    compile 'org.hibernate:hibernate-core:4.3.11.Final'
++    compile(group: 'org.hibernate', name: 'hibernate-core', version:'4.3.11.Final') {
++        exclude(module: 'jboss-transaction-api_1.2_spec')
++    }
+     compile project(':services:bonita-session')
+     compile project(':services:bonita-commons')
+     compile project(':services:bonita-lock')
+@@ -15,6 +17,7 @@ dependencies {
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     compileOnly 'javax.transaction:jta:1.1'
+     compileOnly 'org.projectlombok:lombok:1.16.20'
++    testCompile 'javax.transaction:jta:1.1'
  }
+ 
+ group = 'org.bonitasoft.engine.persistence'
 -- 
-2.17.1
+2.20.1
 

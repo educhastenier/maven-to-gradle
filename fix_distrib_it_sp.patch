@@ -1,4 +1,4 @@
-From ef4a9ba77313d4f1c2b5e85a97b1b00555258c5c Mon Sep 17 00:00:00 2001
+From 06b608bc1517b857c340fe20539d12e8cacbcab5 Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Mon, 16 Jul 2018 12:57:59 +0200
 Subject: [PATCH] fix platform distrib tests
@@ -51,10 +51,10 @@ index 1a60cef994..84dd9a59bb 100644
          try (InputStream inputStream = new FileInputStream(dist)) {
              unzipToFolder(inputStream, distFolder);
 diff --git a/community/platform/platform-setup/build.gradle b/community/platform/platform-setup/build.gradle
-index 9f45fb69c8..52b6c2caaa 100644
+index 84eb9f1be8..b62b8f48a3 100644
 --- a/community/platform/platform-setup/build.gradle
 +++ b/community/platform/platform-setup/build.gradle
-@@ -127,6 +127,7 @@ tasks.create("integrationTest", Test) {
+@@ -132,6 +132,7 @@ tasks.create("integrationTest", Test) {
      def testDir = new File(buildDir, "integrationTest")
      doFirst {
          testDir.mkdirs()
@@ -63,17 +63,19 @@ index 9f45fb69c8..52b6c2caaa 100644
      workingDir testDir
  }
 diff --git a/subscription/platform/platform-setup-sp/build.gradle b/subscription/platform/platform-setup-sp/build.gradle
-index f3e698acb1..2fffd9a948 100644
+index 4c6e4c93ef..cd0ff3ae5e 100644
 --- a/subscription/platform/platform-setup-sp/build.gradle
 +++ b/subscription/platform/platform-setup-sp/build.gradle
-@@ -4,6 +4,7 @@ group = 'com.bonitasoft.platform'
- description = ''
+@@ -1,7 +1,8 @@
+ apply plugin: 'distribution'
  
  configurations{
+-    inDistrib
 +  distributionZip
-   inDistrib
++  inDistrib
  }
  
+ dependencies {
 @@ -67,11 +68,20 @@ distributions {
    }
  }
@@ -95,12 +97,9 @@ index f3e698acb1..2fffd9a948 100644
 +    systemProperty "bonita.distribution.path", distZip.outputs.files.first()
    }
 -  workingDir workingDir
--}
-\ No newline at end of file
 +  workingDir testDir
-+}
+ }
 +tasks.integrationTest.dependsOn distZip
-\ No newline at end of file
 -- 
-2.17.1
+2.20.1
 

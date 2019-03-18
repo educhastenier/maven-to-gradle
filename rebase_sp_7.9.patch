@@ -1,0 +1,239 @@
+From 6366fb978b06076f23a03cb5bf76e08cafdc275c Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Sun, 17 Mar 2019 19:31:22 +0100
+Subject: [PATCH] fix after rebase
+
+---
+ build.gradle                                  |  1 -
+ community/build.gradle                        | 34 +++++++------------
+ .../bonita-business-data-impl/build.gradle    |  2 ++
+ subscription/bpm/bonita-common/build.gradle   |  7 +++-
+ .../bonita-process-engine/build.gradle        |  5 ++-
+ .../engine/api/impl/PlatformAPIExtTest.java   |  1 -
+ .../bonita-core/bonita-reporting/build.gradle |  3 +-
+ .../bpm/bonita-global-javadoc/build.gradle    | 10 +++---
+ .../bonita-business-data/build.gradle         |  6 ++--
+ .../bonita-cluster-services/build.gradle      |  5 ++-
+ .../services/bonita-services-sp/build.gradle  |  3 +-
+ 11 files changed, 41 insertions(+), 36 deletions(-)
+
+diff --git a/build.gradle b/build.gradle
+index aabad58ea6..fc1a4118b4 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -5,7 +5,6 @@ plugins {
+ allprojects {
+     group = 'org.bonitasoft'
+     version = '7.9.0-SNAPSHOT'
+-    apply plugin: 'maven-publish'
+     apply plugin: 'io.spring.dependency-management'
+     dependencyManagement {
+         dependencies {
+diff --git a/community/build.gradle b/community/build.gradle
+index 74126ed152..c8d6cdb62d 100644
+--- a/community/build.gradle
++++ b/community/build.gradle
+@@ -43,7 +43,7 @@ subprojects {
+                 dependency 'com.h2database:h2:1.3.175'
+                 dependency 'net.sf.ehcache:ehcache-core:2.4.7'
+ 
+-                dependencySet(group: 'org.springframework', version: '5.0.6.RELEASE') {
++                dependencySet(group: 'org.springframework', version: '5.1.5.RELEASE') {
+                     entry 'spring-context'
+                     entry 'spring-core'
+                     entry 'spring-test'
+@@ -94,32 +94,24 @@ subprojects {
+             }
+         }
+ 
+-        publishing {
+-            repositories {
+-                maven {
+-                    name 'bonitaInternal'
+-                    url 'http://repositories.rd.lan/maven/all/'
+-                }
+-            }
+-        }
+-        task sourcesJar(type: Jar) {
+-            classifier = 'sources'
+-            from(sourceSets.main.allJava)
+-        }
++//        task sourcesJar(type: Jar) {
++//            classifier = 'sources'
++//            from(sourceSets.main.allJava)
++//        }
+ 
+         sourceCompatibility = '1.8'
+ 
+         configurations.all {
+         }
+ 
+-        publishing {
+-            publications {
+-                maven(MavenPublication) {
+-                    from(components.java)
+-                    artifact(sourcesJar)
+-                }
+-            }
+-        }
++//        publishing {
++//            publications {
++//                maven(MavenPublication) {
++//                    from(components.java)
++//                    artifact(sourcesJar)
++//                }
++//            }
++//        }
+         afterEvaluate {
+             tasks.withType(Test) { testTask ->
+                 if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
+diff --git a/community/services/bonita-business-data/bonita-business-data-impl/build.gradle b/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
+index bc1bf3c581..70b9656c88 100644
+--- a/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
++++ b/community/services/bonita-business-data/bonita-business-data-impl/build.gradle
+@@ -36,7 +36,9 @@ dependencies {
+     testCompile 'com.zaxxer:HikariCP:3.3.0'
+     testCompile project(':engine:bpm:bonita-util:bonita-common-util-test')
+     compileOnly 'javax.transaction:jta:1.1'
++    testCompile 'javax.transaction:jta:1.1'
+     compileOnly 'javax.xml.bind:jaxb-api:2.2.7'
++    testCompile 'javax.xml.bind:jaxb-api:2.2.7'
+ }
+ 
+ group = 'org.bonitasoft.engine.data'
+diff --git a/subscription/bpm/bonita-common/build.gradle b/subscription/bpm/bonita-common/build.gradle
+index ec022c3afc..880ce32d41 100644
+--- a/subscription/bpm/bonita-common/build.gradle
++++ b/subscription/bpm/bonita-common/build.gradle
+@@ -21,7 +21,7 @@ dependencies {
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.jmockit:jmockit:1.44'
+     compileOnly 'com.sap:sapjco:3.0.3'
+-    testCompile group: 'com.sap', name: 'sapjco', version:'3.0.3'
++    testCompile 'com.sap:sapjco:3.0.3'
+     jaxb2 'com.sun.xml.bind:jaxb-core:2.2.11'
+     jaxb2 'com.sun.xml.bind:jaxb-xjc:2.2.11'
+     jaxb2 'com.sun.xml.bind:jaxb-impl:2.2.11'
+@@ -83,3 +83,8 @@ tasks.processResources.dependsOn tasks.schemagen
+ //}
+ //
+ //tasks.processResources.dependsOn tasks.jaxbSchemaGenAccesscontrol
++
++
++test {
++    jvmArgs "-javaagent:${classpath.find { it.name.contains("jmockit") }.absolutePath}"
++}
+\ No newline at end of file
+diff --git a/subscription/bpm/bonita-core/bonita-process-engine/build.gradle b/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
+index 258f3469fb..33a84feb23 100644
+--- a/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
++++ b/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
+@@ -29,7 +29,10 @@ dependencies {
+     compileOnly project(':subscription:bpm:bonita-common-sp')
+     testCompile project(':subscription:bpm:bonita-common-sp')
+     compileOnly 'javax.servlet:javax.servlet-api:3.0.1'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
++    testAnnotationProcessor "org.projectlombok:lombok:1.18.4"
++    testCompile 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'com.bonitasoft.engine.core'
+diff --git a/subscription/bpm/bonita-core/bonita-process-engine/src/test/java/com/bonitasoft/engine/api/impl/PlatformAPIExtTest.java b/subscription/bpm/bonita-core/bonita-process-engine/src/test/java/com/bonitasoft/engine/api/impl/PlatformAPIExtTest.java
+index 7d2ba0de52..b09621267b 100644
+--- a/subscription/bpm/bonita-core/bonita-process-engine/src/test/java/com/bonitasoft/engine/api/impl/PlatformAPIExtTest.java
++++ b/subscription/bpm/bonita-core/bonita-process-engine/src/test/java/com/bonitasoft/engine/api/impl/PlatformAPIExtTest.java
+@@ -129,7 +129,6 @@ public class PlatformAPIExtTest {
+         doReturn(transactionService).when(platformServiceAccessor).getTransactionService();
+         doReturn(schedulerService).when(platformServiceAccessor).getSchedulerService();
+         doReturn(sessionService).when(tenantServiceAccessor).getSessionService();
+-        doReturn(tenantConfiguration).when(tenantServiceAccessor).getTenantConfiguration();
+         doReturn(technicalUserOfTenant).when(tenantServiceAccessor).getTechnicalUser();
+         doReturn(tenantServiceAccessor).when(platformServiceAccessor).getTenantServiceAccessor(anyLong());
+         doReturn(nodeConfiguration).when(platformServiceAccessor).getPlatformConfiguration();
+diff --git a/subscription/bpm/bonita-core/bonita-reporting/build.gradle b/subscription/bpm/bonita-core/bonita-reporting/build.gradle
+index 73b4877661..45d5a0373c 100644
+--- a/subscription/bpm/bonita-core/bonita-reporting/build.gradle
++++ b/subscription/bpm/bonita-core/bonita-reporting/build.gradle
+@@ -13,7 +13,8 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'com.bonitasoft.engine.core.reporting'
+diff --git a/subscription/bpm/bonita-global-javadoc/build.gradle b/subscription/bpm/bonita-global-javadoc/build.gradle
+index 48657e0923..5f804df1d6 100644
+--- a/subscription/bpm/bonita-global-javadoc/build.gradle
++++ b/subscription/bpm/bonita-global-javadoc/build.gradle
+@@ -2,12 +2,10 @@ apply plugin: 'maven-publish'
+ 
+ project.javadoc {
+     def projects = [
+-            project(':engine:bpm:bonita-api:bonita-common-api'),
+-            project(':engine:bpm:bonita-api:bonita-common-api-impl'),
+-            project(':engine:bpm:bonita-util:bonita-client-util'),
+-            project(':subscription:bpm:bonita-api-sp:bonita-common-api-sp'),
+-            project(':subscription:bpm:bonita-api-sp:bonita-common-api-impl-sp'),
+-            project(':subscription:bpm:bonita-util-sp:bonita-client-util-sp')
++            project(':engine:bpm:bonita-common'),
++            project(':engine:bpm:bonita-client'),
++            project(':subscription:bpm:bonita-common-sp'),
++            project(':subscription:bpm:bonita-client-sp'),
+     ]
+     source projects.collect { it.sourceSets.main.allJava }
+     classpath = project.files(projects.collect { it.sourceSets.main.compileClasspath })
+diff --git a/subscription/services/bonita-business-data/build.gradle b/subscription/services/bonita-business-data/build.gradle
+index 8576ac3842..33f97df0de 100644
+--- a/subscription/services/bonita-business-data/build.gradle
++++ b/subscription/services/bonita-business-data/build.gradle
+@@ -20,8 +20,10 @@ dependencies {
+     testCompile 'com.github.stefanbirkner:system-rules:1.16.0'
+     compileOnly project(':subscription:bpm:bonita-common-sp')
+     testCompile project(':subscription:bpm:bonita-common-sp')
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
+-    testCompile 'org.projectlombok:lombok:1.16.20'
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
++    testAnnotationProcessor 'org.projectlombok:lombok:1.18.4'
++    testCompile 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'com.bonitasoft.engine.data'
+diff --git a/subscription/services/bonita-cluster-services/build.gradle b/subscription/services/bonita-cluster-services/build.gradle
+index 3ecabee53b..52df9821bc 100644
+--- a/subscription/services/bonita-cluster-services/build.gradle
++++ b/subscription/services/bonita-cluster-services/build.gradle
+@@ -21,7 +21,10 @@ dependencies {
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.awaitility:awaitility:2.0.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
++    testAnnotationProcessor 'org.projectlombok:lombok:1.18.4'
++    testCompile 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'com.bonitasoft.engine'
+diff --git a/subscription/services/bonita-services-sp/build.gradle b/subscription/services/bonita-services-sp/build.gradle
+index 0d371e4907..3c15a7b412 100644
+--- a/subscription/services/bonita-services-sp/build.gradle
++++ b/subscription/services/bonita-services-sp/build.gradle
+@@ -20,7 +20,8 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'ch.qos.logback:logback-classic:1.2.3'
+     testCompile 'org.awaitility:awaitility:2.0.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'com.bonitasoft.engine'
+-- 
+2.20.1
+

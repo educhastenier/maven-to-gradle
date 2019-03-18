@@ -1,4 +1,4 @@
-From 23291819215c201cdfe8ce3e9624459d47ca5b71 Mon Sep 17 00:00:00 2001
+From 356cc3a79110eb6c5b094a1fdd0f2058151fb6bc Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@gmail.com>
 Date: Sun, 16 Sep 2018 19:42:09 +0200
 Subject: [PATCH] publish test api sp (selenium)
@@ -8,22 +8,20 @@ Subject: [PATCH] publish test api sp (selenium)
  1 file changed, 7 insertions(+)
 
 diff --git a/subscription/bonita-test-api-sp/build.gradle b/subscription/bonita-test-api-sp/build.gradle
-index 68ce441fdb..f06a72107f 100644
+index 9b69a55e05..56cc23d558 100644
 --- a/subscription/bonita-test-api-sp/build.gradle
 +++ b/subscription/bonita-test-api-sp/build.gradle
-@@ -26,4 +26,11 @@ test {
- }
+@@ -27,3 +27,10 @@ group = 'com.bonitasoft.engine'
  
  task integrationTest(type: Test) {
-+}
+ }
 +publishing {
 +    publications {
 +        mavenJava(MavenPublication) {
 +            from project.components.java
 +        }
 +    }
- }
-\ No newline at end of file
++}
 -- 
-2.18.0
+2.20.1
 

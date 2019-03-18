@@ -1,60 +1,65 @@
-From 9429478100459989452614ac4f97621f00af5587 Mon Sep 17 00:00:00 2001
+From f5f33bd8e0c679f50b55faf7e377647a740a518a Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Fri, 13 Jul 2018 15:56:50 +0200
-Subject: [PATCH] fix  compileOnly issue in tests
+Subject: [PATCH] fix compileOnly issue in tests
 
 ---
  .../bonita-integration-cluster/build.gradle                     | 1 +
- .../bpm/bonita-api-sp/bonita-common-api-impl-sp/build.gradle    | 1 +
+ subscription/bpm/bonita-common/build.gradle                     | 1 +
  subscription/bpm/bonita-core/bonita-process-engine/build.gradle | 1 +
  subscription/services/bonita-business-data/build.gradle         | 2 ++
  4 files changed, 5 insertions(+)
 
 diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
-index 69dce0fb6f..a3132cfab9 100644
+index 74c55fe5b1..9fb6022dfc 100644
 --- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
 +++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-as/bonita-integration-cluster/build.gradle
-@@ -1,6 +1,7 @@
- group = 'com.bonitasoft.engine.test'
- description = ''
+@@ -3,6 +3,7 @@
+  */
+ 
  dependencies {
-+  testCompile project(':subscription:bonita-integration-tests-sp:bonita-integration-tests-client')
-   testCompile project(':subscription:bpm:bonita-server-sp')
-   testCompile project(':subscription:bpm:bonita-common-sp')
-   testCompile project(':subscription:bonita-test-api-sp')
-diff --git a/subscription/bpm/bonita-api-sp/bonita-common-api-impl-sp/build.gradle b/subscription/bpm/bonita-api-sp/bonita-common-api-impl-sp/build.gradle
-index a34c6efb66..93679b2cae 100644
---- a/subscription/bpm/bonita-api-sp/bonita-common-api-impl-sp/build.gradle
-+++ b/subscription/bpm/bonita-api-sp/bonita-common-api-impl-sp/build.gradle
-@@ -8,4 +8,5 @@ dependencies {
-     testCompile group: 'org.powermock', name: 'powermock-api-mockito2', version:'2.0.0-beta.5'
-     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
-     compileOnly group: 'com.sap', name: 'sapjco', version:'3.0.3'
++    testCompile project(':subscription:bonita-integration-tests-sp:bonita-integration-tests-client')
+     testCompile project(':subscription:bpm:bonita-server-sp')
+     testCompile project(':subscription:bpm:bonita-common-sp')
+     testCompile project(':subscription:bonita-test-api-sp')
+diff --git a/subscription/bpm/bonita-common/build.gradle b/subscription/bpm/bonita-common/build.gradle
+index bf8156ed5c..bb15620d3c 100644
+--- a/subscription/bpm/bonita-common/build.gradle
++++ b/subscription/bpm/bonita-common/build.gradle
+@@ -15,6 +15,7 @@ dependencies {
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.jmockit:jmockit:1.44'
+     compileOnly 'com.sap:sapjco:3.0.3'
 +    testCompile group: 'com.sap', name: 'sapjco', version:'3.0.3'
  }
+ 
+ task testsJar(type: Jar) {
 diff --git a/subscription/bpm/bonita-core/bonita-process-engine/build.gradle b/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
-index 377d638976..c21a179737 100644
+index d6fc4c79ea..258f3469fb 100644
 --- a/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
 +++ b/subscription/bpm/bonita-core/bonita-process-engine/build.gradle
-@@ -25,5 +25,6 @@ dependencies {
-     testCompile group: 'com.github.stefanbirkner', name: 'system-rules', version:'1.16.0'
-   testCompile project(':engine:services:bonita-business-application:bonita-business-application-impl')
-   compileOnly project(':subscription:bpm:bonita-common-sp')
-+  testCompile project(':subscription:bpm:bonita-common-sp')
-     compileOnly group: 'javax.servlet', name: 'javax.servlet-api', version:'3.0.1'
+@@ -27,6 +27,7 @@ dependencies {
+     testCompile 'com.github.stefanbirkner:system-rules:1.16.0'
+     testCompile project(':engine:services:bonita-business-application:bonita-business-application-impl')
+     compileOnly project(':subscription:bpm:bonita-common-sp')
++    testCompile project(':subscription:bpm:bonita-common-sp')
+     compileOnly 'javax.servlet:javax.servlet-api:3.0.1'
+     compileOnly 'org.projectlombok:lombok:1.16.20'
  }
 diff --git a/subscription/services/bonita-business-data/build.gradle b/subscription/services/bonita-business-data/build.gradle
-index 9aed58745e..d99ee63c37 100644
+index 8dd1f61f8f..8576ac3842 100644
 --- a/subscription/services/bonita-business-data/build.gradle
 +++ b/subscription/services/bonita-business-data/build.gradle
-@@ -17,5 +17,7 @@ dependencies {
-     testCompile group: 'ch.qos.logback', name: 'logback-classic', version:'1.2.3'
-     testCompile group: 'com.github.stefanbirkner', name: 'system-rules', version:'1.16.0'
-   compileOnly project(':subscription:bpm:bonita-util-sp:bonita-common-util-sp')
-+  testCompile project(':subscription:bpm:bonita-util-sp:bonita-common-util-sp')
-     compileOnly group: 'org.projectlombok', name: 'lombok', version:'1.16.20'
-+  testCompile group: 'org.projectlombok', name: 'lombok', version:'1.16.20'
+@@ -19,7 +19,9 @@ dependencies {
+     testCompile 'ch.qos.logback:logback-classic:1.2.3'
+     testCompile 'com.github.stefanbirkner:system-rules:1.16.0'
+     compileOnly project(':subscription:bpm:bonita-common-sp')
++    testCompile project(':subscription:bpm:bonita-common-sp')
+     compileOnly 'org.projectlombok:lombok:1.16.20'
++    testCompile 'org.projectlombok:lombok:1.16.20'
  }
+ 
+ group = 'com.bonitasoft.engine.data'
 -- 
-2.17.1
+2.20.1
 

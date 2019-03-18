@@ -1,61 +1,26 @@
-From 5a5ca06122684bf0d100dac8cf45f0180338bcb6 Mon Sep 17 00:00:00 2001
+From 933592082be79ec491e46998f8956afdcca1889c Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Fri, 27 Jul 2018 14:59:45 +0200
 Subject: [PATCH] add parent in shade generation
 
 ---
- community/bpm/bonita-client/build.gradle                    | 5 +++++
- community/bpm/bonita-common/build.gradle                    | 5 +++++
  community/bpm/bonita-server/build.gradle                    | 2 ++
  .../org/bonitasoft/engine/gradle/ShadeExtension.groovy      | 2 ++
  .../groovy/org/bonitasoft/engine/gradle/ShadePlugin.groovy  | 6 ++++++
- subscription/bpm/bonita-client/build.gradle                 | 4 ++++
- subscription/bpm/bonita-common/build.gradle                 | 4 ++++
- subscription/bpm/bonita-server/build.gradle                 | 2 ++
- 8 files changed, 30 insertions(+)
+ subscription/bpm/bonita-server/build.gradle                 | 6 ++++++
+ 4 files changed, 16 insertions(+)
 
-diff --git a/community/bpm/bonita-client/build.gradle b/community/bpm/bonita-client/build.gradle
-index b3c53436bb..c5c7bfa8e5 100644
---- a/community/bpm/bonita-client/build.gradle
-+++ b/community/bpm/bonita-client/build.gradle
-@@ -5,4 +5,9 @@ dependencies {
-   compile project(':engine:bpm:bonita-api:bonita-client-api')
-   compile project(':engine:bpm:bonita-util:bonita-client-util')
-   compile project(':engine:bpm:bonita-common')
-+}
-+
-+shade {
-+  parentGroup 'org.bonitasoft.engine'
-+  parentName 'bonita-engine'
- }
-\ No newline at end of file
-diff --git a/community/bpm/bonita-common/build.gradle b/community/bpm/bonita-common/build.gradle
-index bb46c83d8b..ece4f9e565 100644
---- a/community/bpm/bonita-common/build.gradle
-+++ b/community/bpm/bonita-common/build.gradle
-@@ -5,4 +5,9 @@ dependencies {
-   compile project(':engine:bpm:bonita-api:bonita-common-api')
-   compile project(':engine:bpm:bonita-api:bonita-common-api-impl')
-   compile project(':engine:bpm:bonita-util:bonita-common-util')
-+}
-+
-+shade {
-+  parentGroup 'org.bonitasoft.engine'
-+  parentName 'bonita-engine'
- }
-\ No newline at end of file
 diff --git a/community/bpm/bonita-server/build.gradle b/community/bpm/bonita-server/build.gradle
-index 53a9233cd5..34bed39339 100644
+index aeb2745a9b..de2d032b03 100644
 --- a/community/bpm/bonita-server/build.gradle
 +++ b/community/bpm/bonita-server/build.gradle
-@@ -64,4 +64,6 @@ dependencies {
+@@ -67,4 +67,6 @@ description = 'Bonita Server'
  shade {
    exclude project(':engine:platform:platform-setup')
    exclude project(':engine:platform:platform-resources')
 +  parentGroup 'org.bonitasoft.engine'
 +  parentName 'bonita-engine'
  }
-\ No newline at end of file
 diff --git a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy b/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy
 index 10349c058f..f983c93138 100644
 --- a/community/buildSrc/src/main/groovy/org/bonitasoft/engine/gradle/ShadeExtension.groovy
@@ -86,44 +51,21 @@ index afd0e3ca7d..150b3a62ab 100644
                          rootNode.remove(rootNode.children().find { Node child -> child.name() == "dependencyManagement" })
                          Node dependencies = rootNode.children().find { Node child -> child.name() == "dependencies" }
                          inPom.each { gradleDep ->
-diff --git a/subscription/bpm/bonita-client/build.gradle b/subscription/bpm/bonita-client/build.gradle
-index 9ffaac288c..c28fda77b0 100644
---- a/subscription/bpm/bonita-client/build.gradle
-+++ b/subscription/bpm/bonita-client/build.gradle
-@@ -8,3 +8,7 @@ dependencies {
-   compile project(':subscription:bpm:bonita-util-sp:bonita-client-util-sp')
-   compile project(':subscription:bpm:bonita-common-sp')
- }
-+shade {
-+  parentGroup 'com.bonitasoft.engine'
-+  parentName 'bonita-engine-sp'
-+}
-\ No newline at end of file
-diff --git a/subscription/bpm/bonita-common/build.gradle b/subscription/bpm/bonita-common/build.gradle
-index 2cc7b2c899..28e15d0790 100644
---- a/subscription/bpm/bonita-common/build.gradle
-+++ b/subscription/bpm/bonita-common/build.gradle
-@@ -10,3 +10,7 @@ dependencies {
-   compile project(':engine:bpm:bonita-util:bonita-common-util')
-   compile project(':subscription:bpm:bonita-util-sp:bonita-common-util-sp')
- }
-+shade {
-+  parentGroup 'com.bonitasoft.engine'
-+  parentName 'bonita-engine-sp'
-+}
-\ No newline at end of file
 diff --git a/subscription/bpm/bonita-server/build.gradle b/subscription/bpm/bonita-server/build.gradle
-index 6464751aa3..f8e71e82f6 100644
+index ce0f435247..6aa4aa1fe2 100644
 --- a/subscription/bpm/bonita-server/build.gradle
 +++ b/subscription/bpm/bonita-server/build.gradle
-@@ -85,4 +85,6 @@ shade {
+@@ -29,4 +29,10 @@ shade {
    exclude project(':engine:platform:platform-setup')
    exclude project(':engine:platform:platform-resources')
    exclude project(':subscription:platform:platform-resources-sp')
++<<<<<<< HEAD
+ }
++=======
 +  parentGroup 'com.bonitasoft.engine'
 +  parentName 'bonita-engine-sp'
- }
-\ No newline at end of file
++}
++>>>>>>> add parent in shade generation
 -- 
-2.18.0
+2.20.1
 

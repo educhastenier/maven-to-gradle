@@ -1,22 +1,23 @@
-From 3cf4fff7c95eac6fd09bcfca4b1965ef7ab74bc9 Mon Sep 17 00:00:00 2001
+From ac14e9f9cdca54bc95a1c6ecd9aa06beb8fbbe9b Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Mon, 16 Jul 2018 16:47:02 +0200
 Subject: [PATCH] use JVM flag for memory mngmt in docker
 
 should factorise the code to get jvm options
 ---
- Jenkinsfile            |  6 +++---
- build.gradle           | 15 ++++++++++++++-
- community/build.gradle | 17 ++++++++++++++++-
- gradle.properties      |  1 +
- 4 files changed, 34 insertions(+), 5 deletions(-)
+ Jenkinsfile                                       |  6 +++---
+ build.gradle                                      | 15 +++++++++++++++
+ .../bonita-integration-tests-client/build.gradle  |  1 -
+ community/build.gradle                            | 15 ++++++++++++++-
+ gradle.properties                                 |  1 +
+ 5 files changed, 33 insertions(+), 5 deletions(-)
  create mode 100644 gradle.properties
 
 diff --git a/Jenkinsfile b/Jenkinsfile
-index b2f73529646..06cb5772d5e 100644
+index 3cd65cc162..e7b7d1375e 100644
 --- a/Jenkinsfile
 +++ b/Jenkinsfile
-@@ -17,9 +17,9 @@ timestamps {
+@@ -19,9 +19,9 @@ timestamps {
              }
  
              try {
@@ -30,67 +31,75 @@ index b2f73529646..06cb5772d5e 100644
                  junit '**/build/test-results/**/*.xml'
              }
 diff --git a/build.gradle b/build.gradle
-index 809b7697439..f191f2d46e3 100644
+index f3e7204db4..17b1f3ef96 100644
 --- a/build.gradle
 +++ b/build.gradle
-@@ -18,7 +18,20 @@ subprojects {
-     maven { url "http://repo.maven.apache.org/maven2" }
-   }
- 
--  
-+  afterEvaluate {
-+    tasks.withType(Test) { testTask ->
-+      if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
-+        def property = project.property('org.gradle.jvmargs')
-+        if(property){
-+          jvmArgs property.toString().split(" ")
+@@ -39,4 +39,19 @@ subprojects {
+             }
+         }
+     }
++
++    afterEvaluate {
++        tasks.withType(Test) { testTask ->
++            if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
++                def property = project.property('org.gradle.jvmargs')
++                if(property){
++                    jvmArgs property.toString().split(" ")
++                }
++                def sysProperty = System.getProperty("org.gradle.jvmargs")
++                if (sysProperty) {
++                    jvmArgs sysProperty.split(" ")
++                }
++            }
 +        }
-+        def sysProperty = System.getProperty("org.gradle.jvmargs")
-+        if (sysProperty) {
-+          jvmArgs sysProperty.split(" ")
-+        }
-+      }
 +    }
-+  }
-   
-   
  }
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
+index 935df444f8..3f3624ef3a 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
++++ b/community/bonita-integration-tests/bonita-integration-tests-client/build.gradle
+@@ -16,7 +16,6 @@ dependencies {
+     compile project(':engine:bpm:bonita-client')
+     compile project(':engine:bonita-integration-tests:bonita-test-utils:bonita-common-test-utils')
+     compile project(':engine:bonita-integration-tests:bonita-test-utils:bonita-client-test-utils')
+-<<<<<<< HEAD
+     compile 'org.assertj:assertj-core:3.7.0'
+     compile 'net.javacrumbs.json-unit:json-unit-fluent:1.25.1'
+     compile 'com.github.stefanbirkner:system-rules:1.16.0'
 diff --git a/community/build.gradle b/community/build.gradle
-index a90e67954cf..858ef6fe3cd 100644
+index d4e136b511..4cfb7d0b48 100644
 --- a/community/build.gradle
 +++ b/community/build.gradle
-@@ -19,7 +19,22 @@ subprojects {
- classifier = 'sources'
- from sourceSets.main.allSource
- 
--}
-+      afterEvaluate {
-+          tasks.withType(Test) { testTask ->
-+              if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
-+                  def property = project.property('org.gradle.jvmargs')
-+                  if (property) {
-+                      jvmArgs property.toString().split(" ")
-+                  }
-+                  def sysProperty = System.getProperty("org.gradle.jvmargs")
-+                  if (sysProperty) {
-+                      jvmArgs sysProperty.split(" ")
-+                  }
-+              }
-+          }
-+      }
-+
-+  }
- artifacts.archives packageSources
-   repositories {
-     mavenLocal()
+@@ -50,7 +50,20 @@ subprojects {
+             }
+         }
+     }
+-
++    afterEvaluate {
++        tasks.withType(Test) { testTask ->
++            if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
++                def property = project.property('org.gradle.jvmargs')
++                if (property) {
++                    jvmArgs property.toString().split(" ")
++                }
++                def sysProperty = System.getProperty("org.gradle.jvmargs")
++                if (sysProperty) {
++                    jvmArgs sysProperty.split(" ")
++                }
++            }
++        }
++    }
+     tasks.withType(JavaCompile) {
+         options.encoding = 'UTF-8'
+     }
 diff --git a/gradle.properties b/gradle.properties
 new file mode 100644
-index 00000000000..656f2e60988
+index 0000000000..656f2e6098
 --- /dev/null
 +++ b/gradle.properties
 @@ -0,0 +1 @@
 +org.gradle.jvmargs=-Dfile.encoding=UTF-8
 \ No newline at end of file
 -- 
-2.17.1
+2.20.1
 

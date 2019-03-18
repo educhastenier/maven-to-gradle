@@ -1,29 +1,28 @@
-From b5b93d3e2947b008f0da744be50051eb8aef9059 Mon Sep 17 00:00:00 2001
+From 5617961d0d0a9265a79e27844b83f0d022724e0f Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Wed, 25 Jul 2018 11:19:05 +0200
 Subject: [PATCH] publish missing artifacts
 
 ---
- .../bonita-client-test-utils/build.gradle             |  7 +++++++
+ .../bonita-client-test-utils/build.gradle             |  8 +++++++-
  .../bonita-common-test-utils/build.gradle             |  7 +++++++
- .../bonita-server-test-utils/build.gradle             |  8 ++++++++
- community/bonita-test-api/build.gradle                |  7 +++++++
- .../bpm/bonita-api/bonita-client-api/build.gradle     |  7 +++++++
- .../bpm/bonita-api/bonita-common-api/build.gradle     |  9 ++++++++-
+ .../bonita-server-test-utils/build.gradle             |  7 +++++++
+ community/bonita-test-api/build.gradle                |  9 ++++++++-
+ community/bpm/bonita-common/build.gradle              | 10 +++++++++-
  .../bpm/bonita-deploy/bonita-deploy-ejb3/build.gradle |  7 +++++++
- .../bpm/bonita-util/bonita-client-util/build.gradle   |  7 +++++++
- .../bpm/bonita-util/bonita-common-util/build.gradle   | 10 +++++++++-
  community/platform/platform-setup/build.gradle        | 11 ++++++++++-
- 10 files changed, 77 insertions(+), 3 deletions(-)
+ 7 files changed, 55 insertions(+), 4 deletions(-)
 
 diff --git a/community/bonita-integration-tests/bonita-test-utils/bonita-client-test-utils/build.gradle b/community/bonita-integration-tests/bonita-test-utils/bonita-client-test-utils/build.gradle
-index d31f1451a8..f200587559 100644
+index 9ec83a854a..a6c2107f95 100644
 --- a/community/bonita-integration-tests/bonita-test-utils/bonita-client-test-utils/build.gradle
 +++ b/community/bonita-integration-tests/bonita-test-utils/bonita-client-test-utils/build.gradle
-@@ -11,3 +11,10 @@ dependencies {
-     compile group: 'xmlunit', name: 'xmlunit', version:'1.4'
-     compile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
+@@ -12,5 +12,11 @@ dependencies {
+     compile 'xmlunit:xmlunit:1.4'
+     compile 'org.assertj:assertj-core:3.7.0'
  }
+-
+ group = 'org.bonitasoft.engine.test'
 +publishing {
 +  publications {
 +    mavenJava(MavenPublication) {
@@ -32,13 +31,13 @@ index d31f1451a8..f200587559 100644
 +  }
 +}
 diff --git a/community/bonita-integration-tests/bonita-test-utils/bonita-common-test-utils/build.gradle b/community/bonita-integration-tests/bonita-test-utils/bonita-common-test-utils/build.gradle
-index eca09a65ac..4dfb95c97b 100644
+index 89c2be4cae..c4f7f00ee0 100644
 --- a/community/bonita-integration-tests/bonita-test-utils/bonita-common-test-utils/build.gradle
 +++ b/community/bonita-integration-tests/bonita-test-utils/bonita-common-test-utils/build.gradle
-@@ -3,3 +3,10 @@ description = ''
- dependencies {
-     compile group: 'junit', name: 'junit', version:'4.12'
+@@ -7,3 +7,10 @@ dependencies {
  }
+ 
+ group = 'org.bonitasoft.engine.test'
 +publishing {
 +    publications {
 +        mavenJava(MavenPublication) {
@@ -47,14 +46,13 @@ index eca09a65ac..4dfb95c97b 100644
 +    }
 +}
 diff --git a/community/bonita-integration-tests/bonita-test-utils/bonita-server-test-utils/build.gradle b/community/bonita-integration-tests/bonita-test-utils/bonita-server-test-utils/build.gradle
-index d7763f11f1..13da06a6ff 100644
+index d2166242b9..204e217e84 100644
 --- a/community/bonita-integration-tests/bonita-test-utils/bonita-server-test-utils/build.gradle
 +++ b/community/bonita-integration-tests/bonita-test-utils/bonita-server-test-utils/build.gradle
-@@ -9,3 +9,11 @@ dependencies {
-     compile group: 'org.slf4j', name: 'slf4j-api', version:'1.7.25'
-     compile group: 'junit', name: 'junit', version:'4.12'
+@@ -12,3 +12,10 @@ dependencies {
  }
-+
+ 
+ group = 'org.bonitasoft.engine.test'
 +publishing {
 +  publications {
 +    mavenJava(MavenPublication) {
@@ -63,13 +61,16 @@ index d7763f11f1..13da06a6ff 100644
 +  }
 +}
 diff --git a/community/bonita-test-api/build.gradle b/community/bonita-test-api/build.gradle
-index 097a48f992..2c29a90cea 100644
+index 5c66d8682a..2866599ce1 100644
 --- a/community/bonita-test-api/build.gradle
 +++ b/community/bonita-test-api/build.gradle
-@@ -26,3 +26,10 @@ test {
+@@ -29,4 +29,11 @@ test {
+ 
  task integrationTest(type: Test) {
      include '**/*IT.class'
- }
+-}
+\ No newline at end of file
++}
 +publishing {
 +    publications {
 +        mavenJava(MavenPublication) {
@@ -77,81 +78,17 @@ index 097a48f992..2c29a90cea 100644
 +        }
 +    }
 +}
-diff --git a/community/bpm/bonita-api/bonita-client-api/build.gradle b/community/bpm/bonita-api/bonita-client-api/build.gradle
-index 7ad42cf229..c8faaca9f9 100644
---- a/community/bpm/bonita-api/bonita-client-api/build.gradle
-+++ b/community/bpm/bonita-api/bonita-client-api/build.gradle
-@@ -15,3 +15,10 @@ dependencies {
-     testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
-     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
- }
-+publishing {
-+  publications {
-+    mavenJava(MavenPublication) {
-+      from project.components.java
-+    }
-+  }
-+}
-diff --git a/community/bpm/bonita-api/bonita-common-api/build.gradle b/community/bpm/bonita-api/bonita-common-api/build.gradle
-index 812fe1b23b..f2df853127 100644
---- a/community/bpm/bonita-api/bonita-common-api/build.gradle
-+++ b/community/bpm/bonita-api/bonita-common-api/build.gradle
-@@ -34,4 +34,11 @@ processResources {
-     from "$buildDir/generated/jaxb/schema/form"
- }
- 
+diff --git a/community/bpm/bonita-common/build.gradle b/community/bpm/bonita-common/build.gradle
+index 9b204a5e47..a16130d9ed 100644
+--- a/community/bpm/bonita-common/build.gradle
++++ b/community/bpm/bonita-common/build.gradle
+@@ -89,4 +89,12 @@ processResources {
+ tasks.processResources.dependsOn tasks.jaxbSchemaGenApplication
+ tasks.processResources.dependsOn tasks.jaxbSchemaGenBom
+ tasks.processResources.dependsOn tasks.jaxbSchemaGenProfile
 -tasks.processResources.dependsOn tasks.jaxbSchemaGenForms
 \ No newline at end of file
 +tasks.processResources.dependsOn tasks.jaxbSchemaGenForms
-+publishing {
-+    publications {
-+        mavenJava(MavenPublication) {
-+            from project.components.java
-+        }
-+    }
-+}
-diff --git a/community/bpm/bonita-deploy/bonita-deploy-ejb3/build.gradle b/community/bpm/bonita-deploy/bonita-deploy-ejb3/build.gradle
-index bad23ea92c..4556116250 100644
---- a/community/bpm/bonita-deploy/bonita-deploy-ejb3/build.gradle
-+++ b/community/bpm/bonita-deploy/bonita-deploy-ejb3/build.gradle
-@@ -5,3 +5,10 @@ dependencies {
-   compileOnly project(':engine:bpm:bonita-server')
-     compileOnly group: 'javax', name: 'javaee-api', version:'6.0'
- }
-+publishing {
-+  publications {
-+    mavenJava(MavenPublication) {
-+      from project.components.java
-+    }
-+  }
-+}
-\ No newline at end of file
-diff --git a/community/bpm/bonita-util/bonita-client-util/build.gradle b/community/bpm/bonita-util/bonita-client-util/build.gradle
-index 4705e09df6..77aabc30c7 100644
---- a/community/bpm/bonita-util/bonita-client-util/build.gradle
-+++ b/community/bpm/bonita-util/bonita-client-util/build.gradle
-@@ -12,3 +12,10 @@ task packageTests(type: Jar) {
-   classifier = 'tests'
- }
- artifacts.archives packageTests
-+publishing {
-+  publications {
-+    mavenJava(MavenPublication) {
-+      from project.components.java
-+    }
-+  }
-+}
-diff --git a/community/bpm/bonita-util/bonita-common-util/build.gradle b/community/bpm/bonita-util/bonita-common-util/build.gradle
-index c66919270b..8359083bae 100644
---- a/community/bpm/bonita-util/bonita-common-util/build.gradle
-+++ b/community/bpm/bonita-util/bonita-common-util/build.gradle
-@@ -65,4 +65,12 @@ processResources {
- //tasks.processResources.dependsOn tasks.jaxbSchemaGenProcessdefinition
- tasks.processResources.dependsOn tasks.jaxbSchemaGenApplication
- tasks.processResources.dependsOn tasks.jaxbSchemaGenBom
--tasks.processResources.dependsOn tasks.jaxbSchemaGenProfile
-\ No newline at end of file
-+tasks.processResources.dependsOn tasks.jaxbSchemaGenProfile
 +
 +publishing {
 +    publications {
@@ -160,11 +97,27 @@ index c66919270b..8359083bae 100644
 +        }
 +    }
 +}
+\ No newline at end of file
+diff --git a/community/bpm/bonita-deploy/bonita-deploy-ejb3/build.gradle b/community/bpm/bonita-deploy/bonita-deploy-ejb3/build.gradle
+index abece21134..0350856246 100644
+--- a/community/bpm/bonita-deploy/bonita-deploy-ejb3/build.gradle
++++ b/community/bpm/bonita-deploy/bonita-deploy-ejb3/build.gradle
+@@ -9,3 +9,10 @@ dependencies {
+ }
+ 
+ description = 'Bonita Deploy: EJB3'
++publishing {
++  publications {
++    mavenJava(MavenPublication) {
++      from project.components.java
++    }
++  }
++}
 diff --git a/community/platform/platform-setup/build.gradle b/community/platform/platform-setup/build.gradle
-index 52b6c2caaa..958568e0b0 100644
+index b62b8f48a3..156a03641d 100644
 --- a/community/platform/platform-setup/build.gradle
 +++ b/community/platform/platform-setup/build.gradle
-@@ -131,4 +131,13 @@ tasks.create("integrationTest", Test) {
+@@ -136,4 +136,13 @@ tasks.create("integrationTest", Test) {
      }
      workingDir testDir
  }
@@ -181,5 +134,5 @@ index 52b6c2caaa..958568e0b0 100644
 +    }
 +}
 -- 
-2.18.0
+2.20.1
 

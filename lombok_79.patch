@@ -1,0 +1,634 @@
+From bf0ddbe2d72b31273a30163da96f34b358687e3b Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Sun, 17 Mar 2019 17:10:29 +0100
+Subject: [PATCH] fixes on lombok and some changes made in 7.9
+
+---
+ .../bonita-server-api-http/build.gradle       |  1 +
+ community/bpm/bonita-common/build.gradle      |  5 ++--
+ .../bonitasoft/engine/form/package-info.java  | 23 +++++++++++++++++++
+ .../bonita-actor-mapping/build.gradle         |  4 +++-
+ .../bonita-core/bonita-category/build.gradle  |  4 +++-
+ .../bonita-contract-data/build.gradle         |  4 +++-
+ .../impl/TransientDataServiceImplTest.java    |  1 -
+ .../bonita-form-mapping/build.gradle          |  4 +++-
+ .../bonita-core/bonita-parameter/build.gradle |  4 +++-
+ .../bonita-process-comment/build.gradle       |  4 +++-
+ .../bonita-process-definition/build.gradle    |  4 +++-
+ .../bonita-process-engine/build.gradle        |  3 ++-
+ .../engine/api/impl/PlatformAPIImplTest.java  |  3 ---
+ .../engine/api/impl/ProcessAPIImplTest.java   |  3 ---
+ .../work/RestartProcessHandlerTest.java       |  1 -
+ .../bonita-process-instance/build.gradle      |  9 +++++---
+ .../impl/ProcessInstanceServiceImplTest.java  |  1 -
+ .../bonita-supervisor-mapping/build.gradle    |  4 +++-
+ community/build.gradle                        |  5 ++--
+ .../platform/platform-setup/build.gradle      |  4 +++-
+ .../build.gradle                              |  4 +++-
+ .../services/bonita-command/build.gradle      |  4 +++-
+ .../bonita-data-instance/build.gradle         |  4 +++-
+ .../services/bonita-dependency/build.gradle   |  4 +++-
+ .../build.gradle                              |  4 +++-
+ .../services/bonita-identity/build.gradle     |  4 +++-
+ community/services/bonita-log/build.gradle    |  4 +++-
+ community/services/bonita-page/build.gradle   |  4 +++-
+ .../services/bonita-persistence/build.gradle  |  4 +++-
+ .../bonita-platform-command/build.gradle      |  4 +++-
+ .../services/bonita-platform/build.gradle     |  4 +++-
+ .../services/bonita-profile/build.gradle      |  4 +++-
+ .../services/bonita-resources/build.gradle    |  4 +++-
+ .../services/bonita-scheduler/build.gradle    |  4 +++-
+ .../services/bonita-session/build.gradle      |  4 +++-
+ community/services/bonita-theme/build.gradle  |  4 +++-
+ .../services/bonita-transaction/build.gradle  |  1 +
+ 37 files changed, 113 insertions(+), 43 deletions(-)
+ create mode 100644 community/bpm/bonita-common/src/main/java/org/bonitasoft/engine/form/package-info.java
+
+diff --git a/community/bpm/bonita-api/bonita-server-api-http/build.gradle b/community/bpm/bonita-api/bonita-server-api-http/build.gradle
+index eabc649a67..33ae87b466 100644
+--- a/community/bpm/bonita-api/bonita-server-api-http/build.gradle
++++ b/community/bpm/bonita-api/bonita-server-api-http/build.gradle
+@@ -17,6 +17,7 @@ dependencies {
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.springframework:spring-webmvc:5.1.5.RELEASE'
+     compileOnly 'javax.servlet:javax.servlet-api:3.0.1'
++    testCompile 'javax.servlet:javax.servlet-api:3.0.1'
+ }
+ 
+ group = 'org.bonitasoft.engine.api'
+diff --git a/community/bpm/bonita-common/build.gradle b/community/bpm/bonita-common/build.gradle
+index 9ee2ab70a7..c1dc5aed35 100644
+--- a/community/bpm/bonita-common/build.gradle
++++ b/community/bpm/bonita-common/build.gradle
+@@ -21,7 +21,8 @@ dependencies {
+     testCompile 'net.javacrumbs.json-unit:json-unit-fluent:1.25.1'
+     testCompile 'xmlunit:xmlunit:1.4'
+     testCompile 'ch.qos.logback:logback-classic:1.2.3'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ def generateInfoProperties = task("generateInfoProperties") {
+@@ -58,7 +59,7 @@ jaxb {
+                     'org/bonitasoft/engine/bpm/bar/form/model/*.java',
+                     'org/bonitasoft/engine/form/*.java'])
+             namespaceconfigs = ['http://www.bonitasoft.org/ns/form/6.0': 'form-mapping.xsd']
+-            outputDir = project.file("build/generated/jaxb/schema/form")
++            outputDir = project.file("build/generated/jaxb/schemas")
+         }
+         application {
+             javaFiles = fileTree(dir: 'src/main/java', includes: [
+diff --git a/community/bpm/bonita-common/src/main/java/org/bonitasoft/engine/form/package-info.java b/community/bpm/bonita-common/src/main/java/org/bonitasoft/engine/form/package-info.java
+new file mode 100644
+index 0000000000..5d3a9dd463
+--- /dev/null
++++ b/community/bpm/bonita-common/src/main/java/org/bonitasoft/engine/form/package-info.java
+@@ -0,0 +1,23 @@
++/**
++ * Copyright (C) 2017 Bonitasoft S.A.
++ * Bonitasoft, 32 rue Gustave Eiffel - 38000 Grenoble
++ * This library is free software; you can redistribute it and/or modify it under the terms
++ * of the GNU Lesser General Public License as published by the Free Software Foundation
++ * version 2.1 of the License.
++ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
++ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ * See the GNU Lesser General Public License for more details.
++ * You should have received a copy of the GNU Lesser General Public License along with this
++ * program; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth
++ * Floor, Boston, MA 02110-1301, USA.
++ **/
++
++/**
++ * @author Baptiste Mesta
++ */
++@XmlSchema(namespace = "http://www.bonitasoft.org/ns/form/6.0", elementFormDefault = XmlNsForm.UNSET, xmlns = {
++        @javax.xml.bind.annotation.XmlNs(namespaceURI = "http://www.bonitasoft.org/ns/form/6.0", prefix = "form") })
++package org.bonitasoft.engine.form;
++
++import javax.xml.bind.annotation.XmlNsForm;
++import javax.xml.bind.annotation.XmlSchema;
+diff --git a/community/bpm/bonita-core/bonita-actor-mapping/build.gradle b/community/bpm/bonita-core/bonita-actor-mapping/build.gradle
+index 35d8cd6667..5971f352e1 100644
+--- a/community/bpm/bonita-core/bonita-actor-mapping/build.gradle
++++ b/community/bpm/bonita-core/bonita-actor-mapping/build.gradle
+@@ -13,7 +13,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.core.actor.mapping'
+diff --git a/community/bpm/bonita-core/bonita-category/build.gradle b/community/bpm/bonita-core/bonita-category/build.gradle
+index df02012091..1433758dc8 100644
+--- a/community/bpm/bonita-core/bonita-category/build.gradle
++++ b/community/bpm/bonita-core/bonita-category/build.gradle
+@@ -12,7 +12,9 @@ dependencies {
+     compile project(':engine:services:bonita-persistence')
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.core.category'
+diff --git a/community/bpm/bonita-core/bonita-contract-data/build.gradle b/community/bpm/bonita-core/bonita-contract-data/build.gradle
+index 14c3d6737a..03987479f4 100644
+--- a/community/bpm/bonita-core/bonita-contract-data/build.gradle
++++ b/community/bpm/bonita-core/bonita-contract-data/build.gradle
+@@ -12,7 +12,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.core.contract.data'
+diff --git a/community/bpm/bonita-core/bonita-core-data/src/test/java/org/bonitasoft/engine/core/data/instance/impl/TransientDataServiceImplTest.java b/community/bpm/bonita-core/bonita-core-data/src/test/java/org/bonitasoft/engine/core/data/instance/impl/TransientDataServiceImplTest.java
+index 67d623f0a8..515d6af0e6 100644
+--- a/community/bpm/bonita-core/bonita-core-data/src/test/java/org/bonitasoft/engine/core/data/instance/impl/TransientDataServiceImplTest.java
++++ b/community/bpm/bonita-core/bonita-core-data/src/test/java/org/bonitasoft/engine/core/data/instance/impl/TransientDataServiceImplTest.java
+@@ -190,7 +190,6 @@ public class TransientDataServiceImplTest {
+         SFlowNodeInstance flowNodeInstance = flowNodeInstance(42, 1);
+         when(processDefinitionService.getProcessDefinition(1)).thenReturn(processDefinition);
+         when(flowNodeInstanceService.getFlowNodeInstance(42)).thenReturn(flowNodeInstance);
+-        when(cacheService.getKeys("transient_data")).thenReturn(Arrays.asList("name:42:ctype","name:44:ctype","name:48:ctype"));
+ 
+         List<SDataInstance> dataInstances = transientDataServiceImpl.getDataInstances(42, "ctype", 0, 10);
+ 
+diff --git a/community/bpm/bonita-core/bonita-form-mapping/build.gradle b/community/bpm/bonita-core/bonita-form-mapping/build.gradle
+index e0e621252a..9e1c2c4fa4 100644
+--- a/community/bpm/bonita-core/bonita-form-mapping/build.gradle
++++ b/community/bpm/bonita-core/bonita-form-mapping/build.gradle
+@@ -16,7 +16,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.core'
+diff --git a/community/bpm/bonita-core/bonita-parameter/build.gradle b/community/bpm/bonita-core/bonita-parameter/build.gradle
+index f6c05a4781..05c2da1744 100644
+--- a/community/bpm/bonita-core/bonita-parameter/build.gradle
++++ b/community/bpm/bonita-core/bonita-parameter/build.gradle
+@@ -13,7 +13,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.core'
+diff --git a/community/bpm/bonita-core/bonita-process-comment/build.gradle b/community/bpm/bonita-core/bonita-process-comment/build.gradle
+index e4bb0bd703..ed1d90130d 100644
+--- a/community/bpm/bonita-core/bonita-process-comment/build.gradle
++++ b/community/bpm/bonita-core/bonita-process-comment/build.gradle
+@@ -11,7 +11,9 @@ dependencies {
+     compile project(':engine:services:bonita-log')
+     compile project(':engine:services:bonita-archive')
+     compile project(':engine:services:bonita-persistence')
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.core.process.comment'
+diff --git a/community/bpm/bonita-core/bonita-process-definition/build.gradle b/community/bpm/bonita-core/bonita-process-definition/build.gradle
+index a8ad167676..d16f1987d1 100644
+--- a/community/bpm/bonita-core/bonita-process-definition/build.gradle
++++ b/community/bpm/bonita-core/bonita-process-definition/build.gradle
+@@ -20,7 +20,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.core.process.definition'
+diff --git a/community/bpm/bonita-core/bonita-process-engine/build.gradle b/community/bpm/bonita-core/bonita-process-engine/build.gradle
+index 891718ef2d..d06cf90761 100644
+--- a/community/bpm/bonita-core/bonita-process-engine/build.gradle
++++ b/community/bpm/bonita-core/bonita-process-engine/build.gradle
+@@ -69,7 +69,8 @@ dependencies {
+     testCompile 'com.google.guava:guava:16.0.1'
+     testCompile 'com.github.stefanbirkner:system-rules:1.16.0'
+     testCompile 'org.springframework:spring-test:5.1.5.RELEASE'
+-    providedCompile project(':engine:bpm:bonita-common')
++    compileOnly project(':engine:bpm:bonita-common')
++    testCompile project(':engine:bpm:bonita-common')
+ }
+ jaxb {
+     schemaGen {
+diff --git a/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/PlatformAPIImplTest.java b/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/PlatformAPIImplTest.java
+index 24aeed7238..713bfcc433 100644
+--- a/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/PlatformAPIImplTest.java
++++ b/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/PlatformAPIImplTest.java
+@@ -99,14 +99,11 @@ public class PlatformAPIImplTest {
+         doReturn(tenantServiceAccessor).when(platformServiceAccessor).getTenantServiceAccessor(anyLong());
+         doReturn(platformJobListeners).when(platformConfiguration).getJobListeners();
+ 
+-        doReturn(schedulerService).when(tenantServiceAccessor).getSchedulerService();
+-        doReturn(sessionService).when(tenantServiceAccessor).getSessionService();
+         doReturn(tenantConfiguration).when(tenantServiceAccessor).getTenantConfiguration();
+         doReturn(tenantJobListeners).when(tenantConfiguration).getJobListeners();
+ 
+         doReturn(platformServiceAccessor).when(platformAPI).getPlatformAccessor();
+         doReturn(sessionAccessor).when(platformAPI).createSessionAccessor();
+-        doReturn(-1L).when(platformAPI).createSession(anyLong(), any(SessionService.class));
+         doReturn(tenants).when(platformAPI).getTenants(platformServiceAccessor);
+         doReturn(bonitaHomeServer).when(platformAPI).getBonitaHomeServerInstance();
+         PlatformAPIImpl.isNodeStarted = false;
+diff --git a/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/ProcessAPIImplTest.java b/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/ProcessAPIImplTest.java
+index 3da915e797..0e7ca119ec 100644
+--- a/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/ProcessAPIImplTest.java
++++ b/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/ProcessAPIImplTest.java
+@@ -919,8 +919,6 @@ public class ProcessAPIImplTest {
+     public void deleteArchivedProcessInstances_by_ids_should_return_0_when_no_archived_process_instance_for_ids() throws Exception {
+         // Given
+         final long archivedProcessInstanceId = 42l;
+-        final List<Long> archivedProcessInstanceIds = Arrays.asList(archivedProcessInstanceId);
+-        doReturn(new ArrayList<SAProcessInstance>()).when(processInstanceService).getArchivedProcessInstancesInAllStates(archivedProcessInstanceIds);
+ 
+         // When
+         final long deleteArchivedProcessInstances = processAPI.deleteArchivedProcessInstancesInAllStates(archivedProcessInstanceId);
+@@ -946,7 +944,6 @@ public class ProcessAPIImplTest {
+     public void deleteArchivedProcessInstance_by_id_should_delete_archived_process_instance_when_exist() throws Exception {
+         // Given
+         final long processInstanceId = 42l;
+-        doReturn(Arrays.asList(mock(SAProcessInstance.class))).when(processInstanceService).getArchivedProcessInstancesInAllStates(anyList());
+ 
+         // When
+         processAPI.deleteArchivedProcessInstancesInAllStates(processInstanceId);
+diff --git a/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/execution/work/RestartProcessHandlerTest.java b/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/execution/work/RestartProcessHandlerTest.java
+index 46366c8e12..0f9c70c495 100644
+--- a/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/execution/work/RestartProcessHandlerTest.java
++++ b/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/execution/work/RestartProcessHandlerTest.java
+@@ -63,7 +63,6 @@ public class RestartProcessHandlerTest {
+     public void handleCompletionShouldExecuteParentCallActivityIfItIsNOTInFailedState() throws Exception {
+         int callActivityStateId = 8;
+         SActivityInstance callActivity = mock(SActivityInstance.class);
+-        when(callActivity.getParentProcessInstanceId()).thenReturn(564654L);
+         when(callActivity.getStateId()).thenReturn(callActivityStateId);
+         when(flowNodeStateManager.getFailedState()).thenReturn(new FailedActivityStateImpl());
+         doReturn(callActivity).when(activityInstanceService).getActivityInstance(anyLong());
+diff --git a/community/bpm/bonita-core/bonita-process-instance/build.gradle b/community/bpm/bonita-core/bonita-process-instance/build.gradle
+index 092ebaa43a..a1e8c52223 100644
+--- a/community/bpm/bonita-core/bonita-process-instance/build.gradle
++++ b/community/bpm/bonita-core/bonita-process-instance/build.gradle
+@@ -5,7 +5,7 @@ plugins {
+ group = 'org.bonitasoft.engine.core.process.instance'
+ description = ''
+ dependencies {
+-  compile project(':engine:bpm:bonita-api:bonita-common-api')
++  compile project(':engine:bpm:bonita-common')
+   compile project(':engine:services:bonita-recorder')
+   compile project(':engine:bpm:bonita-core:bonita-process-definition')
+   compile project(':engine:services:bonita-identity')
+@@ -26,11 +26,14 @@ dependencies {
+   compile project(':engine:services:bonita-resources')
+   compile project(':engine:services:bonita-time-tracker')
+   compile project(':engine:services:bonita-expression')
+-  compile project(':engine:services:bonita-cache')
++    compile project(':engine:services:bonita-cache')
++    compile project(':engine:bpm:bonita-core:bonita-contract-data')
+     testCompile group: 'junit', name: 'junit', version:'4.12'
+     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
+     testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ jaxb {
+     //generates schema from java code
+diff --git a/community/bpm/bonita-core/bonita-process-instance/src/test/java/org/bonitasoft/engine/core/process/instance/impl/ProcessInstanceServiceImplTest.java b/community/bpm/bonita-core/bonita-process-instance/src/test/java/org/bonitasoft/engine/core/process/instance/impl/ProcessInstanceServiceImplTest.java
+index 059eace861..ec6e387553 100755
+--- a/community/bpm/bonita-core/bonita-process-instance/src/test/java/org/bonitasoft/engine/core/process/instance/impl/ProcessInstanceServiceImplTest.java
++++ b/community/bpm/bonita-core/bonita-process-instance/src/test/java/org/bonitasoft/engine/core/process/instance/impl/ProcessInstanceServiceImplTest.java
+@@ -601,7 +601,6 @@ public class ProcessInstanceServiceImplTest {
+         // Given
+         final SFlowNodeInstance flowNodeInstance = new SReceiveTaskInstance();
+         final SProcessDefinition processDefinition = mock(SProcessDefinition.class);
+-        doReturn(mock(SFlowElementContainerDefinition.class)).when(processDefinition).getProcessContainer();
+         doNothing().when(processInstanceService).deleteDataInstancesIfNecessary(flowNodeInstance, processDefinition);
+         doNothing().when(processInstanceService).deleteConnectorInstancesIfNecessary(flowNodeInstance, processDefinition);
+ 
+diff --git a/community/bpm/bonita-core/bonita-supervisor-mapping/build.gradle b/community/bpm/bonita-core/bonita-supervisor-mapping/build.gradle
+index daf8f03aab..da352ec728 100644
+--- a/community/bpm/bonita-core/bonita-supervisor-mapping/build.gradle
++++ b/community/bpm/bonita-core/bonita-supervisor-mapping/build.gradle
+@@ -9,7 +9,9 @@ dependencies {
+     compile project(':engine:services:bonita-recorder')
+     compile project(':engine:services:bonita-log')
+     compile project(':engine:services:bonita-persistence')
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.core.supervisor.mapping'
+diff --git a/community/build.gradle b/community/build.gradle
+index 75dd92f767..d4e136b511 100644
+--- a/community/build.gradle
++++ b/community/build.gradle
+@@ -61,9 +61,8 @@ subprojects {
+ task allJavadoc(type: Javadoc) {
+     def candidates = [
+             ':engine:platform:platform-setup',
+-            ':engine:bpm:bonita-api:bonita-common-api',
+-            ':engine:bpm:bonita-api:bonita-common-api-impl',
+-            ':engine:bpm:bonita-util:bonita-client-util'
++            ':engine:bpm:bonita-common',
++            ':engine:bpm:bonita-client'
+     ]
+     source candidates.collect { project(it).sourceSets.main.allJava }
+     classpath = files(candidates.collect { project(it).sourceSets.main.compileClasspath })
+diff --git a/community/platform/platform-setup/build.gradle b/community/platform/platform-setup/build.gradle
+index 04cb595e51..fca21411ba 100644
+--- a/community/platform/platform-setup/build.gradle
++++ b/community/platform/platform-setup/build.gradle
+@@ -26,7 +26,9 @@ dependencies {
+     testCompile 'org.springframework.boot:spring-boot-starter-test:2.1.3.RELEASE'
+     testCompile 'xmlunit:xmlunit:1.4'
+     testCompile project(':engine:platform:platform-setup-test')
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ task testsJar(type: Jar) {
+diff --git a/community/services/bonita-business-application/bonita-business-application-impl/build.gradle b/community/services/bonita-business-application/bonita-business-application-impl/build.gradle
+index 473c2b0f6b..14c07403f0 100644
+--- a/community/services/bonita-business-application/bonita-business-application-impl/build.gradle
++++ b/community/services/bonita-business-application/bonita-business-application-impl/build.gradle
+@@ -11,7 +11,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.application'
+diff --git a/community/services/bonita-command/build.gradle b/community/services/bonita-command/build.gradle
+index 76b44938fe..321c47b36d 100644
+--- a/community/services/bonita-command/build.gradle
++++ b/community/services/bonita-command/build.gradle
+@@ -13,7 +13,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.command'
+diff --git a/community/services/bonita-data-instance/build.gradle b/community/services/bonita-data-instance/build.gradle
+index 4576d40da6..4a6fb9ae81 100644
+--- a/community/services/bonita-data-instance/build.gradle
++++ b/community/services/bonita-data-instance/build.gradle
+@@ -17,7 +17,9 @@ dependencies {
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'com.github.stefanbirkner:system-rules:1.16.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.data.instance'
+diff --git a/community/services/bonita-dependency/build.gradle b/community/services/bonita-dependency/build.gradle
+index 5062afb3a9..ab2e765433 100644
+--- a/community/services/bonita-dependency/build.gradle
++++ b/community/services/bonita-dependency/build.gradle
+@@ -15,7 +15,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.dependency'
+diff --git a/community/services/bonita-external-identity-mapping/build.gradle b/community/services/bonita-external-identity-mapping/build.gradle
+index 3f054261a0..8793329972 100644
+--- a/community/services/bonita-external-identity-mapping/build.gradle
++++ b/community/services/bonita-external-identity-mapping/build.gradle
+@@ -10,7 +10,9 @@ dependencies {
+     compile project(':engine:services:bonita-builder')
+     compile project(':engine:services:bonita-events')
+     compile project(':engine:services:bonita-persistence')
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.external.identity.mapping'
+diff --git a/community/services/bonita-identity/build.gradle b/community/services/bonita-identity/build.gradle
+index 4eb8602ba8..6b6ae79487 100644
+--- a/community/services/bonita-identity/build.gradle
++++ b/community/services/bonita-identity/build.gradle
+@@ -16,7 +16,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.identity'
+diff --git a/community/services/bonita-log/build.gradle b/community/services/bonita-log/build.gradle
+index 7f96beca35..79ef6834e6 100644
+--- a/community/services/bonita-log/build.gradle
++++ b/community/services/bonita-log/build.gradle
+@@ -15,7 +15,9 @@ dependencies {
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'ch.qos.logback:logback-classic:1.2.3'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.log'
+diff --git a/community/services/bonita-page/build.gradle b/community/services/bonita-page/build.gradle
+index 577d3b5a9e..88bcae6c52 100644
+--- a/community/services/bonita-page/build.gradle
++++ b/community/services/bonita-page/build.gradle
+@@ -14,7 +14,9 @@ dependencies {
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'junit:junit:4.12'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.page'
+diff --git a/community/services/bonita-persistence/build.gradle b/community/services/bonita-persistence/build.gradle
+index b630647b83..755aa7dcd2 100644
+--- a/community/services/bonita-persistence/build.gradle
++++ b/community/services/bonita-persistence/build.gradle
+@@ -16,7 +16,9 @@ dependencies {
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     compileOnly 'javax.transaction:jta:1.1'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+     testCompile 'javax.transaction:jta:1.1'
+ }
+ 
+diff --git a/community/services/bonita-platform-command/build.gradle b/community/services/bonita-platform-command/build.gradle
+index a03946ea09..37010172ab 100644
+--- a/community/services/bonita-platform-command/build.gradle
++++ b/community/services/bonita-platform-command/build.gradle
+@@ -10,7 +10,9 @@ dependencies {
+     compile project(':engine:services:bonita-log-technical')
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.platform.command'
+diff --git a/community/services/bonita-platform/build.gradle b/community/services/bonita-platform/build.gradle
+index 5e627d2d9f..2ee67f5666 100644
+--- a/community/services/bonita-platform/build.gradle
++++ b/community/services/bonita-platform/build.gradle
+@@ -13,7 +13,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.platform'
+diff --git a/community/services/bonita-profile/build.gradle b/community/services/bonita-profile/build.gradle
+index c646aab47e..cfc8e23860 100644
+--- a/community/services/bonita-profile/build.gradle
++++ b/community/services/bonita-profile/build.gradle
+@@ -14,7 +14,9 @@ dependencies {
+     compile project(':engine:services:bonita-identity')
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.profile'
+diff --git a/community/services/bonita-resources/build.gradle b/community/services/bonita-resources/build.gradle
+index 3cf7b2cd78..13548c7b85 100644
+--- a/community/services/bonita-resources/build.gradle
++++ b/community/services/bonita-resources/build.gradle
+@@ -10,5 +10,7 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+diff --git a/community/services/bonita-scheduler/build.gradle b/community/services/bonita-scheduler/build.gradle
+index 5b6b62fcdd..577859cd87 100644
+--- a/community/services/bonita-scheduler/build.gradle
++++ b/community/services/bonita-scheduler/build.gradle
+@@ -18,7 +18,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.scheduler'
+diff --git a/community/services/bonita-session/build.gradle b/community/services/bonita-session/build.gradle
+index b6fc368e9b..5c57782435 100644
+--- a/community/services/bonita-session/build.gradle
++++ b/community/services/bonita-session/build.gradle
+@@ -9,7 +9,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.session'
+diff --git a/community/services/bonita-theme/build.gradle b/community/services/bonita-theme/build.gradle
+index 675da6b153..7f39e6ed5a 100644
+--- a/community/services/bonita-theme/build.gradle
++++ b/community/services/bonita-theme/build.gradle
+@@ -13,7 +13,9 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+-    compileOnly 'org.projectlombok:lombok:1.16.20'
++
++    annotationProcessor "org.projectlombok:lombok:1.18.4"
++    compileOnly 'org.projectlombok:lombok:1.18.4'
+ }
+ 
+ group = 'org.bonitasoft.engine.theme'
+diff --git a/community/services/bonita-transaction/build.gradle b/community/services/bonita-transaction/build.gradle
+index 3ced64cfbc..99bcb2bf33 100644
+--- a/community/services/bonita-transaction/build.gradle
++++ b/community/services/bonita-transaction/build.gradle
+@@ -13,6 +13,7 @@ dependencies {
+     testCompile 'org.slf4j:slf4j-api:1.7.25'
+     testCompile 'ch.qos.logback:logback-classic:1.2.3'
+     compileOnly 'javax.transaction:jta:1.1'
++    testCompile 'javax.transaction:jta:1.1'
+ }
+ 
+ group = 'org.bonitasoft.engine.transaction'
+-- 
+2.20.1
+

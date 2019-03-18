@@ -1,35 +1,44 @@
-From 34d4b6fadfc5d93978eb1957119959e08c6db8c3 Mon Sep 17 00:00:00 2001
+From 001d8b6dee5798decd3c083cca127bcc49af2ae7 Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Thu, 12 Apr 2018 10:11:15 +0200
 Subject: [PATCH] fix bdm tests
 
 ---
  .../bonita-business-data-api/build.gradle     |  1 +
- .../build.gradle                              |  1 +
+ .../build.gradle                              |  5 ++++-
  ...AOImplWithLazyReferenceOnEmployee.java.txt | 13 ++++++------
  .../generator/client/PersonneDAOImpl.java.txt | 21 +++++++++----------
- 4 files changed, 18 insertions(+), 18 deletions(-)
+ 4 files changed, 21 insertions(+), 19 deletions(-)
 
 diff --git a/community/services/bonita-business-data/bonita-business-data-api/build.gradle b/community/services/bonita-business-data/bonita-business-data-api/build.gradle
-index 25d4542ab4..a17e8d954d 100644
+index 0a6840c72e..9c9bb07bbc 100644
 --- a/community/services/bonita-business-data/bonita-business-data-api/build.gradle
 +++ b/community/services/bonita-business-data/bonita-business-data-api/build.gradle
-@@ -8,4 +8,5 @@ dependencies {
-     testCompile group: 'org.assertj', name: 'assertj-core', version:'3.7.0'
-     testCompile group: 'org.mockito', name: 'mockito-core', version:'2.17.0'
-   compileOnly project(':bpm:bonita-util:bonita-common-util')
-+  testCompile project(':bpm:bonita-util:bonita-common-util')
+@@ -10,6 +10,7 @@ dependencies {
+     testCompile 'org.assertj:assertj-core:3.7.0'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     compileOnly project(':bpm:bonita-common')
++    testCompile project(':bpm:bonita-common')
  }
+ 
+ group = 'org.bonitasoft.engine.data'
 diff --git a/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle b/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle
-index 277886d4b7..09344d4830 100644
+index c3815f17b0..b27431841a 100644
 --- a/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle
 +++ b/community/services/bonita-business-data/bonita-business-data-client-resources/build.gradle
-@@ -10,4 +10,5 @@ dependencies {
- exclude(module: 'jboss-transaction-api_1.2_spec')
-     }
-   compileOnly project(':bpm:bonita-client')
-+  testCompile project(':bpm:bonita-client')
+@@ -8,8 +8,11 @@ dependencies {
+     testCompile 'junit:junit:4.12'
+     testCompile 'org.mockito:mockito-core:2.23.4'
+     testCompile 'org.assertj:assertj-core:3.7.0'
+-    testCompile 'org.hibernate:hibernate-core:4.3.11.Final'
++    testCompile(group: 'org.hibernate', name: 'hibernate-core', version:'4.3.11.Final') {
++        exclude(module: 'jboss-transaction-api_1.2_spec')
++    }
+     compileOnly project(':bpm:bonita-client')
++    testCompile project(':bpm:bonita-client')
  }
+ 
+ group = 'org.bonitasoft.engine.data'
 diff --git a/community/services/bonita-business-data/bonita-business-data-generator/src/test/resources/org/bonitasoft/engine/business/data/generator/client/AddressDAOImplWithLazyReferenceOnEmployee.java.txt b/community/services/bonita-business-data/bonita-business-data-generator/src/test/resources/org/bonitasoft/engine/business/data/generator/client/AddressDAOImplWithLazyReferenceOnEmployee.java.txt
 index ae2b029918..823d8dfbb2 100644
 --- a/community/services/bonita-business-data/bonita-business-data-generator/src/test/resources/org/bonitasoft/engine/business/data/generator/client/AddressDAOImplWithLazyReferenceOnEmployee.java.txt
@@ -199,5 +208,5 @@ index 050b56611a..53ae07031a 100644
              commandParameters.put("queryName", "Personne.countForFind");
              commandParameters.put("returnsList", false);
 -- 
-2.17.1
+2.20.1
 
