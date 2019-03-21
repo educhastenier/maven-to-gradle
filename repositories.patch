@@ -1,0 +1,78 @@
+From b390eb3ec90b95f43e7139a1cf604c3ddb97cb34 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 21 Mar 2019 16:07:29 +0100
+Subject: [PATCH] fix  repositories
+
+---
+ build.gradle           | 21 ++++-----------------
+ community/build.gradle | 17 +++--------------
+ 2 files changed, 7 insertions(+), 31 deletions(-)
+
+diff --git a/build.gradle b/build.gradle
+index fc1a4118b4..f16d0f9cda 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -26,26 +26,13 @@ allprojects {
+ subprojects {
+     apply plugin: 'java'
+     apply plugin: 'maven-publish'
+-
+     repositories {
+         mavenLocal()
+-        maven {
+-            url = 'http://repositories.rd.lan/maven/releases/'
+-        }
+-
+-        maven {
+-            url = 'http://repositories.rd.lan/maven/snapshots/'
+-        }
+-
+-        maven {
+-            url = 'http://repositories.rd.lan/maven/maintenance.snapshots/'
+-        }
+-
+-        maven {
+-            url = 'http://repo.maven.apache.org/maven2'
+-        }
++        maven { url 'http://repositories.rd.lan/maven/all/' }
++        mavenCentral()
++        jcenter()
+     }
+-
++    
+     sourceCompatibility = '1.8'
+ 
+     publishing {
+diff --git a/community/build.gradle b/community/build.gradle
+index c8d6cdb62d..487a16316e 100644
+--- a/community/build.gradle
++++ b/community/build.gradle
+@@ -16,22 +16,11 @@ subprojects {
+     apply plugin: 'maven-publish'
+     apply plugin: 'io.spring.dependency-management'
+ 
+-
+     repositories {
+         mavenLocal()
+-        maven {
+-            url = 'http://repositories.rd.lan/maven/releases/'
+-        }
+-        maven {
+-            url = 'http://repositories.rd.lan/maven/snapshots/'
+-            maven {
+-                url = 'http://repositories.rd.lan/maven/maintenance.snapshots/'
+-            }
+-
+-            maven {
+-                url = 'http://repo.maven.apache.org/maven2'
+-            }
+-        }
++        maven { url 'http://repositories.rd.lan/maven/all/' }
++        mavenCentral()
++        jcenter()
+ 
+         dependencyManagement {
+             dependencies {
+-- 
+2.20.1
+

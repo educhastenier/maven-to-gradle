@@ -1,4 +1,4 @@
-From bf0ddbe2d72b31273a30163da96f34b358687e3b Mon Sep 17 00:00:00 2001
+From 3c88a4bebdfd7f453179644aaa8368fe866e34bf Mon Sep 17 00:00:00 2001
 From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
 Date: Sun, 17 Mar 2019 17:10:29 +0100
 Subject: [PATCH] fixes on lombok and some changes made in 7.9
@@ -16,7 +16,6 @@ Subject: [PATCH] fixes on lombok and some changes made in 7.9
  .../bonita-process-comment/build.gradle       |  4 +++-
  .../bonita-process-definition/build.gradle    |  4 +++-
  .../bonita-process-engine/build.gradle        |  3 ++-
- .../engine/api/impl/PlatformAPIImplTest.java  |  3 ---
  .../engine/api/impl/ProcessAPIImplTest.java   |  3 ---
  .../work/RestartProcessHandlerTest.java       |  1 -
  .../bonita-process-instance/build.gradle      |  9 +++++---
@@ -41,7 +40,7 @@ Subject: [PATCH] fixes on lombok and some changes made in 7.9
  .../services/bonita-session/build.gradle      |  4 +++-
  community/services/bonita-theme/build.gradle  |  4 +++-
  .../services/bonita-transaction/build.gradle  |  1 +
- 37 files changed, 113 insertions(+), 43 deletions(-)
+ 36 files changed, 113 insertions(+), 40 deletions(-)
  create mode 100644 community/bpm/bonita-common/src/main/java/org/bonitasoft/engine/form/package-info.java
 
 diff --git a/community/bpm/bonita-api/bonita-server-api-http/build.gradle b/community/bpm/bonita-api/bonita-server-api-http/build.gradle
@@ -239,25 +238,6 @@ index 891718ef2d..d06cf90761 100644
  }
  jaxb {
      schemaGen {
-diff --git a/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/PlatformAPIImplTest.java b/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/PlatformAPIImplTest.java
-index 24aeed7238..713bfcc433 100644
---- a/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/PlatformAPIImplTest.java
-+++ b/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/PlatformAPIImplTest.java
-@@ -99,14 +99,11 @@ public class PlatformAPIImplTest {
-         doReturn(tenantServiceAccessor).when(platformServiceAccessor).getTenantServiceAccessor(anyLong());
-         doReturn(platformJobListeners).when(platformConfiguration).getJobListeners();
- 
--        doReturn(schedulerService).when(tenantServiceAccessor).getSchedulerService();
--        doReturn(sessionService).when(tenantServiceAccessor).getSessionService();
-         doReturn(tenantConfiguration).when(tenantServiceAccessor).getTenantConfiguration();
-         doReturn(tenantJobListeners).when(tenantConfiguration).getJobListeners();
- 
-         doReturn(platformServiceAccessor).when(platformAPI).getPlatformAccessor();
-         doReturn(sessionAccessor).when(platformAPI).createSessionAccessor();
--        doReturn(-1L).when(platformAPI).createSession(anyLong(), any(SessionService.class));
-         doReturn(tenants).when(platformAPI).getTenants(platformServiceAccessor);
-         doReturn(bonitaHomeServer).when(platformAPI).getBonitaHomeServerInstance();
-         PlatformAPIImpl.isNodeStarted = false;
 diff --git a/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/ProcessAPIImplTest.java b/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/ProcessAPIImplTest.java
 index 3da915e797..0e7ca119ec 100644
 --- a/community/bpm/bonita-core/bonita-process-engine/src/test/java/org/bonitasoft/engine/api/impl/ProcessAPIImplTest.java
