@@ -1,0 +1,229 @@
+From 2243db54363f0453fe3699243bb4329213c8a221 Mon Sep 17 00:00:00 2001
+From: Baptiste Mesta <baptiste.mesta@bonitasoft.com>
+Date: Thu, 21 Mar 2019 16:43:30 +0100
+Subject: [PATCH] fix publication
+
+---
+ build.gradle                                  |  8 -------
+ .../build.gradle                              | 10 ++++++++-
+ community/bpm/bonita-client/build.gradle      |  9 +++++++-
+ community/bpm/bonita-common/build.gradle      | 17 +++++++--------
+ .../platform/platform-setup/build.gradle      | 21 +++++++++----------
+ community/services/bonita-events/build.gradle |  9 +++++++-
+ .../build.gradle                              | 13 ++++++------
+ .../build.gradle                              |  9 +++++++-
+ subscription/bpm/bonita-common/build.gradle   |  9 +++++++-
+ 9 files changed, 65 insertions(+), 40 deletions(-)
+
+diff --git a/build.gradle b/build.gradle
+index f16d0f9cda..023612d403 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -35,14 +35,6 @@ subprojects {
+     
+     sourceCompatibility = '1.8'
+ 
+-    publishing {
+-        publications {
+-            maven(MavenPublication) {
+-                from(components.java)
+-            }
+-        }
+-    }
+-
+     afterEvaluate {
+         tasks.withType(Test) { testTask ->
+             if (testTask.name == "integrationTest" || testTask.name == "slowtest") {
+diff --git a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
+index c07f7bb764..0ef14e7217 100644
+--- a/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
++++ b/community/bonita-integration-tests/bonita-integration-tests-local/build.gradle
+@@ -21,7 +21,15 @@ task testsJar(type: Jar) {
+ }
+ 
+ group = 'org.bonitasoft.engine.test'
+-publishing.publications.maven.artifact(testsJar)
++
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++            artifact testsJar
++        }
++    }
++}
+ 
+ test {
+     include ''
+diff --git a/community/bpm/bonita-client/build.gradle b/community/bpm/bonita-client/build.gradle
+index 0cdaf71bc6..4156a9cce5 100644
+--- a/community/bpm/bonita-client/build.gradle
++++ b/community/bpm/bonita-client/build.gradle
+@@ -26,4 +26,11 @@ task testsJar(type: Jar) {
+ }
+ 
+ description = 'Bonita Client'
+-publishing.publications.maven.artifact(testsJar)
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++            artifact testsJar
++        }
++    }
++}
+diff --git a/community/bpm/bonita-common/build.gradle b/community/bpm/bonita-common/build.gradle
+index a16130d9ed..2fe43012ad 100644
+--- a/community/bpm/bonita-common/build.gradle
++++ b/community/bpm/bonita-common/build.gradle
+@@ -48,7 +48,14 @@ task testsJar(type: Jar) {
+ }
+ 
+ description = 'Bonita Common'
+-publishing.publications.maven.artifact(testsJar)
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++            artifact testsJar
++        }
++    }
++}
+ 
+ 
+ jaxb {
+@@ -90,11 +97,3 @@ tasks.processResources.dependsOn tasks.jaxbSchemaGenApplication
+ tasks.processResources.dependsOn tasks.jaxbSchemaGenBom
+ tasks.processResources.dependsOn tasks.jaxbSchemaGenProfile
+ tasks.processResources.dependsOn tasks.jaxbSchemaGenForms
+-
+-publishing {
+-    publications {
+-        mavenJava(MavenPublication) {
+-            from project.components.java
+-        }
+-    }
+-}
+\ No newline at end of file
+diff --git a/community/platform/platform-setup/build.gradle b/community/platform/platform-setup/build.gradle
+index d3bfc5abc5..229da5b41c 100644
+--- a/community/platform/platform-setup/build.gradle
++++ b/community/platform/platform-setup/build.gradle
+@@ -48,7 +48,15 @@ task testsJar(type: Jar) {
+ }
+ 
+ group = 'org.bonitasoft.platform'
+-publishing.publications.maven.artifact(testsJar)
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++            artifact testsJar
++            artifact distZip
++        }
++    }
++}
+ processResources {
+     from('src/main/resources') {
+         include '*'
+@@ -130,13 +138,4 @@ tasks.create("integrationTest", Test) {
+     }
+     workingDir testDir
+ }
+-tasks.integrationTest.dependsOn distZip
+-
+-publishing {
+-    publications {
+-        mavenJava(MavenPublication) {
+-            from project.components.java
+-            artifact distZip
+-        }
+-    }
+-}
++tasks.integrationTest.dependsOn distZip
+\ No newline at end of file
+diff --git a/community/services/bonita-events/build.gradle b/community/services/bonita-events/build.gradle
+index e4a1eb7d5b..77c1efd74f 100644
+--- a/community/services/bonita-events/build.gradle
++++ b/community/services/bonita-events/build.gradle
+@@ -16,4 +16,11 @@ task testsJar(type: Jar) {
+ 
+ group = 'org.bonitasoft.engine.events'
+ description = 'Bonita Event'
+-publishing.publications.maven.artifact(testsJar)
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++            artifact testsJar
++        }
++    }
++}
+diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle
+index 83a01209b1..fc48e3d007 100644
+--- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle
++++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-client/build.gradle
+@@ -18,13 +18,12 @@ task testsJar(type: Jar) {
+     from(sourceSets.test.output)
+ }
+ group = 'com.bonitasoft.engine.test'
+-publishing.publications.maven.artifact(testsJar)
+-
+ publishing {
+-  publications {
+-    mavenJava(MavenPublication) {
+-      from project.components.java
+-      artifactId = 'bonita-integration-tests-client-sp'
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++            artifact testsJar
++            artifactId = 'bonita-integration-tests-client-sp'
++        }
+     }
+-  }
+ }
+\ No newline at end of file
+diff --git a/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle b/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle
+index 6a8ca6da3c..3ecd446fcc 100644
+--- a/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle
++++ b/subscription/bonita-integration-tests-sp/bonita-integration-tests-local/build.gradle
+@@ -20,7 +20,14 @@ task testsJar(type: Jar) {
+ }
+ 
+ group = 'com.bonitasoft.engine.test'
+-publishing.publications.maven.artifact(testsJar)
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++            artifact testsJar
++        }
++    }
++}
+ 
+ test {
+     include ''
+diff --git a/subscription/bpm/bonita-common/build.gradle b/subscription/bpm/bonita-common/build.gradle
+index 880ce32d41..e99161c4ae 100644
+--- a/subscription/bpm/bonita-common/build.gradle
++++ b/subscription/bpm/bonita-common/build.gradle
+@@ -36,7 +36,14 @@ task testsJar(type: Jar) {
+ 
+ group = 'com.bonitasoft.engine'
+ description = 'Bonita Common SP'
+-publishing.publications.maven.artifact(testsJar)
++publishing {
++    publications {
++        mavenJava(MavenPublication) {
++            from project.components.java
++            artifact testsJar
++        }
++    }
++}
+ 
+ 
+ task('schemagen') {
+-- 
+2.20.1
+
